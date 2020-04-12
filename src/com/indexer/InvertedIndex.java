@@ -2,7 +2,6 @@ package com.indexer;
 
 import com.crawler.PageContent;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,20 +27,20 @@ public class InvertedIndex {
         String parsedContent = "";
 
         // 1. Concatenate the title and the text of the page.
-        parsedContent = page.getTitle() + page.getContent();
+        parsedContent = page.getTitle() + page.getBody();
 
         // 2. Lowercase all words.
         parsedContent = parsedContent.toLowerCase();
 
         // 3. Get all alphanumeric tokens.
-        parsedContent = parsedContent.replaceAll("[^a-zA-Z0-9_ ]", " ");
+        parsedContent = parsedContent.replaceAll("[^a-z0-9 ]", " ");
 
         // 4. Filter out stop words.
         parsedContent = parsedContent.replaceAll(stopWords , "");
 
         // 5. Stem each token.
             // Extract tokens from the page content into a list.
-            List<String> tokens = Arrays.asList(parsedContent.split("[^a-z]"));
+            List<String> tokens = Arrays.asList(parsedContent.split("[^a-z0-9]"));
             ArrayList<String> stems = new ArrayList<>();
 
             try {
@@ -54,7 +53,6 @@ public class InvertedIndex {
                     for (int c = 0; c < wordLength; c++) stemmer.add(word[c]);
                     stemmer.stem();
                     stems.add(stemmer.toString());
-                    System.out.println("Hey " +  stemmer.toString() + " " + stems.size());
 
                 }
 

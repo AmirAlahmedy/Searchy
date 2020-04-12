@@ -1,18 +1,18 @@
 package com;
 
-import com.crawler.Engine;
+import com.crawler.Crawler;
 import com.crawler.PageContent;
 import com.crawler.Pivot;
-import com.utilities.CustomPair;
 import com.utilities.MultiMap;
 import com.indexer.InvertedIndex;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Main {
 
     public static void main(String[] args) {
-        List<Pivot> pivots = new ArrayList<>();
+        CopyOnWriteArrayList<Pivot> pivots = new CopyOnWriteArrayList<>();
         pivots.add(new Pivot("https://www.wikipedia.org/"));
         pivots.add(new Pivot("https://www.youtube.com/"));
         pivots.add(new Pivot("https://www.baeldung.com/"));
@@ -20,8 +20,8 @@ public class Main {
         pivots.add(new Pivot("https://www.quora.com/"));
         pivots.add(new Pivot("https://www.google.com/search?client=ubuntu&channel=fs&q=roger+penrose&ie=utf-8&oe=utf-8"));
 
-        Engine engine = new Engine(pivots);
-        List<PageContent> pages =  engine.searchSubPivotContent();
+        Crawler crawler = new Crawler(pivots);
+        List<PageContent> pages =  crawler.searchSubPivotContent();
 
         InvertedIndex pageIndexer;
         ArrayList<String> pageWords;
@@ -32,8 +32,8 @@ public class Main {
             System.out.println(pg.getTitle());
             System.out.println("------------------------------------------------------");
             System.out.println(pg.getLink());
-            System.out.println(pg.getContent());
-            System.out.println("------------------------------------------------------");
+            System.out.println(pg.getBody());
+            System.out.println("------------------------------------------------------\n");
 
             pageIndexer = new InvertedIndex(pg);
             pageWords = pageIndexer.parseCollection();
@@ -46,7 +46,7 @@ public class Main {
             pageId++;
         }
 
-        System.out.println("----- Printing Multimap using keySet -----\n");
+        System.out.println("--------------------------------------------------------------------------------------------------------------------------------\n");
         for (String term : postings.keySet()) {
             System.out.println(term + ": " + postings.get(term));
         }
