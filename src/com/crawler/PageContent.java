@@ -1,6 +1,11 @@
 package com.crawler;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class PageContent {
+    private static AtomicInteger counter= new AtomicInteger(0);
+    private int id;
+
     private String link;
     private String title;
     private String body;
@@ -27,7 +32,11 @@ public class PageContent {
         this.h6 = h6;
         this.meta = meta;
         this.alt = alt;
+
+        this.id =counter.incrementAndGet();
     }
+
+    public int getId() { return id; }
 
     public String getLink() {
         return link;
