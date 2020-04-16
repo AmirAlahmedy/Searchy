@@ -28,10 +28,11 @@ public class Crawler implements Runnable{
         this.pivotList = pivotList;
         this.noThreads=noThreads;
         this.pages = new ArrayList<>();
+        db = new DbAdapter();
     }
 
 
-    private void crawl() {
+    public void crawl() {
         if(crawledPages == PAGES_TO_CRAWL) return;
         Document doc;
         PageContent page;
@@ -137,7 +138,6 @@ public class Crawler implements Runnable{
         for(Pivot p : crawler.pivotList)
             System.out.println(p.getPivot());
 
-        crawler.db=new DbAdapter();
         crawler.crawl();
     }
 

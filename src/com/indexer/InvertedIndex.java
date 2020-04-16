@@ -1,25 +1,26 @@
 package com.indexer;
 
-import com.crawler.PageContent;
+import com.DbAdapter;
+import com.crawler.Crawler;
+import com.crawler.Pivot;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.*;
+import java.sql.ResultSet;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class InvertedIndex {
-    private HashMap<Integer, List<Integer>> postings;
-    private PageContent page = null;
-    //private final String stopWords = "A | a |The | the |An | an | of | but | at | therefore | be | can | also | they | is ";
+    private ResultSet resultSet;
     private List<String> stopWords = Collections.emptyList();
-    // Constructor of the main inverted index.
-    public InvertedIndex(HashMap<Integer, List<Integer>> postings) {
-        this.postings = postings;
-    }
+    private DbAdapter dbAdapter;
 
     // Constructor of the inverted index of a specific page.
-    public InvertedIndex(PageContent page) {
-        this.page = page;
+    public InvertedIndex() {
+        this.dbAdapter =  new DbAdapter();
+        this.resultSet = this.dbAdapter.readPages();
         try{
             stopWords= Files.readAllLines(Paths.get("src/com/indexer/stopWords.txt"));
         }
@@ -29,51 +30,65 @@ public class InvertedIndex {
     }
 
     // Returns a list of terms, which are going to be the keys in the invertedIndex.
-    public ArrayList<String> parseCollection() {
-        String parsedContent = "";
+    public void parseCollection() throws SQLException {
 
-        // 1. Concatenate the title and the text of the page.
-        parsedContent = page.getTitle() +" "+ page.getBody();
+        while (resultSet.next()) {
+            int pageId = resultSet.getInt("id");
+            String parsedContent;
 
-        // 2. Lowercase all words.
-        parsedContent = parsedContent.toLowerCase();
+            // Depends on the order of the columns in the pages table.
+            for(int i = 3; i <= 12; ++i) {
+                parsedContent = resultSet.getString(i);
 
-        // 3. Get all alphanumeric tokens.
-        parsedContent = parsedContent.replaceAll("[^a-z0-9]", " ");
+                // 1. Lowercase all words.
+                parsedContent = parsedContent.toLowerCase();
+
+                // 2. Get all alphanumeric tokens.
+                parsedContent = parsedContent.replaceAll("[^a-z0-9]", " ");
+
+                //long t1,t2;
+                //t1=System.currentTimeMillis();
 
 
-        //long t1,t2;
-        //t1=System.currentTimeMillis();
+                // 3. Filter out stop words and stem each token.
+                // Extract tokens from the page content into a list.
+                List<String> tokens = Arrays.asList(parsedContent.split("[^a-z0-9]"));
+                ArrayList<String> stems = new ArrayList<>();
 
-        // 4. Filter out stop words.
-        //parsedContent = parsedContent.replaceAll(stopWords , " ");
-
-        // 5. Stem each token.
-            // Extract tokens from the page content into a list.
-            List<String> tokens = Arrays.asList(parsedContent.split("[^a-z0-9]"));
-            ArrayList<String> stems = new ArrayList<>();
-
-            try {
-                Stemmer stemmer = new Stemmer();
-                for (String token : tokens) {
-                    if(!token.equals("") && !stopWords.contains(token)) {
-                        char[] word = token.toCharArray();
-                        int wordLength = token.length();
-
-//                    stemmer.add(word, wordLength);
-                        for (int c = 0; c < wordLength; c++) stemmer.add(word[c]);
-                        stemmer.stem();
-                        stems.add(stemmer.toString());
+                try {
+                    Stemmer stemmer = new Stemmer();
+                    for (String token : tokens) {
+                        if (!token.equals("") && !stopWords.contains(token)) {
+                            char[] word = token.toCharArray();
+                            int wordLength = token.length();
+                            for (int c = 0; c < wordLength; c++) stemmer.add(word[c]);
+                            stemmer.stem();
+                            dbAdapter.addNewTerm(stemmer.toString(), pageId, i);
+                        }
                     }
+                    //t2=System.currentTimeMillis();
+                    //System.out.println(t2-t1);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                //t2=System.currentTimeMillis();
-                //System.out.println(t2-t1);
 
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+        }
 
-
-        return stems;
     }
+
+    public static void main(String[] args) throws SQLException {
+
+//        CopyOnWriteArrayList<Pivot> pivots = new CopyOnWriteArrayList<>();
+//        pivots.add(new Pivot("https://en.wikipedia.org/wiki/Augmented_reality"));
+//
+//        Crawler crawler = new Crawler(pivots, 1);
+//        crawler.crawl();
+
+
+        InvertedIndex indexer = new InvertedIndex();
+        indexer.parseCollection();
+    }
+
 }

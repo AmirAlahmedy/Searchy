@@ -21,35 +21,36 @@ public class Main {
         pivots.add(new Pivot("https://www.google.com/search?client=ubuntu&channel=fs&q=roger+penrose&ie=utf-8&oe=utf-8"));
 
         //Crawler crawler = new Crawler(pivots);
-        List<PageContent> pages=new ArrayList<>();// =  crawler.searchSubPivotContent();
+        List<PageContent> pages = new ArrayList<>();// =  crawler.searchSubPivotContent();
 
         InvertedIndex pageIndexer;
         ArrayList<String> pageWords;
         MultiMap<String, Integer> postings = new MultiMap<>();
 
         Integer pageId = 0, wordCount;
-        for(PageContent pg : pages) {
+        for (PageContent pg : pages) {
             System.out.println(pg.getTitle());
             System.out.println("------------------------------------------------------");
             System.out.println(pg.getLink());
             System.out.println(pg.getBody());
             System.out.println("------------------------------------------------------\n");
 
-            pageIndexer = new InvertedIndex(pg);
-            pageWords = pageIndexer.parseCollection();
+//            pageIndexer = new InvertedIndex(pg);
+//            pageWords = pageIndexer.parseCollection();
+//
+//            wordCount = 1;
+//            for(String word : pageWords){
+//                if(postings.containsKey(word)) wordCount++;
+//                postings.putIfAbsent(word, pageId);
+//            }
+//            pageId++;
+        }
+//
+//        System.out.println("--------------------------------------------------------------------------------------------------------------------------------\n");
+//        for (String term : postings.keySet()) {
+//            System.out.println(term + ": " + postings.get(term));
+//        }
 
-            wordCount = 1;
-            for(String word : pageWords){
-                if(postings.containsKey(word)) wordCount++;
-                postings.putIfAbsent(word, pageId);
-            }
-            pageId++;
         }
 
-        System.out.println("--------------------------------------------------------------------------------------------------------------------------------\n");
-        for (String term : postings.keySet()) {
-            System.out.println(term + ": " + postings.get(term));
-        }
-
-    }
 }
