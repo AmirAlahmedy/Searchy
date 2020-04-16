@@ -1,0 +1,14 @@
+<changelist name="Uncommitted_changes_before_Update_at_4_16_20,_4_10_AM_[Default_Changelist]1" date="1587003030698" recycled="true" deleted="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_4_16_20,_4_10_AM_[Default_Changelist]1/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Update at 4/16/20, 4:10 AM [Default Changelist]" />
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/Search Engine/com/Main.class" />
+    <option name="AFTER_PATH" value="out/production/Search Engine/com/Main.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_4_16_20,_4_10_AM_[Default_Changelist]1/Main.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/Search Engine/com/crawler/Crawler.class" />
+    <option name="AFTER_PATH" value="out/production/Search Engine/com/crawler/Crawler.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_4_16_20,_4_10_AM_[Default_Changelist]1/Crawler.class" />
+  </binary>
+</changelist>
