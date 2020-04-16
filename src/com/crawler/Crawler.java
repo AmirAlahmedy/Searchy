@@ -1,6 +1,7 @@
 package com.crawler;
 
 import com.DbAdapter;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -38,6 +39,22 @@ public class Crawler implements Runnable{
                 // 1. Retrieve a web page (i.e. a document).
                 doc = Jsoup.connect(p.getPivot()).get();
                 pivotList.remove(p);
+                // Gets the title of the web page.
+                String title = doc.title();
+
+                // Gets the combined text of this element and all its children.
+                String body = doc.body().text();
+                String h1 = doc.select("h1").text();
+                String h2 = doc.select("h2").text();
+                String h3 = doc.select("h3").text();
+                String h4 = doc.select("h4").text();
+                String h5 = doc.select("h5").text();
+                String h6 = doc.select("h6").text();
+                String meta = doc.select("meta").text();
+                String alt = doc.select("alt").text();
+
+                this.db.addNewPage(p.getPivot(),title,h1,h2,h3,h4,h5,h6,body,alt,meta);
+                pages.add(new PageContent(p.getPivot(), title, body, h1, h2, h3, h4, h5, h6, meta, alt));
 
                 // 2. Collect all links.
                 Elements links = doc.body().select("a[href]");
@@ -46,27 +63,15 @@ public class Crawler implements Runnable{
 
                     // TODO: Either add pages to the database here and edit them after loading the documents
                     // Or load them here and remove the other function
-                    // Gets the title of the web page.
-                    String title = doc.title();
-
-                    // Gets the combined text of this element and all its children.
-                    String body = doc.body().text();
-                    String h1 = doc.select("h1").text();
-                    String h2 = doc.select("h2").text();
-                    String h3 = doc.select("h3").text();
-                    String h4 = doc.select("h4").text();
-                    String h5 = doc.select("h5").text();
-                    String h6 = doc.select("h6").text();
-                    String meta = doc.select("meta").text();
-                    String alt = doc.select("alt").text();
-
-                    this.db.addNewPage(p.getPivot(),title,h1,h2,h3,h4,h5,h6,body,alt,meta);
-                    pages.add(new PageContent(p.getPivot(), title, body, h1, h2, h3, h4, h5, h6, meta, alt));
 
                     //TODO: See if the link already exists in the database before adding
                     pivotList.add(new Pivot(link.attr("href")));
                 }
-            } catch (IllegalArgumentException e){
+                // TODO: Handle exceptions with descriptive messages.
+            } catch (HttpStatusException e) {
+                // ignore it
+            }
+            catch (IllegalArgumentException e){
                 // ignore it
             } catch (MalformedURLException e) {
                 System.err.println("Bad URL:  " + p.getPivot());
@@ -78,7 +83,6 @@ public class Crawler implements Runnable{
 
             }
         }
-        // TODO: Make this function recursive.
         // FIXME: Many bad urls are crawled when recurring.
         crawl();
 
