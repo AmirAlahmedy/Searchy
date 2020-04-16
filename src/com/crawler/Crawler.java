@@ -19,13 +19,17 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 
-public class Crawler {
+public class Crawler implements Runnable{
     private CopyOnWriteArrayList <Pivot> pivotList;
     private DbAdapter db;
 
-    public Crawler(CopyOnWriteArrayList<Pivot> pivotList) {
+    private int noThreads;
+
+    public Crawler(CopyOnWriteArrayList<Pivot> pivotList,int noThreads) {
         this.pivotList = pivotList;
+        this.noThreads=noThreads;
     }
+
 
     private void searchSubPivot(int crawlingDepth) {
         if(crawlingDepth == 0) return;
@@ -109,7 +113,25 @@ public class Crawler {
     public void setPivotList(CopyOnWriteArrayList<Pivot> pivotList) {
         this.pivotList = pivotList;
     }
+    @Override
+    public void run() {
+        int threadNumber = Integer.parseInt(Thread.currentThread().getName());
+        int pivotsPerThread = pivotList.size()/threadNumber;
+        for(int i=0;i<noThreads;i++){
+            if(threadNumber == noThreads-1){
+                for(int j= pivotsPerThread*i ; j<pivotList.size() ; j++){
 
+                }
+            }
+            else{
+                for(int j=pivotsPerThread*i ; j<pivotsPerThread*(i+1);j++){
+
+                }
+            }
+        }
+
+
+    }
     public static void main(String[] args) {
 
         CopyOnWriteArrayList<Pivot> pivots = new CopyOnWriteArrayList<>();
@@ -120,24 +142,13 @@ public class Crawler {
 //        pivots.add(new Pivot("http://bleacherreport.com/uk"));
         //pivots.add(new Pivot("http://www.goal.com/en-gb"));
 
-        Crawler crawler = new Crawler(pivots);
+        Crawler crawler = new Crawler(pivots,1);
         for(Pivot p : crawler.pivotList)
             System.out.println(p.getPivot());
-        //List<PageContent> pages =  crawler.searchSubPivotContent();
-        //List<PageContent> pages = new ArrayList<>();
-//        String driver="com.mysql.jdbc.Driver";
-//        String url="jdbc:mysql://localhost:3306/search_engine";
-//        String user="username";
-//        try{
-//            Class.forName(driver);
-//            Connection myConn = DriverManager.getConnection(url,user,null);
-//            Statement s=myConn.createStatement();
-//        }
-//        catch(SQLException | ClassNotFoundException e){
-//
-//            e.printStackTrace();
-//        }
+
         crawler.db=new DbAdapter();
         crawler.searchSubPivotContent();
     }
+
+
 }
