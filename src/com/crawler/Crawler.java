@@ -6,14 +6,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import javax.swing.text.html.StyleSheet;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -22,17 +17,21 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Crawler implements Runnable{
     private CopyOnWriteArrayList <Pivot> pivotList;
     private DbAdapter db;
+    private final int PAGES_TO_CRAWL = 5000;
+    private static int crawledPages;
+    public List<PageContent> pages;
 
     private int noThreads;
 
     public Crawler(CopyOnWriteArrayList<Pivot> pivotList,int noThreads) {
         this.pivotList = pivotList;
         this.noThreads=noThreads;
+        this.pages = new ArrayList<>();
     }
 
 
-    private void searchSubPivot(int crawlingDepth) {
-        if(crawlingDepth == 0) return;
+    private void crawl() {
+        if(crawledPages == PAGES_TO_CRAWL) return;
         Document doc;
         for(Pivot p : pivotList) {
             try {
@@ -47,6 +46,22 @@ public class Crawler implements Runnable{
 
                     // TODO: Either add pages to the database here and edit them after loading the documents
                     // Or load them here and remove the other function
+                    // Gets the title of the web page.
+                    String title = doc.title();
+
+                    // Gets the combined text of this element and all its children.
+                    String body = doc.body().text();
+                    String h1 = doc.select("h1").text();
+                    String h2 = doc.select("h2").text();
+                    String h3 = doc.select("h3").text();
+                    String h4 = doc.select("h4").text();
+                    String h5 = doc.select("h5").text();
+                    String h6 = doc.select("h6").text();
+                    String meta = doc.select("meta").text();
+                    String alt = doc.select("alt").text();
+
+                    this.db.addNewPage(p.getPivot(),title,h1,h2,h3,h4,h5,h6,body,alt,meta);
+                    pages.add(new PageContent(p.getPivot(), title, body, h1, h2, h3, h4, h5, h6, meta, alt));
 
                     //TODO: See if the link already exists in the database before adding
                     pivotList.add(new Pivot(link.attr("href")));
@@ -65,44 +80,7 @@ public class Crawler implements Runnable{
         }
         // TODO: Make this function recursive.
         // FIXME: Many bad urls are crawled when recurring.
-//        searchSubPivot(crawlingDepth - 1);
-        //return;
-    }
-
-    public void searchSubPivotContent() {
-        //List<PageContent> pages = new ArrayList<>();
-        searchSubPivot(5);
-        Document doc;
-        for (Pivot p : pivotList) {
-            try {
-                doc = Jsoup.connect(p.getPivot()).get();
-
-                // Gets the title of the web page.
-                String title = doc.title();
-
-                // Gets the combined text of this element and all its children.
-                String body = doc.body().text();
-                String h1 = doc.select("h1").text();
-                String h2 = doc.select("h2").text();
-                String h3 = doc.select("h3").text();
-                String h4 = doc.select("h4").text();
-                String h5 = doc.select("h5").text();
-                String h6 = doc.select("h6").text();
-                String meta = doc.select("meta").text();
-                String alt = doc.select("alt").text();
-
-                this.db.addNewPage(p.getPivot(),title,h1,h2,h3,h4,h5,h6,body,alt,meta);
-
-
-                //pages.add(new PageContent(p.getPivot(), title, body, h1, h2, h3, h4, h5, h6, meta, alt));
-
-            } catch (IllegalArgumentException e) {
-                // For now I will be ignoring the bad urls such as "#" etc..
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
+        crawl();
 
     }
 
@@ -147,7 +125,7 @@ public class Crawler implements Runnable{
             System.out.println(p.getPivot());
 
         crawler.db=new DbAdapter();
-        crawler.searchSubPivotContent();
+        crawler.crawl();
     }
 
 
