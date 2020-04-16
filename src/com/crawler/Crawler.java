@@ -34,6 +34,7 @@ public class Crawler implements Runnable{
     private void crawl() {
         if(crawledPages == PAGES_TO_CRAWL) return;
         Document doc;
+        PageContent page;
         for(Pivot p : pivotList) {
             try {
                 // 1. Retrieve a web page (i.e. a document).
@@ -53,21 +54,29 @@ public class Crawler implements Runnable{
                 String meta = doc.select("meta").text();
                 String alt = doc.select("alt").text();
 
-                this.db.addNewPage(p.getPivot(),title,h1,h2,h3,h4,h5,h6,body,alt,meta);
-                pages.add(new PageContent(p.getPivot(), title, body, h1, h2, h3, h4, h5, h6, meta, alt));
+                page  = new PageContent(p.getPivot(), title, body, h1, h2, h3, h4, h5, h6, meta, alt);
+//                this.db.addNewPage(p.getPivot(),title,h1,h2,h3,h4,h5,h6,body,alt,meta);
+                this.db.addNewPage(page);
+                if(!pages.contains(page)) {
+                    pages.add(new PageContent(p.getPivot(), title, body, h1, h2, h3, h4, h5, h6, meta, alt));
+                }
 
                 // 2. Collect all links.
                 Elements links = doc.body().select("a[href]");
                 for(Element link : links) {
-                    // TODO: Get rid of the garbage anchor tags like "#" and "sign up pages".
+                    //TODO: Get rid of the garbage anchor tags like "#" and "sign up pages".
 
-                    // TODO: Either add pages to the database here and edit them after loading the documents
+                    //TODO: Either add pages to the database here and edit them after loading the documents
                     // Or load them here and remove the other function
 
                     //TODO: See if the link already exists in the database before adding
-                    pivotList.add(new Pivot(link.attr("href")));
+                    // If it does not exist in the database add it, otherwise update it.
+                    page = new PageContent(link.attr("href"), link.select("title").text(), link.select("body").text(), link.select("h1").text(), link.select("h2").text(), link.select("h3").text(), link.select("h4").text(), link.select("h5").text(), link.select("h6").text(), link.select("meta").text(), link.select("alt").text());
+                    if (!pages.contains(page)){
+                        pivotList.add(new Pivot(link.attr("href")));
+                    }
                 }
-                // TODO: Handle exceptions with descriptive messages.
+                //TODO: Handle exceptions with descriptive messages.
             } catch (HttpStatusException e) {
                 // ignore it
             }
@@ -83,7 +92,7 @@ public class Crawler implements Runnable{
 
             }
         }
-        // FIXME: Many bad urls are crawled when recurring.
+        //FIXME: Many bad urls are crawled when recurring.
         crawl();
 
     }
