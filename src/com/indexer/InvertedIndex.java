@@ -34,6 +34,7 @@ public class InvertedIndex {
 
         while (resultSet.next()) {
             int pageId = resultSet.getInt("id");
+            int words = resultSet.getInt("words");
             String parsedContent;
 
             // Depends on the order of the columns in the pages table.
@@ -63,7 +64,7 @@ public class InvertedIndex {
                             int wordLength = token.length();
                             for (int c = 0; c < wordLength; c++) stemmer.add(word[c]);
                             stemmer.stem();
-                            dbAdapter.addNewTerm(stemmer.toString(), pageId, i);
+                            dbAdapter.addNewTerm(stemmer.toString(), pageId, i, words);
                         }
                     }
                     //t2=System.currentTimeMillis();

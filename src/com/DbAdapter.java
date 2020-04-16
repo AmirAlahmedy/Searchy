@@ -21,7 +21,7 @@ public class DbAdapter {
         }
     }
 
-    public synchronized boolean addNewPage(String url,String title,String h1,String h2,String h3,String h4,String h5,String h6,String body,String alt, String meta) {
+    public synchronized boolean addNewPage(String url,String title,String h1,String h2,String h3,String h4,String h5,String h6,String body,String alt, String meta, int words) {
         try{
             //statement = connection.createStatement();
             //statement.executeUpdate("INSERT INTO `pages` (`id`, `url`, `title`, `h1`, `h2`, `h3`, `h4`, `h5`, `h6`, `body`, `alt`, `meta`) VALUES (NULL,'"+url+"','"+title+"','"+h1+"', '"+h2+"', '"+h3+"', '"+h4+"', '"+h5+"', '"+h6+"', '"+body+"', '"+alt+"', '"+meta+"');");
@@ -30,7 +30,7 @@ public class DbAdapter {
 
                 return false;
             }
-            String query="INSERT INTO `pages` (`id`, `url`, `title`, `h1`, `h2`, `h3`, `h4`, `h5`, `h6`, `body`, `alt`, `meta`) VALUES (NULL,? ,? ,?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String query="INSERT INTO `pages` (`id`, `url`, `title`, `h1`, `h2`, `h3`, `h4`, `h5`, `h6`, `body`, `alt`, `meta`, `words`) VALUES (NULL,? ,? ,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement preparedStatement= connection.prepareStatement(query);
             preparedStatement.setString(1, url);
             preparedStatement.setString(2, title);
@@ -43,6 +43,7 @@ public class DbAdapter {
             preparedStatement.setString(9, body);
             preparedStatement.setString(10, alt);
             preparedStatement.setString(11, meta);
+            preparedStatement.setInt(12, words);
             boolean a =preparedStatement.execute();
             System.out.println("Added page to database successfully");
             return a;
@@ -81,16 +82,33 @@ public class DbAdapter {
         return resultSet;
     }
 
-    public void addNewTerm(String term, int pageId, int htmlTag) {
+    public void addNewTerm(String term, int pageId, int htmlTag, int words) {
         try {
             String query = "INSERT INTO `Terms` (`id`, `Term`, `Page_Id`, `TF`, `IDF`, `Title`, `Meta`, `H1`, `H2`, `H3`, `H4`, `H5`, `H6`, `Alt`) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
-                    " ON DUPLICATE KEY UPDATE TF = TF + 1";
+                    " ON DUPLICATE KEY UPDATE TF = TF +" + (double)1/words;
 
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, term);
             preparedStatement.setInt(2, pageId);
             //TODO: Add TF and IDF
-            preparedStatement.setDouble(3, 1);
+//            String q1 = "SELECT COUNT(*) FROM Terms WHERE Term = " + term + " AND Page_Id = " + pageId;
+//            String q2 = "SELECT COUNT(*) FROM Terms WHERE Page_Id = " + pageId;
+//
+//            PreparedStatement ps1 = connection.prepareStatement(q1);
+//            PreparedStatement ps2 = connection.prepareStatement(q2);
+//
+//            ResultSet resultSet = ps1.executeQuery();
+//            while (resultSet.next()) {
+//                double termFrequency = resultSet.getInt(1);
+//            }
+//
+//            resultSet = ps2.executeQuery();
+//
+//            while (resultSet.next()) {
+//                 words = resultSet.getInt(1);
+//            }
+
+            preparedStatement.setDouble(3, (double) 1/words);
             preparedStatement.setDouble(4, 0);
 
             preparedStatement.setBoolean(5, false);

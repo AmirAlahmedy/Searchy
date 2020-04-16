@@ -61,8 +61,8 @@ public class Crawler implements Runnable{
                     String meta = doc.select("meta").text();
                     String alt = doc.select("alt").text();
 
-                    //page  = new PageContent(p.getPivot(), title, body, h1, h2, h3, h4, h5, h6, meta, alt);
-                    boolean done =this.db.addNewPage(p.getPivot(), title, h1, h2, h3, h4, h5, h6, body, alt, meta);
+                    int words = title.length() + h1.length() + h2.length() + h3.length() + h4.length() + h5.length() + h6.length() + meta.length() + alt.length() + body.length();
+                    boolean done = this.db.addNewPage(p.getPivot(), title, h1, h2, h3, h4, h5, h6, body, alt, meta, words);
                     if(done){
                         crawledPages.incrementAndGet();
                     }
