@@ -20,8 +20,8 @@ public class Main {
         pivots.add(new Pivot("https://www.quora.com/"));
         pivots.add(new Pivot("https://www.google.com/search?client=ubuntu&channel=fs&q=roger+penrose&ie=utf-8&oe=utf-8"));
 
-        Crawler crawler = new Crawler(pivots);
-        List<PageContent> pages =  crawler.searchSubPivotContent();
+        //Crawler crawler = new Crawler(pivots);
+        List<PageContent> pages=new ArrayList<>();// =  crawler.searchSubPivotContent();
 
         InvertedIndex pageIndexer;
         ArrayList<String> pageWords;
