@@ -9,7 +9,7 @@ public class DbAdapter {
 
     private Connection connection;
 
-    private String url="jdbc:mysql://localhost:3306/search_engine";
+    private String url="jdbc:mysql://localhost:3306/search_engine?serverTimezone=UTC";
     private String user="root";
 
 
