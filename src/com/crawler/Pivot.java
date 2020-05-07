@@ -2,7 +2,6 @@ package com.crawler;
 
 public class Pivot {
     private String pivot;
-
     public Pivot(String pivot) {
         this.pivot = pivot;
     }
@@ -13,5 +12,9 @@ public class Pivot {
 
     public String getPivot() {
         return pivot;
+    }
+
+    public String pivotRootDirectory() {
+        return pivot.substring(0,pivot.indexOf('/',"https://".length())) + "/";
     }
 }
