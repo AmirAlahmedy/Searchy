@@ -1,6 +1,7 @@
 package com.crawler;
 
 import com.DbAdapter;
+import com.ranker.PageRank;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,9 +21,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Crawler implements Runnable{
     private CopyOnWriteArrayList <Pivot> pivotList;
     private DbAdapter db;
-    private final int PAGES_TO_CRAWL = 5000;
+    private final int PAGES_TO_CRAWL = 50;  //use 5000
     private AtomicInteger crawledPages;
     public List<PageContent> pages;
+
 
     private int noThreads;
 
@@ -31,9 +33,7 @@ public class Crawler implements Runnable{
         this.noThreads=noThreads;
         db = new DbAdapter();
         crawledPages=new AtomicInteger();
-        //this.pages = new ArrayList<>();
     }
-
 
 
     private void crawl(CopyOnWriteArrayList<Pivot> myPivotList) {
@@ -66,14 +66,11 @@ public class Crawler implements Runnable{
                     if(done){
                         crawledPages.incrementAndGet();
                     }
-                    //this.db.addNewPage(page);
-//                if(!pages.contains(page)) {
-//                    pages.add(new PageContent(p.getPivot(), title, body, h1, h2, h3, h4, h5, h6, meta, alt));
-//                }
 
                     // 2. Collect all links.
                     Elements links = doc.body().select("a[href]");
                     for (Element link : links) {
+
                         //TODO: Get rid of the garbage anchor tags like "#" and "sign up pages".
 
                         //TODO: Either add pages to the database here and edit them after loading the documents
@@ -82,10 +79,6 @@ public class Crawler implements Runnable{
                         //TODO: See if the link already exists in the database before adding
                         // If it does not exist in the database add it, otherwise update it.
                         myPivotList.add(new Pivot(link.attr("href")));
-//                    page = new PageContent(link.attr("href"), link.select("title").text(), link.select("body").text(), link.select("h1").text(), link.select("h2").text(), link.select("h3").text(), link.select("h4").text(), link.select("h5").text(), link.select("h6").text(), link.select("meta").text(), link.select("alt").text());
-//                    if (!pages.contains(page)){
-//                        pivotList.add(new Pivot(link.attr("href")));
-//                    }
                     }
                 }
                 myPivotList.remove(p);
@@ -151,8 +144,8 @@ public class Crawler implements Runnable{
         pivots.add(new Pivot("http://www.bbc.co.uk/sport"));
 
         //pivots.add(new Pivot("https://www.skysports.com/"));
-//        pivots.add(new Pivot("https://www.theguardian.com/uk/sport"));
-//        pivots.add(new Pivot("http://bleacherreport.com/uk"));
+        //pivots.add(new Pivot("https://www.theguardian.com/uk/sport"));
+        //pivots.add(new Pivot("http://bleacherreport.com/uk"));
         //pivots.add(new Pivot("http://www.goal.com/en-gb"));
         ArrayList<Thread> threadArr=new ArrayList<>();
 

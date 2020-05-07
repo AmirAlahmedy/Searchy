@@ -82,6 +82,31 @@ public class DbAdapter {
         return resultSet;
     }
 
+    public ResultSet readURLID() {
+        ResultSet resultSet = null;
+        try {
+            String query = "SELECT id, url FROM `pages`";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            resultSet = preparedStatement.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resultSet;
+    }
+
+    public ResultSet readID(String URL) {
+        ResultSet resultSet = null;
+        try {
+            String query = "SELECT id FROM `pages` WHERE `url` = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1,URL);
+            resultSet = preparedStatement.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resultSet;
+    }
+
     public void addNewTerm(String term, int pageId, int htmlTag, int words) {
         try {
             String query = "INSERT INTO `Terms` (`id`, `Term`, `Page_Id`, `TF`, `IDF`, `Title`, `Meta`, `H1`, `H2`, `H3`, `H4`, `H5`, `H6`, `Alt`) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
@@ -90,7 +115,7 @@ public class DbAdapter {
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, term);
             preparedStatement.setInt(2, pageId);
-            //TODO: Add TF and IDF
+            //TODO: Add IDF
 //            String q1 = "SELECT COUNT(*) FROM Terms WHERE Term = " + term + " AND Page_Id = " + pageId;
 //            String q2 = "SELECT COUNT(*) FROM Terms WHERE Page_Id = " + pageId;
 //
