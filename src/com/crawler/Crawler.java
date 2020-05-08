@@ -1,7 +1,7 @@
 package com.crawler;
 
 import com.DbAdapter;
-import javafx.scene.input.PickResult;
+//import javafx.scene.input.PickResult;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -226,14 +226,14 @@ public class Crawler implements Runnable{
     public static void main(String[] args) throws InterruptedException{
 
         CopyOnWriteArrayList<Pivot> pivots = new CopyOnWriteArrayList<>();
-        //pivots.add(new Pivot("http://www.bbc.co.uk/worldservice/afric2a/2008/11/081124_african_footballer_08_aboutrika.shtml"));
+        pivots.add(new Pivot("http://www.bbc.co.uk/worldservice/afric2a/2008/11/081124_african_footballer_08_aboutrika.shtml"));
         pivots.add(new Pivot("https://www.skysports.com/"));
-        //pivots.add(new Pivot("http://www.espn.com/"));
+        pivots.add(new Pivot("http://www.espn.com/"));
 
         pivots.add(new Pivot("https://www.pinterest.com/"));
-//        pivots.add(new Pivot("https://www.theguardian.com/uk/sport"));
-//        pivots.add(new Pivot("http://bleacherreport.com/uk"));
-        //pivots.add(new Pivot("http://www.goal.com/en-gb"));
+        pivots.add(new Pivot("https://www.theguardian.com/uk/sport"));
+        pivots.add(new Pivot("http://bleacherreport.com/uk"));
+        pivots.add(new Pivot("http://www.goal.com/en-gb"));
         ArrayList<Thread> threadArr=new ArrayList<>();
 
         Scanner input = new Scanner(System.in);

@@ -1,21 +1,15 @@
 package com.ranker;
 
 import com.DbAdapter;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Scanner;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import com.crawler.Crawler;
-import com.crawler.PageContent;
-import com.crawler.Pivot;
-import org.jsoup.*;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 
 public class PageRank {
@@ -58,8 +52,8 @@ public class PageRank {
         ArrayList<ArrayList<Integer>> adj;
 
          public WebGraph() {
-             this.adj = new ArrayList<ArrayList<Integer>>(50);
-             for (int i = 0; i < 50; i++)
+             this.adj = new ArrayList<ArrayList<Integer>>(51);
+             for (int i = 0; i < 51; i++)
                  adj.add(new ArrayList<Integer>());
          }
 
