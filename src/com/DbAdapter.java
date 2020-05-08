@@ -107,6 +107,21 @@ public class DbAdapter {
         return resultSet;
     }
 
+    public int pagesRows() {
+        ResultSet resultSet = null;
+        try {
+            String query = "SELECT COUNT(*) FROM `pages`";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            return resultSet.getInt(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
     public void addNewTerm(String term, int pageId, int htmlTag, int words) {
         try {
             String query = "INSERT INTO `Terms` (`id`, `Term`, `Page_Id`, `TF`, `IDF`, `Title`, `Meta`, `H1`, `H2`, `H3`, `H4`, `H5`, `H6`, `Alt`) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
