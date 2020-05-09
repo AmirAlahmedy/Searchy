@@ -83,8 +83,15 @@ public class Crawler implements Runnable{
                         String h4 = doc.select("h4").text();
                         String h5 = doc.select("h5").text();
                         String h6 = doc.select("h6").text();
-                        String meta = doc.select("meta").text();
-                        String alt = doc.select("alt").text();
+                        String meta = "";
+                        String alt ="";
+                        Elements imgs = doc.select("img");
+                        for (Element el : imgs){
+                            if(el.attr("alt") != null && !el.attr("alt").equals("") && el.attr("src") != null && !el.attr("alt").equals("")){
+                                alt= alt + el.attr("alt") +"\n";
+                                meta = meta + el.attr("src") + " ";
+                            }
+                        }
 
                         int words = title.length() + h1.length() + h2.length() + h3.length() + h4.length() + h5.length() + h6.length() + meta.length() + alt.length() + body.length();
                         boolean done = this.db.addNewPage(p.getPivot(), title, h1, h2, h3, h4, h5, h6, body, alt, meta, words);
@@ -177,20 +184,16 @@ public class Crawler implements Runnable{
     public static void main(String[] args) throws InterruptedException{
 
         CopyOnWriteArrayList<Pivot> pivots = new CopyOnWriteArrayList<>();
-        pivots.add(new Pivot("http://www.bbc.co.uk/worldservice/afric2a/2008/11/081124_african_footballer_08_aboutrika.shtml"));
         pivots.add(new Pivot("https://www.skysports.com/"));
         pivots.add(new Pivot("http://www.bbc.co.uk/sport/"));
-        pivots.add(new Pivot("https://en.wikipedia.org/wiki/Portal:Sports"));
+        pivots.add(new Pivot("https://en.wikipedia.org/wiki/"));
         pivots.add(new Pivot("https://www.90min.com/"));
         pivots.add(new Pivot("https://www.foxsports.com/"));
-        pivots.add(new Pivot("https://www.goal.com/en"));
+        pivots.add(new Pivot("https://www.goal.com/en-gb"));
         pivots.add(new Pivot("https://www.nbcsports.com/"));
         pivots.add(new Pivot("http://www.espn.com/"));
-
-        pivots.add(new Pivot("https://www.pinterest.com/"));
         pivots.add(new Pivot("https://www.theguardian.com/uk/sport"));
         pivots.add(new Pivot("http://bleacherreport.com/uk"));
-        pivots.add(new Pivot("http://www.goal.com/en-gb"));
         ArrayList<Thread> threadArr=new ArrayList<>();
 
         Scanner input = new Scanner(System.in);
@@ -205,6 +208,7 @@ public class Crawler implements Runnable{
         for(int i=0;i<number;i++){
             threadArr.get(i).start();
         }
+
         for(int i=0;i<number;i++){
             threadArr.get(i).join();
         }

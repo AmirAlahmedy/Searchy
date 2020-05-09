@@ -49,9 +49,7 @@ create table Images
     term    varchar(255),
     page_Id int         not null,
     src     text        not null,
-    primary key (page_Id,term),
-    constraint Images_pk
-        unique (id),
+    primary key (id),
     constraint Images_pages__fk
         foreign key (page_Id) references pages (id)
             on update cascade on delete cascade

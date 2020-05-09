@@ -38,21 +38,25 @@ public class InvertedIndex {
             String parsedContent;
 
             // Depends on the order of the columns in the pages table.
-            for (int i = 3; i <= 12; ++i) {
+            for (int i = 3; i <= 11; ++i) {
                 parsedContent = resultSet.getString(i);
 
                 // 1. Lowercase all words.
                 parsedContent = parsedContent.toLowerCase();
 
                 if (i == 11) {         // to extract the the image alt and src only
-
-                    String[] imgs = parsedContent.split("\n");
-                    for (String img : imgs){
+                    String [] srcs = resultSet.getString(12).split(" ");
+                    String[] alts = parsedContent.split("\n");
+                    int counter = 0;
+                    for (String img : alts){
                         if(!img.equals("")) {
-                            String[] altSrc = img.split("\t");
+                            if(!srcs[counter].contains("http")){
+                                counter = counter + 1;
+                                continue;
+                            }
                             // the first element is the alt and the second is the src
-                            altSrc[0] = altSrc[0].replaceAll("[^a-z0-9]", " ");
-                            List<String> tokens = Arrays.asList(altSrc[0].split("[^a-z0-9]"));
+                            img = img.replaceAll("[^a-z0-9]", " ");
+                            List<String> tokens = Arrays.asList(img.split("[^a-z0-9]"));
                             try {
                                 Stemmer stemmer = new Stemmer();
                                 for (String token : tokens) {
@@ -61,19 +65,18 @@ public class InvertedIndex {
                                         int wordLength = token.length();
                                         for (int c = 0; c < wordLength; c++) stemmer.add(word[c]);
                                         stemmer.stem();
-                                        dbAdapter.addNewImg(pageId,stemmer.toString(),altSrc[1]);
+                                        dbAdapter.addNewImg(pageId,stemmer.toString(),srcs[counter]);
 
                                     }
                                 }
                                 //t2=System.currentTimeMillis();
                                 //System.out.println(t2-t1);
-
+                                counter = counter +1;
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
 
                         }
-
                     }
 
                 } else {

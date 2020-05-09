@@ -18,9 +18,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        Document document= Jsoup.connect("https://en.wikipedia.org/wiki/Portal:Sports").get();
-       // Elements img =document.select("img");
-        System.out.println(document.title());
+        Document document= Jsoup.connect("https://cademartin.com/").get();
+        Elements img =document.select("img");
+        String alt="";
+        for (Element el : img){
+            if(el.attr("alt") != null && el.attr("alt") != ""){
+                alt= alt + el.attr("alt") +"\t"+el.attr("src")+ "\n";
+            }
+        }
+        System.out.println(alt);
 
     }
 
