@@ -1,20 +1,26 @@
 package com.crawler;
 
 import com.DbAdapter;
+//import javafx.scene.input.PickResult;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.lang.Thread.sleep;
 
 
 public class Crawler implements Runnable{
@@ -40,53 +46,63 @@ public class Crawler implements Runnable{
         if(crawledPages.get() == PAGES_TO_CRAWL || myPivotList.isEmpty()) return;
         Document doc;
         PageContent page;
+
         for(Pivot p : myPivotList) {
             try {
                 // 1. Retrieve a web page (i.e. a document).
                 boolean used =db.isLinkUsedBefore(p.getPivot());
+
+                //Robots r = followRobotExclusionProtocol(p);
+
                 if(!used) {
 
-                    doc = Jsoup.connect(p.getPivot()).get();
-                    // Gets the title of the web page.
-                    String title = doc.title();
-                    if(title.equals("")){
-                        myPivotList.remove(p);
-                        continue;
-                    }
-                    // Gets the combined text of this element and all its children.
-                    String body = doc.body().text();
-                    String h1 = doc.select("h1").text();
-                    String h2 = doc.select("h2").text();
-                    String h3 = doc.select("h3").text();
-                    String h4 = doc.select("h4").text();
-                    String h5 = doc.select("h5").text();
-                    String h6 = doc.select("h6").text();
-                    String meta = doc.select("meta").text();
-                    String alt = "";
-                    Elements img =doc.select("img");
-                    for (Element el : img){
-                        if(el.attr("alt") != null && !el.attr("alt").equals("")){
-                            alt= alt + el.attr("alt") +"\t"+el.attr("src")+ "\n";
-                        }
+                    //  Get the robots.txt file
+                    //Robots r = new Robots(new Pivot("https://www.geeksforgeeks.org/"));
+
+                    Robots r = new Robots(p);
+                    boolean REP = r.followRobotExclusionProtocol();
+                    if(REP)
+                    {
+                        myPivotList.removeAll(r.getDisallowedPivots());
+                        myPivotList.addAll(r.getAllowedPivots());
+                        myPivotList.addAll(r.getSiteMaps());
+                        sleep(r.getCrawlDelay());
                     }
 
-                    int words = title.length() + h1.length() + h2.length() + h3.length() + h4.length() + h5.length() + h6.length() + meta.length() + alt.length() + body.length();
-                    boolean done = this.db.addNewPage(p.getPivot(), title, h1, h2, h3, h4, h5, h6, body, alt, meta, words);
-                    if(done){
-                        crawledPages.incrementAndGet();
-                    }
-                    //this.db.addNewPage(page);
+
+                    if(!r.isDisallowALL()) {
+                        doc = Jsoup.connect(p.getPivot()).get();
+                        // Gets the title of the web page.
+                        String title = doc.title();
+
+                        // Gets the combined text of this element and all its children.
+                        String body = doc.body().text();
+                        String h1 = doc.select("h1").text();
+                        String h2 = doc.select("h2").text();
+                        String h3 = doc.select("h3").text();
+                        String h4 = doc.select("h4").text();
+                        String h5 = doc.select("h5").text();
+                        String h6 = doc.select("h6").text();
+                        String meta = doc.select("meta").text();
+                        String alt = doc.select("alt").text();
+
+                        int words = title.length() + h1.length() + h2.length() + h3.length() + h4.length() + h5.length() + h6.length() + meta.length() + alt.length() + body.length();
+                        boolean done = this.db.addNewPage(p.getPivot(), title, h1, h2, h3, h4, h5, h6, body, alt, meta, words);
+                        if (done) {
+                            crawledPages.incrementAndGet();
+                        }
+                        //this.db.addNewPage(page);
 //                if(!pages.contains(page)) {
 //                    pages.add(new PageContent(p.getPivot(), title, body, h1, h2, h3, h4, h5, h6, meta, alt));
 //                }
 
-                    // 2. Collect all links.
-                    Elements links = doc.body().select("a[href]");
-                    for (Element link : links) {
-                        //TODO: Get rid of the garbage anchor tags like "#" and "sign up pages".
+                        // 2. Collect all Hyper links within this Doc.
+                        Elements links = doc.body().select("a[href]");
+                        for (Element link : links) {
+                            //TODO: Get rid of the garbage anchor tags like "#" and "sign up pages".
 
-                        //TODO: Either add pages to the database here and edit them after loading the documents
-                        // Or load them here and remove the other function
+                            //TODO: Either add pages to the database here and edit them after loading the documents
+                            // Or load them here and remove the other function
 
                         //TODO: See if the link already exists in the database before adding
                         // If it does not exist in the database add it, otherwise update it.
@@ -95,6 +111,7 @@ public class Crawler implements Runnable{
 //                    if (!pages.contains(page)){
 //                        pivotList.add(new Pivot(link.attr("href")));
 //                    }
+                        }
                     }
                 }
                 myPivotList.remove(p);
@@ -102,7 +119,10 @@ public class Crawler implements Runnable{
             } catch (HttpStatusException e) {
                 // ignore it
             }
-            catch (IllegalArgumentException e){
+            catch (SocketException e )
+            {
+                e.printStackTrace();
+            } catch (IllegalArgumentException e){
                 // ignore it
             } catch (MalformedURLException e) {
                 System.err.println("Bad URL:  " + p.getPivot());
@@ -111,7 +131,8 @@ public class Crawler implements Runnable{
                 System.err.println("Unable to connect to " + p.getPivot() + " due to weak internet connection.");
             } catch (IOException e) {
                 e.printStackTrace();
-            } catch (final Exception | Error ignored){
+            }
+            catch (final Exception | Error ignored){
 
             }
         }
@@ -156,7 +177,7 @@ public class Crawler implements Runnable{
     public static void main(String[] args) throws InterruptedException{
 
         CopyOnWriteArrayList<Pivot> pivots = new CopyOnWriteArrayList<>();
-        //pivots.add(new Pivot("http://www.bbc.co.uk/worldservice/africa/2008/11/081124_african_footballer_08_aboutrika.shtml"));
+        pivots.add(new Pivot("http://www.bbc.co.uk/worldservice/afric2a/2008/11/081124_african_footballer_08_aboutrika.shtml"));
         pivots.add(new Pivot("https://www.skysports.com/"));
         pivots.add(new Pivot("http://www.bbc.co.uk/sport/"));
         pivots.add(new Pivot("https://en.wikipedia.org/wiki/Portal:Sports"));
@@ -164,13 +185,13 @@ public class Crawler implements Runnable{
         pivots.add(new Pivot("https://www.foxsports.com/"));
         pivots.add(new Pivot("https://www.goal.com/en"));
         pivots.add(new Pivot("https://www.nbcsports.com/"));
+        pivots.add(new Pivot("http://www.espn.com/"));
 
-        //pivots.add(new Pivot("https://www.skysports.com/"));
-//        pivots.add(new Pivot("https://www.theguardian.com/uk/sport"));
-//        pivots.add(new Pivot("http://bleacherreport.com/uk"));
-        //pivots.add(new Pivot("http://www.goal.com/en-gb"));
+        pivots.add(new Pivot("https://www.pinterest.com/"));
+        pivots.add(new Pivot("https://www.theguardian.com/uk/sport"));
+        pivots.add(new Pivot("http://bleacherreport.com/uk"));
+        pivots.add(new Pivot("http://www.goal.com/en-gb"));
         ArrayList<Thread> threadArr=new ArrayList<>();
-
 
         Scanner input = new Scanner(System.in);
         System.out.print("Enter the number of threads: ");
@@ -187,7 +208,5 @@ public class Crawler implements Runnable{
         for(int i=0;i<number;i++){
             threadArr.get(i).join();
         }
-
-
     }
 }
