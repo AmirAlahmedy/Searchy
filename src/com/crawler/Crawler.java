@@ -89,7 +89,7 @@ public class Crawler implements Runnable{
                         for (Element el : imgs){
                             if(el.attr("alt") != null && !el.attr("alt").equals("") && el.attr("src") != null && !el.attr("alt").equals("")){
                                 alt= alt + el.attr("alt") +"\n";
-                                meta = meta + el.attr("src") + " ";
+                                meta = meta + el.attr("src") + "   ";
                             }
                         }
 

@@ -45,12 +45,13 @@ public class InvertedIndex {
                 parsedContent = parsedContent.toLowerCase();
 
                 if (i == 11) {         // to extract the the image alt and src only
-                    String [] srcs = resultSet.getString(12).split(" ");
+                    String [] srcs = resultSet.getString(12).split("   ");
                     String[] alts = parsedContent.split("\n");
+                    //System.out.println(Integer.toString(srcs.length) + "    " +Integer.toString(alts.length));
                     int counter = 0;
                     for (String img : alts){
                         if(!img.equals("")) {
-                            if(!srcs[counter].contains("http")){
+                            if(!srcs[counter].startsWith("http")){
                                 counter = counter + 1;
                                 continue;
                             }
