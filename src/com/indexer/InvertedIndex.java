@@ -38,42 +38,77 @@ public class InvertedIndex {
             String parsedContent;
 
             // Depends on the order of the columns in the pages table.
-            for(int i = 3; i <= 12; ++i) {
+            for (int i = 3; i <= 12; ++i) {
                 parsedContent = resultSet.getString(i);
 
                 // 1. Lowercase all words.
                 parsedContent = parsedContent.toLowerCase();
 
-                // 2. Get all alphanumeric tokens.
-                parsedContent = parsedContent.replaceAll("[^a-z0-9]", " ");
+                if (i == 11) {         // to extract the the image alt and src only
 
-                //long t1,t2;
-                //t1=System.currentTimeMillis();
+                    String[] imgs = parsedContent.split("\n");
+                    for (String img : imgs){
+                        if(!img.equals("")) {
+                            String[] altSrc = img.split("\t");
+                            // the first element is the alt and the second is the src
+                            altSrc[0] = altSrc[0].replaceAll("[^a-z0-9]", " ");
+                            List<String> tokens = Arrays.asList(altSrc[0].split("[^a-z0-9]"));
+                            try {
+                                Stemmer stemmer = new Stemmer();
+                                for (String token : tokens) {
+                                    if (!token.equals("") && !stopWords.contains(token)) {
+                                        char[] word = token.toCharArray();
+                                        int wordLength = token.length();
+                                        for (int c = 0; c < wordLength; c++) stemmer.add(word[c]);
+                                        stemmer.stem();
+                                        dbAdapter.addNewImg(pageId,stemmer.toString(),altSrc[1]);
 
+                                    }
+                                }
+                                //t2=System.currentTimeMillis();
+                                //System.out.println(t2-t1);
 
-                // 3. Filter out stop words and stem each token.
-                // Extract tokens from the page content into a list.
-                List<String> tokens = Arrays.asList(parsedContent.split("[^a-z0-9]"));
-                ArrayList<String> stems = new ArrayList<>();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
 
-                try {
-                    Stemmer stemmer = new Stemmer();
-                    for (String token : tokens) {
-                        if (!token.equals("") && !stopWords.contains(token)) {
-                            char[] word = token.toCharArray();
-                            int wordLength = token.length();
-                            for (int c = 0; c < wordLength; c++) stemmer.add(word[c]);
-                            stemmer.stem();
-                            dbAdapter.addNewTerm(stemmer.toString(), pageId, i, words);
                         }
+
                     }
-                    //t2=System.currentTimeMillis();
-                    //System.out.println(t2-t1);
 
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } else {
+
+                    // 2. Get all alphanumeric tokens.
+                    parsedContent = parsedContent.replaceAll("[^a-z0-9]", " ");
+
+                    //long t1,t2;
+                    //t1=System.currentTimeMillis();
+
+
+                    // 3. Filter out stop words and stem each token.
+                    // Extract tokens from the page content into a list.
+                    List<String> tokens = Arrays.asList(parsedContent.split("[^a-z0-9]"));
+                    //ArrayList<String> stems = new ArrayList<>();
+
+                    try {
+                        Stemmer stemmer = new Stemmer();
+                        for (String token : tokens) {
+                            if (!token.equals("") && !stopWords.contains(token)) {
+                                char[] word = token.toCharArray();
+                                int wordLength = token.length();
+                                for (int c = 0; c < wordLength; c++) stemmer.add(word[c]);
+                                stemmer.stem();
+                                dbAdapter.addNewTerm(stemmer.toString(), pageId, i, words);
+                            }
+                        }
+                        //t2=System.currentTimeMillis();
+                        //System.out.println(t2-t1);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
                 }
-
             }
         }
 

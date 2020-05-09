@@ -49,7 +49,10 @@ public class Crawler implements Runnable{
                     doc = Jsoup.connect(p.getPivot()).get();
                     // Gets the title of the web page.
                     String title = doc.title();
-
+                    if(title.equals("")){
+                        myPivotList.remove(p);
+                        continue;
+                    }
                     // Gets the combined text of this element and all its children.
                     String body = doc.body().text();
                     String h1 = doc.select("h1").text();
@@ -59,7 +62,13 @@ public class Crawler implements Runnable{
                     String h5 = doc.select("h5").text();
                     String h6 = doc.select("h6").text();
                     String meta = doc.select("meta").text();
-                    String alt = doc.select("alt").text();
+                    String alt = "";
+                    Elements img =doc.select("img");
+                    for (Element el : img){
+                        if(el.attr("alt") != null && !el.attr("alt").equals("")){
+                            alt= alt + el.attr("alt") +"\t"+el.attr("src")+ "\n";
+                        }
+                    }
 
                     int words = title.length() + h1.length() + h2.length() + h3.length() + h4.length() + h5.length() + h6.length() + meta.length() + alt.length() + body.length();
                     boolean done = this.db.addNewPage(p.getPivot(), title, h1, h2, h3, h4, h5, h6, body, alt, meta, words);
@@ -97,6 +106,7 @@ public class Crawler implements Runnable{
                 // ignore it
             } catch (MalformedURLException e) {
                 System.err.println("Bad URL:  " + p.getPivot());
+                myPivotList.remove(p);
             } catch (UnknownHostException e) {
                 System.err.println("Unable to connect to " + p.getPivot() + " due to weak internet connection.");
             } catch (IOException e) {
@@ -148,7 +158,12 @@ public class Crawler implements Runnable{
         CopyOnWriteArrayList<Pivot> pivots = new CopyOnWriteArrayList<>();
         //pivots.add(new Pivot("http://www.bbc.co.uk/worldservice/africa/2008/11/081124_african_footballer_08_aboutrika.shtml"));
         pivots.add(new Pivot("https://www.skysports.com/"));
-        pivots.add(new Pivot("http://www.bbc.co.uk/sport"));
+        pivots.add(new Pivot("http://www.bbc.co.uk/sport/"));
+        pivots.add(new Pivot("https://en.wikipedia.org/wiki/Portal:Sports"));
+        pivots.add(new Pivot("https://www.90min.com/"));
+        pivots.add(new Pivot("https://www.foxsports.com/"));
+        pivots.add(new Pivot("https://www.goal.com/en"));
+        pivots.add(new Pivot("https://www.nbcsports.com/"));
 
         //pivots.add(new Pivot("https://www.skysports.com/"));
 //        pivots.add(new Pivot("https://www.theguardian.com/uk/sport"));
@@ -175,6 +190,4 @@ public class Crawler implements Runnable{
 
 
     }
-
-
 }

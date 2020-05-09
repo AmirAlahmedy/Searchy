@@ -151,4 +151,17 @@ public class DbAdapter {
 
 
     }
+
+    public void addNewImg(int pageId,String term, String url){
+        try {
+            String query = "INSERT INTO `images` (`id`,`term`,`page_Id`,`src`) VALUES (NULL,?,?,?)";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1,term);
+            preparedStatement.setInt(2,pageId);
+            preparedStatement.setString(3,url);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
