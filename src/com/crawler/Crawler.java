@@ -43,7 +43,8 @@ public class Crawler implements Runnable{
 
 
     private void crawl(CopyOnWriteArrayList<Pivot> myPivotList) {
-        if(crawledPages.get() == PAGES_TO_CRAWL || myPivotList.isEmpty()) return;
+        if(crawledPages.get() >= PAGES_TO_CRAWL || myPivotList.isEmpty()) return;
+        System.out.println(crawledPages.get() >= PAGES_TO_CRAWL);
         Document doc;
         PageContent page;
 
@@ -93,10 +94,11 @@ public class Crawler implements Runnable{
                             }
                         }
 
-                        int words = title.length() + h1.length() + h2.length() + h3.length() + h4.length() + h5.length() + h6.length() + meta.length() + alt.length() + body.length();
-                        boolean done = this.db.addNewPage(p.getPivot(), title, h1, h2, h3, h4, h5, h6, body, alt, meta, words);
+                        //int words = title.length() + h1.length() + h2.length() + h3.length() + h4.length() + h5.length() + h6.length() + meta.length() + alt.length() + body.length();
+                        boolean done = this.db.addNewPage(p.getPivot(), title, h1, h2, h3, h4, h5, h6, body, alt, meta);
                         if (done) {
                             crawledPages.incrementAndGet();
+                            if(crawledPages.get() >= PAGES_TO_CRAWL ) return;
                         }
                         //this.db.addNewPage(page);
 //                if(!pages.contains(page)) {

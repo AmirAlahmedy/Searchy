@@ -33,8 +33,9 @@ public class InvertedIndex {
     public void parseCollection() throws SQLException {
 
         while (resultSet.next()) {
+            int wordsInPage = 0;
             int pageId = resultSet.getInt("id");
-            int words = resultSet.getInt("words");
+            //int words = resultSet.getInt("words");
             String parsedContent;
 
             // Depends on the order of the columns in the pages table.
@@ -70,8 +71,6 @@ public class InvertedIndex {
 
                                     }
                                 }
-                                //t2=System.currentTimeMillis();
-                                //System.out.println(t2-t1);
                                 counter = counter +1;
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -85,28 +84,24 @@ public class InvertedIndex {
                     // 2. Get all alphanumeric tokens.
                     parsedContent = parsedContent.replaceAll("[^a-z0-9]", " ");
 
-                    //long t1,t2;
-                    //t1=System.currentTimeMillis();
 
 
                     // 3. Filter out stop words and stem each token.
                     // Extract tokens from the page content into a list.
                     List<String> tokens = Arrays.asList(parsedContent.split("[^a-z0-9]"));
-                    //ArrayList<String> stems = new ArrayList<>();
 
                     try {
                         Stemmer stemmer = new Stemmer();
                         for (String token : tokens) {
                             if (!token.equals("") && !stopWords.contains(token)) {
+                                wordsInPage++;
                                 char[] word = token.toCharArray();
                                 int wordLength = token.length();
                                 for (int c = 0; c < wordLength; c++) stemmer.add(word[c]);
                                 stemmer.stem();
-                                dbAdapter.addNewTerm(stemmer.toString(), pageId, i, words);
+                                dbAdapter.addNewTerm(stemmer.toString(), pageId, i);
                             }
                         }
-                        //t2=System.currentTimeMillis();
-                        //System.out.println(t2-t1);
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -114,8 +109,14 @@ public class InvertedIndex {
 
                 }
             }
+            // End of one document
+            //Need to set page word count & update the right TF by dividing on the total words
+            dbAdapter.updatePageWordCount(pageId,wordsInPage);
+            dbAdapter.updateTF(pageId,wordsInPage);
         }
-
+        //End of all documents
+        //Need to set idf
+        dbAdapter.setIDF();
     }
 
     public static void main(String[] args) throws SQLException {
