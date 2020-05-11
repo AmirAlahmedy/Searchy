@@ -26,7 +26,7 @@ import static java.lang.Thread.sleep;
 public class Crawler implements Runnable{
     private CopyOnWriteArrayList <Pivot> pivotList;
     private DbAdapter db;
-    private final int PAGES_TO_CRAWL = 5000;
+    private final int PAGES_TO_CRAWL = 50;
     private AtomicInteger crawledPages;
     public List<PageContent> pages;
 
@@ -44,7 +44,10 @@ public class Crawler implements Runnable{
 
     private void crawl(CopyOnWriteArrayList<Pivot> myPivotList) {
         if(crawledPages.get() >= PAGES_TO_CRAWL || myPivotList.isEmpty()) return;
-        System.out.println(crawledPages.get() >= PAGES_TO_CRAWL);
+//        for (Pivot a : myPivotList) {
+//            System.out.print(a.getPivot() + " ");
+//            System.out.println();
+//        }
         Document doc;
         PageContent page;
 
@@ -196,6 +199,7 @@ public class Crawler implements Runnable{
         pivots.add(new Pivot("http://www.espn.com/"));
         pivots.add(new Pivot("https://www.theguardian.com/uk/sport"));
         pivots.add(new Pivot("http://bleacherreport.com/uk"));
+//        pivots.add(new Pivot("https://facebook.com/"));
         ArrayList<Thread> threadArr=new ArrayList<>();
 
         Scanner input = new Scanner(System.in);

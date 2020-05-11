@@ -57,7 +57,7 @@ public class InvertedIndex {
                                 continue;
                             }
                             // the first element is the alt and the second is the src
-                            img = img.replaceAll("[^a-z0-9]", " ");
+                            //img = img.replaceAll("[^a-z0-9]", " ");
                             List<String> tokens = Arrays.asList(img.split("[^a-z0-9]"));
                             try {
                                 Stemmer stemmer = new Stemmer();
@@ -82,7 +82,7 @@ public class InvertedIndex {
                 } else {
 
                     // 2. Get all alphanumeric tokens.
-                    parsedContent = parsedContent.replaceAll("[^a-z0-9]", " ");
+                    //parsedContent = parsedContent.replaceAll("[^a-z0-9]", " ");
 
 
 
