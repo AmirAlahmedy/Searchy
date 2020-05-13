@@ -1,14 +1,16 @@
 package com.crawler;
 
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
+import java.util.Scanner;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Robots {
 
-    private CopyOnWriteArrayList<Pivot> disallowedPivots;
+    private CopyOnWriteArrayList <String> disallowedPivots;
     private CopyOnWriteArrayList <Pivot> allowedPivots;
     private CopyOnWriteArrayList <Pivot> siteMaps;
     private int crawlDelay = 0;
@@ -17,7 +19,7 @@ public class Robots {
     private Document robotDoc;
     private String URL;
 
-    public Robots(CopyOnWriteArrayList<Pivot> disallowedPivots, CopyOnWriteArrayList <Pivot> allowedPivots, CopyOnWriteArrayList <Pivot> siteMaps, int crawlDelay, boolean disallowALL) {
+    public Robots(CopyOnWriteArrayList <String> disallowedPivots, CopyOnWriteArrayList <Pivot> allowedPivots, CopyOnWriteArrayList <Pivot> siteMaps, int crawlDelay, boolean disallowALL) {
         this.disallowedPivots = disallowedPivots;
         this.allowedPivots = allowedPivots;
         this.siteMaps = siteMaps;
@@ -26,7 +28,7 @@ public class Robots {
     }
 
     public Robots(Pivot p) {
-        this.disallowedPivots = new CopyOnWriteArrayList<Pivot>();
+        this.disallowedPivots = new CopyOnWriteArrayList<String>();
         this.allowedPivots = new CopyOnWriteArrayList<Pivot>();
         this.siteMaps = new CopyOnWriteArrayList<Pivot>();
         int crawlDelay = 0;
@@ -53,13 +55,19 @@ public class Robots {
         if(startIndex == -1) return false;
 
         // End index of substring
-        int endIndex = robotFile.indexOf("User-agent:", startIndex+"User-agent:".length());
-        endIndex = endIndex==-1 ? robotFile.length()-1 : endIndex;  // if no other User-agent: found
+        int endIndex = robotFile.indexOf("User-agent:", startIndex+"User-agent: *".length());
+
+        // if no other User-agent: found
+        if (endIndex == -1 ) {
+            endIndex = robotFile.length();
+        }
+        // endIndex = endIndex==-1 ? robotFile.length()-1 : endIndex;
 
         // ProtocolsBody
+
         String protocolsBody = robotFile.substring(startIndex, endIndex);
         String[] arrOfProtocols = protocolsBody.split(" ");
-        //System.out.println(arrOfProtocols.length);
+        //System.out.println("Length:" + arrOfProtocols.length);
 
 
         for (int i=0;i<arrOfProtocols.length;i++)
@@ -70,19 +78,20 @@ public class Robots {
                 {
                     this.disallowALL = true;
                 }
-                if( (i+1)==arrOfProtocols.length || arrOfProtocols[i + 1].equals(" ") || arrOfProtocols[i + 1].equals(""))  // allow all
+                if( (i+1)==arrOfProtocols.length || arrOfProtocols[i + 1].equals(" ") || arrOfProtocols[i + 1].equals("") || arrOfProtocols[i + 1].equals("\n") || arrOfProtocols[i + 1].equals(" \n"))  // allow all
                 {
                     return false;
                 }
-                Pivot disallowedURL = new Pivot(this.URL + arrOfProtocols[i + 1]);
+                String disallowedURL = new String(this.URL + arrOfProtocols[i + 1].substring(arrOfProtocols[i + 1].indexOf("/")+1,arrOfProtocols[i + 1].length()));
+
                 this.disallowedPivots.add(disallowedURL);
             } else if (arrOfProtocols[i].equals("Allow:")) {
                 //System.out.println(arrOfProtocols[i] + "" + arrOfProtocols[i + 1]);
-                Pivot allowedURL = new Pivot(this.URL + arrOfProtocols[i + 1]);
+                Pivot allowedURL = new Pivot(this.URL + arrOfProtocols[i + 1].substring(arrOfProtocols[i + 1].indexOf("/")+1,arrOfProtocols[i + 1].length()));
                 this.allowedPivots.add(allowedURL);
             } else if (arrOfProtocols[i].equals("Sitemap:")) {
                 //System.out.println(arrOfProtocols[i] + "" + arrOfProtocols[i + 1]);
-                Pivot siteMap = new Pivot(this.URL + arrOfProtocols[i + 1]);
+                Pivot siteMap = new Pivot(this.URL + arrOfProtocols[i + 1].substring(arrOfProtocols[i + 1].indexOf("/")+1,arrOfProtocols[i + 1].length()));
                 this.siteMaps.add(siteMap);
             } else if (arrOfProtocols[i].equals("Crawl-delay:")) {
                 //System.out.println(arrOfProtocols[i] + "" + arrOfProtocols[i + 1]);
@@ -94,7 +103,7 @@ public class Robots {
         }
         return true;
     }
-    public CopyOnWriteArrayList<Pivot> getDisallowedPivots() { return disallowedPivots; }
+    public CopyOnWriteArrayList<String> getDisallowedPivots() { return disallowedPivots; }
 
     //public void setDisallowedPivots(CopyOnWriteArrayList<Pivot> disallowedPivots) { this.disallowedPivots = disallowedPivots; }
 

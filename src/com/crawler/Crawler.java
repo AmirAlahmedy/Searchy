@@ -44,10 +44,11 @@ public class Crawler implements Runnable{
 
     private void crawl(CopyOnWriteArrayList<Pivot> myPivotList) {
         if(crawledPages.get() >= PAGES_TO_CRAWL || myPivotList.isEmpty()) return;
-//        for (Pivot a : myPivotList) {
-//            System.out.print(a.getPivot() + " ");
-//            System.out.println();
-//        }
+        //        for (Pivot a : myPivotList) {
+        //            System.out.print(a.getPivot() + " ");
+        //            System.out.println();
+        //        }
+
         Document doc;
         PageContent page;
 
@@ -61,20 +62,25 @@ public class Crawler implements Runnable{
                 if(!used) {
 
                     //  Get the robots.txt file
-                    //Robots r = new Robots(new Pivot("https://www.geeksforgeeks.org/"));
-
                     Robots r = new Robots(p);
+
+                    //  If robots.txt exists for this website
                     boolean REP = r.followRobotExclusionProtocol();
+
+                    //  disallowed directories from robots.txt
+                    CopyOnWriteArrayList <String> disallowedPivotList;
+
                     if(REP)
                     {
-                        myPivotList.removeAll(r.getDisallowedPivots());
-                        myPivotList.addAll(r.getAllowedPivots());
-                        myPivotList.addAll(r.getSiteMaps());
+                        //  Add allowed Pivots from robots.txt
+                        myPivotList.addAllAbsent(r.getAllowedPivots());
+                        //  Apply the specified delay from robots.txt
                         sleep(r.getCrawlDelay());
                     }
+                    disallowedPivotList = r.getDisallowedPivots();
 
-
-                    if(!r.isDisallowALL()) {
+                    //  if the whole directory is not Disallow: * and the directory is not disallowed ( extra miles in my assumption )
+                    if(!r.isDisallowALL() && !disallowedPivotList.contains(p.getPivot())) {
                         doc = Jsoup.connect(p.getPivot()).get();
                         // Gets the title of the web page.
                         String title = doc.title();
@@ -97,32 +103,40 @@ public class Crawler implements Runnable{
                             }
                         }
 
-                        //int words = title.length() + h1.length() + h2.length() + h3.length() + h4.length() + h5.length() + h6.length() + meta.length() + alt.length() + body.length();
+                        //  int words = title.length() + h1.length() + h2.length() + h3.length() + h4.length() + h5.length() + h6.length() + meta.length() + alt.length() + body.length();
                         boolean done = this.db.addNewPage(p.getPivot(), title, h1, h2, h3, h4, h5, h6, body, alt, meta);
                         if (done) {
                             crawledPages.incrementAndGet();
                             if(crawledPages.get() >= PAGES_TO_CRAWL ) return;
                         }
-                        //this.db.addNewPage(page);
-//                if(!pages.contains(page)) {
-//                    pages.add(new PageContent(p.getPivot(), title, body, h1, h2, h3, h4, h5, h6, meta, alt));
-//                }
+                            //  this.db.addNewPage(page);
+                            //  if(!pages.contains(page)) {
+                            //      pages.add(new PageContent(p.getPivot(), title, body, h1, h2, h3, h4, h5, h6, meta, alt));
+                            //  }
 
                         // 2. Collect all Hyper links within this Doc.
                         Elements links = doc.body().select("a[href]");
                         for (Element link : links) {
-                            //TODO: Get rid of the garbage anchor tags like "#" and "sign up pages".
+
+                            // Check for disallowed directories
+                            Pivot crawled = new Pivot(link.attr("href"));
+                            if(!disallowedPivotList.contains(crawled.getPivot()))
+                            {
+                                myPivotList.add(crawled);
+                            }
+
+                            //  TODO: Get rid of the garbage anchor tags like "#" and "sign up pages".
 
                             //TODO: Either add pages to the database here and edit them after loading the documents
                             // Or load them here and remove the other function
 
-                        //TODO: See if the link already exists in the database before adding
-                        // If it does not exist in the database add it, otherwise update it.
-                        myPivotList.add(new Pivot(link.attr("href")));
-//                    page = new PageContent(link.attr("href"), link.select("title").text(), link.select("body").text(), link.select("h1").text(), link.select("h2").text(), link.select("h3").text(), link.select("h4").text(), link.select("h5").text(), link.select("h6").text(), link.select("meta").text(), link.select("alt").text());
-//                    if (!pages.contains(page)){
-//                        pivotList.add(new Pivot(link.attr("href")));
-//                    }
+                            //TODO: See if the link already exists in the database before adding
+                            // If it does not exist in the database add it, otherwise update it.
+
+                            //  page = new PageContent(link.attr("href"), link.select("title").text(), link.select("body").text(), link.select("h1").text(), link.select("h2").text(), link.select("h3").text(), link.select("h4").text(), link.select("h5").text(), link.select("h6").text(), link.select("meta").text(), link.select("alt").text());
+                            //  if (!pages.contains(page)){
+                            //  pivotList.add(new Pivot(link.attr("href")));
+                            //  }
                         }
                     }
                 }
@@ -189,8 +203,6 @@ public class Crawler implements Runnable{
     public static void main(String[] args) throws InterruptedException{
 
         CopyOnWriteArrayList<Pivot> pivots = new CopyOnWriteArrayList<>();
-        pivots.add(new Pivot("https://www.skysports.com/"));
-        pivots.add(new Pivot("http://www.bbc.co.uk/sport/"));
         pivots.add(new Pivot("https://en.wikipedia.org/wiki/"));
         pivots.add(new Pivot("https://www.90min.com/"));
         pivots.add(new Pivot("https://www.foxsports.com/"));
@@ -199,7 +211,8 @@ public class Crawler implements Runnable{
         pivots.add(new Pivot("http://www.espn.com/"));
         pivots.add(new Pivot("https://www.theguardian.com/uk/sport"));
         pivots.add(new Pivot("http://bleacherreport.com/uk"));
-//        pivots.add(new Pivot("https://facebook.com/"));
+        // facebook shouldn' t be crawled
+        pivots.add(new Pivot("http://www.facebook.com/"));
         ArrayList<Thread> threadArr=new ArrayList<>();
 
         Scanner input = new Scanner(System.in);
