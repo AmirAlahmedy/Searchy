@@ -135,6 +135,53 @@ public class DbAdapter {
         return 0;
     }
 
+    public void fillRanks(double initialRank) {
+        try {
+            String query = "DELETE FROM Ranks";
+            PreparedStatement preparedStatement = this.connection.prepareStatement(query);
+            preparedStatement.executeUpdate();
+            String query0 = "INSERT INTO `Ranks` (pageId)  SELECT id FROM `pages`";
+            preparedStatement = this.connection.prepareStatement(query0);
+            preparedStatement.executeUpdate(query0);
+            String query1 = "UPDATE Ranks SET PR = ?";
+            preparedStatement = this.connection.prepareStatement(query1);
+            preparedStatement.setDouble(1, initialRank);
+            preparedStatement.executeUpdate();
+        } catch (Exception var7) {
+            var7.printStackTrace();
+        }
+
+    }
+
+    public void setPR(int pageID, double pr) {
+        try {
+            String query = "UPDATE Ranks SET PR = ? WHERE pageId = ?";
+            PreparedStatement preparedStatement = this.connection.prepareStatement(query);
+            preparedStatement.setDouble(1, pr);
+            preparedStatement.setInt(2, pageID);
+            preparedStatement.executeUpdate();
+        } catch (Exception var6) {
+            var6.printStackTrace();
+        }
+
+    }
+
+    public double getPR(int pageID) {
+        ResultSet resultSet = null;
+
+        try {
+            String query = "SELECT PR FROM `Ranks` WHERE pageID = ?";
+            PreparedStatement preparedStatement = this.connection.prepareStatement(query);
+            preparedStatement.setInt(1, pageID);
+            resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            return resultSet.getDouble(1);
+        } catch (Exception var5) {
+            var5.printStackTrace();
+            return 0.0D;
+        }
+    }
+
     public void addNewTerm(String term, int pageId, int htmlTag) {
 
         boolean update;
@@ -319,7 +366,7 @@ public class DbAdapter {
 
     public void addNewImg(int pageId,String term, String url){
         try {
-            String query = "INSERT INTO `images` (`id`,`term`,`page_Id`,`src`) VALUES (NULL,?,?,?)";
+            String query = "INSERT INTO `Images` (`id`,`term`,`page_Id`,`src`) VALUES (NULL,?,?,?)";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1,term);
             preparedStatement.setInt(2,pageId);

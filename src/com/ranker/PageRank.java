@@ -12,31 +12,63 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 
+
 public class PageRank {
-    private WebGraph graph;
-    private DbAdapter db;
-    private ResultSet resultSet;
-    private int N;  //total number of web pages
-    private int d;  //damping ratio
+    private final WebGraph graph;
+    private final DbAdapter db;
+    private final ResultSet resultSet;
+    private final int N;  //total number of web pages
+    /**
+     * @implNote  d is the damping ratio/decay factor, 85% of your users will be willing to continue visiting new web pages.
+     * The other 15% simply stop where they are.
+    */
+    private final double d = .85;
+    private final double epsilon = .3;
 
     public PageRank() throws IOException, SQLException {
-        this.graph = new WebGraph(this.N);
         this.db = new DbAdapter();
+        this.N = this.db.pagesRows();
+        this.graph = new WebGraph(this.N);
         this.resultSet = this.db.readURLID();
-
-        // Build the web graph.
-        buildWebGraph();
-        // Display the graph.
-        this.graph.printGraph();
     }
 
     public void makePageRanks() {
-        //1 Initially, each web page will have a rank of 1/N
-
+        //1 Initially, each web page will have a rank of (1-d)
+        this.db.fillRanks(1 - d);
+        boolean isConverged;
         //2 Update
-
-        //3 Convergence check
+        do {
+            isConverged = true;
+            for (int i = 1; i <= N; ++i) {
+                if (!graph.adj.get(i).isEmpty()) {
+                    for (Integer adjacentPage : graph.adj.get(i)) {
+                        isConverged = isConverged && updatePR(i, adjacentPage, graph.outdegree(i)) <= epsilon;
+                    }
+                } else {
+                    isConverged = isConverged && updatePR(i, -1, N) <= epsilon;
+                }
+            }
+            //3 Convergence check
+        } while (!isConverged);
     }
+
+
+    private double updatePR(int page, int adjacentPage, int U) {
+        // page--->adjacentPage
+        double oldPR;
+        double newPR;
+        if (adjacentPage != -1) {
+            oldPR = db.getPR(adjacentPage);
+            newPR = oldPR + (d * (db.getPR(page) / U));
+            db.setPR(adjacentPage, newPR);
+        } else {
+            oldPR = db.getPR(page);
+            newPR = oldPR + (d * (oldPR / U));
+            db.setPR(page, newPR);
+        }
+        return Math.abs(newPR - oldPR);
+    }
+
 
     private void buildWebGraph() throws SQLException, IOException {
         while (this.resultSet.next()) {
@@ -48,7 +80,7 @@ public class PageRank {
                 String childURL = link.attr("href");
                 ResultSet resultSet1 = this.db.readID(childURL);
 
-                if(resultSet1.next()) {
+                if (resultSet1.next()) {
                     int to = resultSet1.getInt("id");
                     this.graph.addDirectedEdge(from, to);
                 }
@@ -59,28 +91,52 @@ public class PageRank {
 
     static public class WebGraph {
         private ArrayList<ArrayList<Integer>> adj;
-        private DbAdapter db;
+        private int[] indegree;
+        private int nodes;
+        private int edges;
 
-         public WebGraph(int nodes){
-             //TODO: Get the length of the list from the database.
-             this.db = new DbAdapter();
-             nodes = this.db.pagesRows() + 1;    // Number of rows in the table pages, i.e. number of crawled pages.
-             this.adj = new ArrayList<ArrayList<Integer>>(nodes);
-             for (int i = 0; i < nodes; i++)
-                 adj.add(new ArrayList<Integer>());
+        public WebGraph(int n) {
+            this.nodes = n; // Number of rows in the table pages, i.e. number of crawled pages.
+            this.edges = 0;
+            int v = this.nodes + 1;
+            this.indegree = new int[v];
+            this.adj = new ArrayList<ArrayList<Integer>>(v);
+            adj.add(new ArrayList<Integer>());   // Empty list at position 0, there is no pageID = 0 in the database.
+            for (int i = 1; i < v; i++)
+                adj.add(new ArrayList<Integer>());
 
-         }
+        }
 
-         public void addDirectedEdge(int from, int to) {
-            adj.get(from).add(to);
-         }
+        public void addDirectedEdge(int from, int to) {
+            if (!adj.get(from).contains(to)) {
+                adj.get(from).add(to);
+                indegree[to]++;
+                edges++;
+            }
+        }
 
-        public void printGraph()
-        {
-            for (int i = 0; i < this.adj.size(); i++) {
+        public int indegree(int node) {
+            validateNode(node);
+            return indegree[node];
+        }
+
+        public int outdegree(int node) {
+            validateNode(node);
+            return adj.get(node).size();
+        }
+
+        private void validateNode(int node) {
+            if (node < 0 || node > nodes)
+                throw new IllegalArgumentException("node " + node + "is out of bounds");
+        }
+
+        public void printGraph() {
+            int q = this.adj.size(), p, i = 0, j = 0;
+            for (; i < q; i++) {
                 System.out.println("\nAdjacency list of vertex" + i);
-                for (int j = 0; j < this.adj.get(i).size(); j++) {
-                    System.out.print(" -> "+this.adj.get(i).get(j));
+                p = this.adj.get(i).size();
+                for (j = 0; j < p; j++) {
+                    System.out.print(" -> " + this.adj.get(i).get(j));
                 }
                 System.out.println();
             }
@@ -89,5 +145,12 @@ public class PageRank {
 
     public static void main(String[] args) throws IOException, SQLException {
         PageRank pageRank = new PageRank();
+        // Build the web graph.
+        pageRank.buildWebGraph();
+        // Display the graph.
+        pageRank.graph.printGraph();
+        // Build the ranks table.
+        pageRank.makePageRanks();
+
     }
 }
