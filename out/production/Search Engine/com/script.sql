@@ -54,3 +54,14 @@ create table Images
         foreign key (page_Id) references pages (id)
             on update cascade on delete cascade
 );
+
+create table Ranks
+(
+    pageId int              not null
+        primary key,
+    PR     double default 0 null,
+    constraint Ranks_pages__fk
+        foreign key (pageId) references pages (id)
+            on update cascade
+);
+
