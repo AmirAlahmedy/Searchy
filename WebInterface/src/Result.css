@@ -1,0 +1,13 @@
+.post-card{
+    margin-top: 6px;
+    position:relative;
+    bottom: 100px;
+    right:300px;;
+}
+.card-content{
+    display: inline-block;
+}
+.result-content{
+    position: absolute;;
+    top:-200px;
+}
