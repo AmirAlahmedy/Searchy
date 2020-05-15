@@ -1,6 +1,5 @@
 package com;
 
-import com.crawler.PageContent;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 
 import java.sql.*;

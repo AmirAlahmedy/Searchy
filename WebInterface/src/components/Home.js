@@ -50,8 +50,8 @@ class Home extends Component{
               <i className="fa fa-search search-icon" aria-hidden="true"/>
             </label>
             <div className="center">
-            <Link to="/results" class="myButton">Go</Link>
-            <Link to="/searchbyvoice" class="myButton">Voice Search</Link>
+            <Link to="/results" className="myButton">Go</Link>
+            <Link to="/searchbyvoice" className="myButton">Voice Search</Link>
               </div>
           </div>)  
     }

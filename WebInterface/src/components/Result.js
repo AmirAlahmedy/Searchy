@@ -6,7 +6,7 @@ class Result extends Component{
         posts:[ ]
     }
     componentDidMount(){
-        axios.get('https://jsonplaceholder.typicode.com/posts')
+        axios.get('http://localhost:4000/results')
         .then(res =>{
             console.log(res)
             this.setState({
@@ -32,7 +32,7 @@ class Result extends Component{
         return(
             <div className="container">
                 <h4 className="result-content">Results</h4>
-                <p>{postList}</p>
+                {postList}
             </div>
         )
     }
