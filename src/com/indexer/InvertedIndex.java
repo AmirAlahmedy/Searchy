@@ -46,8 +46,8 @@ public class InvertedIndex {
                 parsedContent = parsedContent.toLowerCase();
 
                 if (i == 11) {         // to extract the the image alt and src only
-                    String [] srcs = resultSet.getString(12).split("   ");
-                    String[] alts = parsedContent.split("\n");
+                    String [] srcs = resultSet.getString(12).split("\n\n");
+                    String[] alts = parsedContent.split("\n\n");
                     //System.out.println(Integer.toString(srcs.length) + "    " +Integer.toString(alts.length));
                     int counter = 0;
                     for (String img : alts){
