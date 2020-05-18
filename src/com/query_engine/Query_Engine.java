@@ -109,9 +109,18 @@ public class Query_Engine {
             System.out.println(TermRow);
             //PageColumn.add(TermRow);
         }
+//        for(int i=0; i<pagesNumber;i++)
+//        {
+//            System.out.print(pageScore[i]+ " ");
+//            //System.out.print(page_ids[i]+" ");
+//        }
+        Integer [] page_ids = pageIDS.toArray(new Integer[0]);
+        System.out.println("Pages IDS Sorted:");
+        sort(pageScore,page_ids);
         for(int i=0; i<pagesNumber;i++)
         {
-            System.out.print(pageScore[i]+" ");
+            //System.out.print(pageScore[i]+ " ");
+            System.out.print(page_ids[i]+" ");
         }
         return resultSet;
     }
@@ -125,6 +134,29 @@ public class Query_Engine {
         else {
             System.out.println("Normal Search");
             return search(query);
+        }
+    }
+    void sort(double arr[],Integer[] pageIDS)
+    {
+        int n = arr.length;
+
+        // One by one move boundary of unsorted subarray
+        for (int i = 0; i < n-1; i++)
+        {
+            // Find the minimum element in unsorted array
+            int min_idx = i;
+            for (int j = i+1; j < n; j++)
+                if (arr[j] > arr[min_idx])
+                    min_idx = j;
+
+            // Swap the found minimum element with the first
+            // element
+            double temp = arr[min_idx];
+            Integer tempID = pageIDS[min_idx];
+            arr[min_idx] = arr[i];
+            pageIDS[min_idx] = pageIDS[i];
+            arr[i] = temp;
+            pageIDS[i] = tempID;
         }
     }
     public static void main(String[] args) throws SQLException {
