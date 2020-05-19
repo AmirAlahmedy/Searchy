@@ -1,6 +1,7 @@
 import React, {Component } from 'react'
 import {Link} from 'react-router-dom';
 import '../Home.css'
+import Silogo from '../silogo.png'
 //import lib from 'react-speech-recognition';
 //import Mic from './Mic'
 class Home extends Component{
@@ -41,19 +42,17 @@ class Home extends Component{
       console.log(this.props)
         return (
           <div className="container">
-            <h2 className="heading">Searchy</h2>
-            <label htmlFor="search-input" className="search-label">
+            <img src={Silogo} alt="Searchy" />
               <div className="AutoCompleteText">
-              <input onChange={this.handleChange} value={query} type="text"  id="search-input" placeholder="Search..."/>
+              <input onChange={this.handleChange} value={query} type="text"  class="form-control form-control-sm ml-3 w-100" id="search-input" placeholder="Search..."/>
               <div>{this.renderSuggestions()}</div>
               </div>
-              <i className="fa fa-search search-icon" aria-hidden="true"/>
-            </label>
             <div className="center">
-            <Link to="/results" className="myButton">Go</Link>
-            <Link to="/searchbyvoice" className="myButton">Voice Search</Link>
+            <Link to="/results" class="myButton">Go</Link>
+            <Link to="/searchbyvoice" class="myButton">Voice Search</Link>
               </div>
-          </div>)  
+          </div>
+        )  
     }
 }
 

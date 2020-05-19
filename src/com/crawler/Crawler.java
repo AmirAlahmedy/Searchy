@@ -4,6 +4,7 @@ import com.DbAdapter;
 //import javafx.scene.input.PickResult;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
+import org.jsoup.UnsupportedMimeTypeException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -97,9 +98,9 @@ public class Crawler implements Runnable{
                         String alt ="";
                         Elements imgs = doc.select("img");
                         for (Element el : imgs){
-                            if(el.attr("alt") != null && !el.attr("alt").equals("") && el.attr("src") != null && !el.attr("alt").equals("")){
-                                alt= alt + el.attr("alt") +"\n";
-                                meta = meta + el.attr("src") + "   ";
+                            if(el.attr("alt") != null && !el.attr("alt").equals("") && el.attr("src") != null && !el.attr("src").equals("")){
+                                alt= alt + el.attr("alt") +"\n\n";
+                                meta = meta + el.attr("src") + "\n\n";
                             }
                         }
 
@@ -155,12 +156,16 @@ public class Crawler implements Runnable{
                 myPivotList.remove(p);
             } catch (UnknownHostException e) {
                 System.err.println("Unable to connect to " + p.getPivot() + " due to weak internet connection.");
+            } catch( UnsupportedMimeTypeException e){
+                myPivotList.remove(p);
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (Exception e){
+                myPivotList.remove(p);
             }
-            catch (final Exception | Error ignored){
-
-            }
+//            } catch (final Exception | Error ignored){
+//                myPivotList.remove(p);
+//            }
         }
         //FIXME: Many bad urls are crawled when recurring.
         crawl(myPivotList);
@@ -214,6 +219,7 @@ public class Crawler implements Runnable{
         // facebook shouldn' t be crawled
         pivots.add(new Pivot("http://www.facebook.com/"));
         ArrayList<Thread> threadArr=new ArrayList<>();
+//        pivots.add(new Pivot("https://www.minutemedia.com/careers"));
 
         Scanner input = new Scanner(System.in);
         System.out.print("Enter the number of threads: ");

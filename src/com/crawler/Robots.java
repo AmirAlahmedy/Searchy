@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Scanner;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class Robots {
+class Robots {
 
     private CopyOnWriteArrayList <String> disallowedPivots;
     private CopyOnWriteArrayList <Pivot> allowedPivots;
