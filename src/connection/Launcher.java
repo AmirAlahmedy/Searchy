@@ -3,39 +3,15 @@ package connection;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-
-import javax.net.ssl.HttpsURLConnection;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 public class Launcher  implements HttpHandler {
-    public URL url;
-    public Launcher(){
-        try {
-//            url = new URL("http://localhost:3000");
-//            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-//            con.setRequestMethod("GET");
-//            BufferedReader in = new BufferedReader(
-//                    new InputStreamReader(con.getInputStream()));
-//            String inputLine;
-//            StringBuffer content = new StringBuffer();
-//            while ((inputLine = in.readLine()) != null) {
-//                content.append(inputLine);
-//
-//            }
-//            System.out.println(content);
-//            in.close();
-
-        }catch (Exception ignored){}
-    }
+    static final int  PORT = 4000;
+    public Launcher(){}
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
@@ -177,13 +153,11 @@ public class Launcher  implements HttpHandler {
     }
 
     public static void main(String[] args) throws IOException {
-//        System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
-        HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 4000), 0);
+        HttpServer server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
         server.createContext("/results", new Launcher());
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
         server.setExecutor(threadPoolExecutor);
         server.start();
-        System.out.println("Server started on port 4000");
-
+        System.out.println("Server started on port "+ PORT);
     }
 }
