@@ -1,9 +1,9 @@
 import React,{Component } from 'react';
 import { BrowserRouter,Route,Switch} from 'react-router-dom'
-import Home from './components/Home'
-import Result from './components/Result'
+import Home from './components/Home/Home'
+import Result from './components/Result/Result'
 import countries from './countries'
-import Mic from './components/Mic'
+import Mic from './components/Mic/Mic'
 //import SpeechRecognition from 'react-speech-recognition'
 
 class App extends Component {
