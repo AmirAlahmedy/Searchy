@@ -27,7 +27,7 @@ import static java.lang.Thread.sleep;
 public class Crawler implements Runnable{
     private CopyOnWriteArrayList <Pivot> pivotList;
     private DbAdapter db;
-    private final int PAGES_TO_CRAWL = 50;
+    private final int PAGES_TO_CRAWL = 5000;
     private AtomicInteger crawledPages;
     public List<PageContent> pages;
 
@@ -179,6 +179,7 @@ public class Crawler implements Runnable{
     public void setPivotList(CopyOnWriteArrayList<Pivot> pivotList) {
         this.pivotList = pivotList;
     }
+
     @Override
     public void run() {
         int threadNumber = Integer.parseInt(Thread.currentThread().getName());
@@ -208,14 +209,19 @@ public class Crawler implements Runnable{
     public static void main(String[] args) throws InterruptedException{
 
         CopyOnWriteArrayList<Pivot> pivots = new CopyOnWriteArrayList<>();
-        pivots.add(new Pivot("https://en.wikipedia.org/wiki/"));
+        pivots.add(new Pivot("https://uk.sports.yahoo.com/football/?guccounter=1"));
+        pivots.add(new Pivot("https://www.independent.co.uk/sport/football"));
+        pivots.add(new Pivot("https://www.si.com/soccer"));
+        pivots.add(new Pivot("https://www.mirror.co.uk/sport/football/"));
         pivots.add(new Pivot("https://www.90min.com/"));
         pivots.add(new Pivot("https://www.foxsports.com/"));
-        pivots.add(new Pivot("https://www.goal.com/en-gb"));
+        pivots.add(new Pivot("https://www.goal.com/en"));
         pivots.add(new Pivot("https://www.nbcsports.com/"));
-        pivots.add(new Pivot("http://www.espn.com/"));
-        pivots.add(new Pivot("https://www.theguardian.com/uk/sport"));
+        pivots.add(new Pivot("https://global.espn.com/football/?src=com"));
+        pivots.add(new Pivot("https://www.theguardian.com/football"));
         pivots.add(new Pivot("http://bleacherreport.com/uk"));
+        pivots.add(new Pivot("https://www.skysports.com/football"));
+        pivots.add(new Pivot("https://www.bbc.com/sport/football"));
         // facebook shouldn' t be crawled
         pivots.add(new Pivot("http://www.facebook.com/"));
         ArrayList<Thread> threadArr=new ArrayList<>();

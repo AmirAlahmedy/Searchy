@@ -70,29 +70,81 @@ public class Query_Engine {
         return resultSet;
     }
 
-    private ResultSet search(String query)
-    {
+    private ResultSet search(String query) throws SQLException {
         ResultSet resultSet=null;
 
         // STEMMING THE QUERY
         ArrayList<String> searchTerms = stemQuery(query);
         System.out.println(searchTerms);
 
-        ResultSet pageIdsResultSets = this.db.selectCommonPages(searchTerms);
-        ArrayList <Integer> pageIDS = new ArrayList<Integer>();
+        //****************************************************
+
+        //  GETTING PAGES THAT ARE COMMON IN ALL TERMS
+        ArrayList <Integer> pageIDS = findCommonPagesIDS(searchTerms);
+        System.out.println(pageIDS);
+
+        //****************************************************
+
+        // CALCULATING PAGES SCORES
+        double [] pageScore = calculatePageScore(pageIDS,searchTerms);
+
+        //****************************************************
+
+        // SORTING PAGES ACCORDING TO SCORES
+        Integer [] page_ids = pageIDS.toArray(new Integer[0]);
+        sort(pageScore,page_ids);
+
+        //****************************************************
+
+        // RETRIEVING URLS, TITLE, BODY FROM IDS
+        resultSet=this.db.getPagesInfo(page_ids);
         try {
-            while (pageIdsResultSets.next()) {
-                pageIDS.add(pageIdsResultSets.getInt(1));
+            while (resultSet.next()) {
+               System.out.println(resultSet.getInt(3));
             }
         }
         catch( SQLException e){
             System.out.println(e.getErrorCode());
         }
 
-        System.out.println(pageIDS);
+        //****************************************************
+
+        /*
+        int pagesNumber = pageIDS.size();
+        System.out.println("Pages IDS Sorted:");
+        for(int i=0; i<pagesNumber;i++)
+        {
+            //System.out.print(pageScore[i]+ " ");
+            System.out.print(page_ids[i]+" ");
+        }
+        */
+
+        return resultSet;
+    }
+
+    public ResultSet processQuery(String query)
+    {
+        ResultSet rs = null;
+        if(query.startsWith("'") &&  query.endsWith("'")) {
+            System.out.println("Phrase Search");
+            rs= phraseSearch(query);
+        }
+        else {
+            System.out.println("Normal Search");
+            try {
+                rs= search(query);
+            }
+            catch (SQLException e)
+            {
+                e.getErrorCode();
+            }
+        }
+        return rs;
+    }
+    private double [] calculatePageScore(ArrayList <Integer> pageIDS ,ArrayList<String> searchTerms)
+    {
         int termsNumber = searchTerms.size();
         int pagesNumber = pageIDS.size();
-        //double [] termsIDF = new double[termsNumber];
         double [] pageScore = new double[pagesNumber];
 
         //ArrayList<ArrayList<Double>> PageColumn = new ArrayList<>();
@@ -107,36 +159,25 @@ public class Query_Engine {
                 pageScore[j]+=IDF*TF*pageRank;
             }
             System.out.println(TermRow);
-            //PageColumn.add(TermRow);
         }
-//        for(int i=0; i<pagesNumber;i++)
-//        {
-//            System.out.print(pageScore[i]+ " ");
-//            //System.out.print(page_ids[i]+" ");
-//        }
-        Integer [] page_ids = pageIDS.toArray(new Integer[0]);
-        System.out.println("Pages IDS Sorted:");
-        sort(pageScore,page_ids);
-        for(int i=0; i<pagesNumber;i++)
-        {
-            //System.out.print(pageScore[i]+ " ");
-            System.out.print(page_ids[i]+" ");
-        }
-        return resultSet;
+        return pageScore;
     }
 
-    public ResultSet processQuery(String query)
+    private ArrayList <Integer> findCommonPagesIDS(ArrayList<String> searchTerms)
     {
-        if(query.startsWith("'") &&  query.endsWith("'")) {
-            System.out.println("Phrase Search");
-            return phraseSearch(query);
+        ResultSet pageIdsResultSets = this.db.selectCommonPages(searchTerms);
+        ArrayList <Integer> pageIDS = new ArrayList<Integer>();
+        try {
+            while (pageIdsResultSets.next()) {
+                pageIDS.add(pageIdsResultSets.getInt(1));
+            }
         }
-        else {
-            System.out.println("Normal Search");
-            return search(query);
+        catch( SQLException e){
+            System.out.println(e.getErrorCode());
         }
+        return pageIDS;
     }
-    void sort(double arr[],Integer[] pageIDS)
+    private void sort(double arr[],Integer[] pageIDS)
     {
         int n = arr.length;
 
@@ -162,6 +203,6 @@ public class Query_Engine {
     public static void main(String[] args) throws SQLException {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
-        qe.processQuery("arsenal and manchester and liverpool ");
+        qe.processQuery("manchester and derby");
     }
 }
