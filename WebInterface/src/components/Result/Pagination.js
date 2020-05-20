@@ -9,27 +9,26 @@ const Pagination = ({ postsPerPage, totalPosts, paginate, currentPage }) => {
   }
   return (
 
-    <nav style={{marginLeft: '5%'}}>
-      <ul className='pagination' style={{margin: '0'}}>
+      <ul className='pagination' style={{margin: '0', marginLeft: '5%'}}>
           <li className="page-item">
-              <a className="page-link" onClick={() => paginate(currentPage - 1)} href="!#" aria-label="Previous">
+              <button className="page-link" onClick={() => paginate(currentPage - 1)}  aria-label="Previous">
                   <span aria-hidden="true">&laquo;</span>
-              </a>
+              </button>
           </li>
         {pageNumbers.map(number => (
           <li key={number} className='page-item'>
-            <a onClick={() => paginate(number)} href="/results/!#"  className='page-link'>
+            <button onClick={() => paginate(number)}   className='page-link'>
               {number}
-            </a>
+            </button>
           </li>
         ))}
           <li className="page-item">
-              <a className="page-link" onClick={() => paginate(currentPage + 1)} href="!#" aria-label="Next">
+              <button className="page-link" onClick={() => paginate(currentPage + 1)}  aria-label="Next">
                   <span aria-hidden="true">&raquo;</span>
-              </a>
+              </button>
           </li>
       </ul>
-    </nav>
+
   );
 };
 

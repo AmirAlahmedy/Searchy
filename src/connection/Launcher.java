@@ -155,8 +155,8 @@ public class Launcher  implements HttpHandler {
     public static void main(String[] args) throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
         server.createContext("/results", new Launcher());
-        ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
-        server.setExecutor(threadPoolExecutor);
+//        ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
+//        server.setExecutor(threadPoolExecutor);
         server.start();
         System.out.println("Server started on port "+ PORT);
     }
