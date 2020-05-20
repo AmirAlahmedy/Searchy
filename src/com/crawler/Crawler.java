@@ -145,6 +145,7 @@ public class Crawler implements Runnable{
                 //TODO: Handle exceptions with descriptive messages.
             } catch (HttpStatusException e) {
                 // ignore it
+                myPivotList.remove(p);
             }
             catch (SocketException e )
             {
