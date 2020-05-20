@@ -475,4 +475,30 @@ public class DbAdapter {
         }
 
     }
+    public void addNameTrend (String name, String country){
+        try {
+            String query = "INSERT INTO `trends` (`id`,`name`,`country`,`frequency`) VALUES (NULL,?,?,?)" +
+                    "ON DUPLICATE KEY UPDATE frequency=frequency+1";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, name);
+            preparedStatement.setString(2, country);
+            preparedStatement.setInt(3, 1);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public ResultSet getTrends(String country){
+        try {
+            String query = "SELECT * FROM `trends` WHERE `country` = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1,country);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
