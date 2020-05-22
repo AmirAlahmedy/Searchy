@@ -104,7 +104,7 @@ public class DbAdapter {
 
     public void removePageFromBackup(String url){
         try{
-            String query = "DELETE FROM `crawler_backup` WHERE `url` = ?";
+            String query = "DELETE FROM `Crawler_Backup` WHERE `url` = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1,url);
             preparedStatement.execute();
@@ -117,7 +117,7 @@ public class DbAdapter {
     public int pageBackupCount(){
         ResultSet resultSet = null;
         try {
-            String query = "SELECT COUNT(*) FROM `crawler_backup`";
+            String query = "SELECT COUNT(*) FROM `Crawler_Backup`";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             resultSet = preparedStatement.executeQuery();
             resultSet.next();
@@ -131,7 +131,7 @@ public class DbAdapter {
 
     public boolean isPageInBackup(String url){
         try{
-            String query = "SELECT * FROM `crawler_backup` WHERE url = ?";
+            String query = "SELECT * FROM `Crawler_Backup` WHERE url = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1,url);
             ResultSet resultSet=preparedStatement.executeQuery();
@@ -144,7 +144,7 @@ public class DbAdapter {
 
     public ResultSet getPagesInBackup(){
         try{
-            String query = "SELECT * FROM `crawler_backup`";
+            String query = "SELECT * FROM `Crawler_Backup`";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             return  preparedStatement.executeQuery();
 
@@ -563,7 +563,7 @@ public class DbAdapter {
     }
     public void addNameTrend (String name, String country){
         try {
-            String query = "INSERT INTO `trends` (`id`,`name`,`country`,`frequency`) VALUES (NULL,?,?,?)" +
+            String query = "INSERT INTO `Trends` (`id`,`name`,`country`,`frequency`) VALUES (NULL,?,?,?)" +
                     "ON DUPLICATE KEY UPDATE frequency=frequency+1";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, name);
@@ -577,7 +577,7 @@ public class DbAdapter {
 
     public ResultSet getTrends(String country){
         try {
-            String query = "SELECT * FROM `trends` WHERE `country` = ?";
+            String query = "SELECT * FROM `Trends` WHERE `country` = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1,country);
             ResultSet resultSet = preparedStatement.executeQuery();

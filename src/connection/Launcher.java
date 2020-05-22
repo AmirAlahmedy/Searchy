@@ -8,15 +8,14 @@ import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 public class Launcher  implements HttpHandler {
     static final int  PORT = 4000;
@@ -39,7 +38,7 @@ public class Launcher  implements HttpHandler {
 
         // Get the search query from the interface
         InputStream inputStream = httpExchange.getRequestBody();
-        String searchQueryJSON = new String( inputStream.readAllBytes(), "UTF-8");
+        String searchQueryJSON = new String( inputStream.readAllBytes(), StandardCharsets.UTF_8);
 
         GsonBuilder builder = new GsonBuilder();
         builder.setPrettyPrinting();
@@ -190,7 +189,7 @@ public class Launcher  implements HttpHandler {
     private String searchDB(String searchQuery) throws SQLException {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
-        ResultSet resultSet = qe.processQuery(searchQuery);
+        ResultSet resultSet = qe.processQuery(searchQuery, "Egypt");
         String resultJSON = "[ ";
         while (resultSet.next()) {
             // 0: id, 1: url, 2: title, 3: body
