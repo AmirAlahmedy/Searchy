@@ -92,8 +92,13 @@ public class DbAdapter {
             preparedStatement.setString(1,url);
             preparedStatement.setString(2,url);
             preparedStatement.execute();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        }  catch (SQLException throwables) {
+            if (throwables instanceof SQLIntegrityConstraintViolationException){
+                //Ignore duplicate entry error
+            }
+            else {
+                throwables.printStackTrace();
+            }
         }
     }
 

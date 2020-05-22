@@ -40,7 +40,8 @@ public class Crawler implements Runnable{
 //        this.pivotList = pivotList;
         this.noThreads=noThreads;
         db = new DbAdapter();
-        crawledPages=new AtomicInteger();
+        crawledPages=new AtomicInteger(db.pagesRows());
+        //System.out.println(crawledPages.get());
         backupCrawledPages = db.pageBackupCount();
         try {
             ResultSet resultSet = db.getPagesInBackup();
