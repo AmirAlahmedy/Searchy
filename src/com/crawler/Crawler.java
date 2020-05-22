@@ -200,7 +200,7 @@ public class Crawler implements Runnable{
                         myPivots.add(pivotList.get(j));
                     }
                 }
-                System.out.println(myPivots.get(0).getPivot());
+                //System.out.println(myPivots.get(0).getPivot());
                 crawl(myPivots);
             }
 
@@ -224,7 +224,7 @@ public class Crawler implements Runnable{
         pivots.add(new Pivot("https://www.skysports.com/football"));
         pivots.add(new Pivot("https://www.bbc.com/sport/football"));
         // facebook shouldn' t be crawled
-        pivots.add(new Pivot("http://www.facebook.com/"));
+        //pivots.add(new Pivot("http://www.facebook.com/"));
         ArrayList<Thread> threadArr=new ArrayList<>();
 //        pivots.add(new Pivot("https://www.minutemedia.com/careers"));
 
@@ -232,6 +232,10 @@ public class Crawler implements Runnable{
         System.out.print("Enter the number of threads: ");
         int number = input.nextInt();
         input.close();
+        //if the number of threads is more than the seeds size this will be not useful
+        if(number > pivots.size()){
+            number = pivots.size();
+        }
         Runnable crawler = new Crawler(pivots,number);
         for(int i=0;i<number;i++){
             threadArr.add(new Thread(crawler));

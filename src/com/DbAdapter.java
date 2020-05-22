@@ -83,11 +83,13 @@ public class DbAdapter {
     }
 
 
-    public ResultSet readPages() {
+    public ResultSet readPagesThreads(int size,int offset) {
         ResultSet resultSet = null;
         try {
-            String query = "SELECT * FROM `pages`";
+            String query = "SELECT * FROM `pages` LIMIT ? OFFSET ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1,size);
+            preparedStatement.setInt(2,offset);
             resultSet = preparedStatement.executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -183,7 +185,7 @@ public class DbAdapter {
         }
     }
 
-    public void addNewTerm(String term, int pageId, int htmlTag) {
+    public synchronized void addNewTerm(String term, int pageId, int htmlTag) {
 
         boolean update;
         try {
@@ -364,7 +366,7 @@ public class DbAdapter {
     }
 
 
-    public void addNewImg(int pageId, String term, String url) {
+    public synchronized void addNewImg(int pageId, String term, String url) {
         try {
             String query = "INSERT INTO `Images` (`id`,`term`,`page_Id`,`src`) VALUES (NULL,?,?,?)";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
