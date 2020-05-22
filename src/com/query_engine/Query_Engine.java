@@ -107,7 +107,7 @@ public class Query_Engine {
         resultSet=this.db.getPagesInfo(page_ids);
         try {
             while (resultSet.next()) {
-               System.out.println(resultSet.getInt(3));
+               System.out.println(resultSet.getString(3));
             }
         }
         catch( SQLException e){
@@ -163,8 +163,8 @@ public class Query_Engine {
                 Double IDF = this.db.getIDF(searchTerms.get(i));
                 Double TF = this.db.getTF(searchTerms.get(i), pageIDS.get(j));
                 Double pageRank = this.db.getPR(pageIDS.get(j));
-                TermRow.add(IDF*TF*pageRank);
-                pageScore[j]+=IDF*TF*pageRank;
+                TermRow.add(TF*pageRank);
+                pageScore[j]+=TF*pageRank;
             }
             System.out.println(TermRow);
         }
