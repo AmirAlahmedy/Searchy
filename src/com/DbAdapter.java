@@ -380,7 +380,7 @@ public class DbAdapter {
 
     public ResultSet getTerms() {
         try {
-            String query = "SELECT * FROM `terms`";
+            String query = "SELECT * FROM `Terms`";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             ResultSet resultSet = preparedStatement.executeQuery();
             return resultSet;
@@ -392,7 +392,7 @@ public class DbAdapter {
 
     public ResultSet getRanks() {
         try {
-            String query = "SELECT * FROM `ranks`";
+            String query = "SELECT * FROM `Ranks`";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             ResultSet resultSet = preparedStatement.executeQuery();
             return resultSet;
@@ -404,7 +404,7 @@ public class DbAdapter {
 
     public double getIDF(String term) {
         try {
-            String query = "SELECT DISTINCT IDF FROM `terms` WHERE `Term` = ?";
+            String query = "SELECT DISTINCT IDF FROM `Terms` WHERE `Term` = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, term);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -417,7 +417,7 @@ public class DbAdapter {
     }
     public double getTF(String term, Integer pageID) {
         try {
-            String query = "SELECT TF FROM `terms` WHERE `Term` = ? AND `Page_Id` = ?";
+            String query = "SELECT TF FROM `Terms` WHERE `Term` = ? AND `Page_Id` = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, term);
             preparedStatement.setInt(2, pageID);

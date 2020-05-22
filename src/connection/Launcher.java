@@ -50,7 +50,7 @@ public class Launcher  implements HttpHandler {
         System.out.println(searchQueryJSON);
         System.out.println(sq);
         // Lookup the database for relevant results
-//        String results = searchDB(searchQuery);
+        String results1 = searchDB(sq.searchQuery1);
         String results =
               "[   {\n" +
                       "      \"id\":1,\n" +
@@ -167,7 +167,6 @@ public class Launcher  implements HttpHandler {
         Headers headers  = httpExchange.getResponseHeaders();
         headers.set("Access-Control-Allow-Origin", "*");
         headers.set("Content-Type", "application/json");
-//        headers.add("Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, DELETE");
         httpExchange.sendResponseHeaders(200, s.length());
 
         outputStream.write(s.getBytes());
@@ -192,10 +191,20 @@ public class Launcher  implements HttpHandler {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
         ResultSet resultSet = qe.processQuery(searchQuery);
-        String resultJSON = "";
+        String resultJSON = "[ ";
         while (resultSet.next()) {
-
+            // 0: id, 1: url, 2: title, 3: body
+            String id    = resultSet.getString(0);
+            String url   = resultSet.getString(1);
+            String title = resultSet.getString(2);
+            String body  = resultSet.getString(3);
+            System.out.println("--------------------------------------------");
+            System.out.println(id);
+            System.out.println(url);
+            System.out.println(title);
+            System.out.println("--------------------------------------------\n\n");
         }
+        resultJSON = resultJSON + " ]";
         return resultJSON;
     }
 
@@ -217,5 +226,8 @@ public class Launcher  implements HttpHandler {
                     "searchQuery1='" + searchQuery1 + '\'' +
                     '}';
         }
+    }
+    private static class ResultPage {
+
     }
 }
