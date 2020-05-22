@@ -30,7 +30,7 @@ public class DbAdapter {
 
                 return false;
             }
-            String query = "INSERT INTO `pages` (`id`, `url`, `title`, `h1`, `h2`, `h3`, `h4`, `h5`, `h6`, `body`, `alt`, `meta`, `words`) VALUES (NULL,? ,? ,?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)";
+            String query = "INSERT INTO `pages` (`id`, `url`, `title`, `h1`, `h2`, `h3`, `h4`, `h5`, `h6`, `body`, `alt`, `meta`, `words`, `indexed`) VALUES (NULL,? ,? ,?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, url);
             preparedStatement.setString(2, title);
@@ -43,6 +43,7 @@ public class DbAdapter {
             preparedStatement.setString(9, body);
             preparedStatement.setString(10, alt);
             preparedStatement.setString(11, meta);
+            preparedStatement.setBoolean(12,false);
             preparedStatement.execute();
             System.out.println("Added page to database successfully");
             return true;
@@ -82,12 +83,97 @@ public class DbAdapter {
         }
     }
 
+    public void addPageToBackup(String url){
+        try{
+            String query = "INSERT INTO `Crawler_Backup` (`id`, `url`) VALUES (NULL,?)"+
+                    "ON DUPLICATE KEY UPDATE url = ?";
+            //Equivalent to on duplicate update do nothing
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1,url);
+            preparedStatement.setString(2,url);
+            preparedStatement.execute();
+        }  catch (SQLException throwables) {
+            if (throwables instanceof SQLIntegrityConstraintViolationException){
+                //Ignore duplicate entry error
+            }
+            else {
+                throwables.printStackTrace();
+            }
+        }
+    }
 
-    public ResultSet readPages() {
+    public void removePageFromBackup(String url){
+        try{
+            String query = "DELETE FROM `crawler_backup` WHERE `url` = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1,url);
+            preparedStatement.execute();
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public int pageBackupCount(){
         ResultSet resultSet = null;
         try {
-            String query = "SELECT * FROM `pages`";
+            String query = "SELECT COUNT(*) FROM `crawler_backup`";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
+            resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            return resultSet.getInt(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    public boolean isPageInBackup(String url){
+        try{
+            String query = "SELECT * FROM `crawler_backup` WHERE url = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1,url);
+            ResultSet resultSet=preparedStatement.executeQuery();
+            return resultSet.next();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return true;
+        }
+    }
+
+    public ResultSet getPagesInBackup(){
+        try{
+            String query = "SELECT * FROM `crawler_backup`";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            return  preparedStatement.executeQuery();
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return null;
+        }
+    }
+
+    public void markPageAsIndexed(int pageId){
+        try{
+            String query= "UPDATE `pages` SET `indexed` = ? WHERE `id` = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setBoolean(1,true);
+            preparedStatement.setInt(2,pageId);
+            preparedStatement.execute();
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public ResultSet readPagesThreads(int size,int offset) {
+        ResultSet resultSet = null;
+        try {
+            String query = "SELECT * FROM `pages` LIMIT ? OFFSET ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1,size);
+            preparedStatement.setInt(2,offset);
             resultSet = preparedStatement.executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -183,7 +269,7 @@ public class DbAdapter {
         }
     }
 
-    public void addNewTerm(String term, int pageId, int htmlTag) {
+    public synchronized void addNewTerm(String term, int pageId, int htmlTag) {
 
         boolean update;
         try {
@@ -364,7 +450,7 @@ public class DbAdapter {
     }
 
 
-    public void addNewImg(int pageId, String term, String url) {
+    public synchronized void addNewImg(int pageId, String term, String url) {
         try {
             String query = "INSERT INTO `Images` (`id`,`term`,`page_Id`,`src`) VALUES (NULL,?,?,?)";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -474,5 +560,31 @@ public class DbAdapter {
             return null;
         }
 
+    }
+    public void addNameTrend (String name, String country){
+        try {
+            String query = "INSERT INTO `trends` (`id`,`name`,`country`,`frequency`) VALUES (NULL,?,?,?)" +
+                    "ON DUPLICATE KEY UPDATE frequency=frequency+1";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, name);
+            preparedStatement.setString(2, country);
+            preparedStatement.setInt(3, 1);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public ResultSet getTrends(String country){
+        try {
+            String query = "SELECT * FROM `trends` WHERE `country` = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1,country);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

@@ -15,16 +15,22 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import edu.stanford.nlp.ie.AbstractSequenceClassifier;
+import edu.stanford.nlp.ie.crf.*;
+import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.util.Triple;
+
+
 public class Query_Engine {
     private final DbAdapter db;
     private List<String> stopWords = Collections.emptyList();
-    private ResultSet terms;
-    private ResultSet ranks;
+//    private ResultSet terms;
+//    private ResultSet ranks;
 
     public Query_Engine(DbAdapter db){
         this.db = db;
-        this.terms = this.db.getTerms();
-        this.ranks = this.db.getRanks();
+//        this.terms = this.db.getTerms();
+//        this.ranks = this.db.getRanks();
         try{
             stopWords= Files.readAllLines(Paths.get("src/com/indexer/stopWords.txt"));
         }
@@ -35,6 +41,7 @@ public class Query_Engine {
 
     private ArrayList<String> stemQuery(String query){
         ArrayList<String> searchTerms = new ArrayList<String>();
+        query = query.toLowerCase();
         List<String> tokens = Arrays.asList(query.split("[^a-z0-9]"));
         //  System.out.println(tokens);
         try {
@@ -122,7 +129,7 @@ public class Query_Engine {
         return resultSet;
     }
 
-    public ResultSet processQuery(String query)
+    public ResultSet processQuery(String query,String country)
     {
         ResultSet rs = null;
         if(query.startsWith("'") &&  query.endsWith("'")) {
@@ -132,6 +139,7 @@ public class Query_Engine {
         else {
             System.out.println("Normal Search");
             try {
+                addTrend(query,country);
                 rs= search(query);
             }
             catch (SQLException e)
@@ -200,9 +208,35 @@ public class Query_Engine {
             pageIDS[i] = tempID;
         }
     }
+
+    public void addTrend(String query,String country){
+        try{
+            String serializedClassifier = "src/com/query_engine/english.all.3class.distsim.crf.ser.gz";
+            AbstractSequenceClassifier<CoreLabel> classifier = CRFClassifier.getClassifier(serializedClassifier);
+            List<Triple<String,Integer,Integer>> triples = classifier.classifyToCharacterOffsets(query);
+            //Now I have a list of tiples each triple contains
+            //  1. the type of entity -> PERSON/ORGANIZATION/LOCATION     we only need the person here
+            //  2. the start index of this entity
+            //  3. the end index of this entity
+            String personName = "";
+            for (Triple<String,Integer,Integer> entity : triples) {
+                if(entity.first.equals("PERSON")) {
+                    personName = query.substring(entity.second, entity.third);
+                    // Add name and country to DB
+                    this.db.addNameTrend(personName,country);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) throws SQLException {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
-        qe.processQuery("manchester and derby");
+        String country="Egypt";
+        qe.processQuery("Messi",country);
     }
 }

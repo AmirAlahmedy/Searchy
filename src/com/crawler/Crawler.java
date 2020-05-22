@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -29,16 +31,35 @@ public class Crawler implements Runnable{
     private DbAdapter db;
     private final int PAGES_TO_CRAWL = 5000;
     private AtomicInteger crawledPages;
+    private int backupCrawledPages;
     public List<PageContent> pages;
 
     private int noThreads;
 
     public Crawler(CopyOnWriteArrayList<Pivot> pivotList,int noThreads) {
-        this.pivotList = pivotList;
+//        this.pivotList = pivotList;
         this.noThreads=noThreads;
         db = new DbAdapter();
-        crawledPages=new AtomicInteger();
-        //this.pages = new ArrayList<>();
+        crawledPages=new AtomicInteger(db.pagesRows());
+        //System.out.println(crawledPages.get());
+        backupCrawledPages = db.pageBackupCount();
+        try {
+            ResultSet resultSet = db.getPagesInBackup();
+            if (!resultSet.next()) {
+                // There is nothing in the crawler backup
+                this.pivotList = pivotList;
+            }
+            else{
+                // fill it with the database
+                this.pivotList = new CopyOnWriteArrayList<>();
+                this.pivotList.add(new Pivot(resultSet.getString("url")));
+                while (resultSet.next()){
+                    this.pivotList.add(new Pivot(resultSet.getString("url")));
+                }
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
 
@@ -75,6 +96,13 @@ public class Crawler implements Runnable{
                     {
                         //  Add allowed Pivots from robots.txt
                         myPivotList.addAllAbsent(r.getAllowedPivots());
+                        // Adding them to the crawler backup
+                        for(Pivot temp : r.getAllowedPivots()){
+                            if(backupCrawledPages < PAGES_TO_CRAWL) {
+                                db.addPageToBackup(temp.getPivot());
+                                backupCrawledPages++;
+                            }
+                        }
                         //  Apply the specified delay from robots.txt
                         sleep(r.getCrawlDelay());
                     }
@@ -124,6 +152,11 @@ public class Crawler implements Runnable{
                             if(!disallowedPivotList.contains(crawled.getPivot()))
                             {
                                 myPivotList.add(crawled);
+                                //Add it to backup database
+                                if(backupCrawledPages < PAGES_TO_CRAWL) {
+                                    db.addPageToBackup(crawled.getPivot());
+                                    backupCrawledPages++;
+                                }
                             }
 
                             //  TODO: Get rid of the garbage anchor tags like "#" and "sign up pages".
@@ -134,17 +167,56 @@ public class Crawler implements Runnable{
                             //TODO: See if the link already exists in the database before adding
                             // If it does not exist in the database add it, otherwise update it.
 
-                            //  page = new PageContent(link.attr("href"), link.select("title").text(), link.select("body").text(), link.select("h1").text(), link.select("h2").text(), link.select("h3").text(), link.select("h4").text(), link.select("h5").text(), link.select("h6").text(), link.select("meta").text(), link.select("alt").text());
-                            //  if (!pages.contains(page)){
-                            //  pivotList.add(new Pivot(link.attr("href")));
-                            //  }
+                        }
+                        //After crawling all the links remove it from the backup database
+                        db.removePageFromBackup(p.getPivot());
+                    }
+                }else if(notCrawledYet(p.getPivot())){
+                    Robots r = new Robots(p);
+                    //  If robots.txt exists for this website
+                    boolean REP = r.followRobotExclusionProtocol();
+                    //  disallowed directories from robots.txt
+                    CopyOnWriteArrayList <String> disallowedPivotList;
+                    if(REP)
+                    {
+                        //  Add allowed Pivots from robots.txt
+                        myPivotList.addAllAbsent(r.getAllowedPivots());
+                        for(Pivot temp : r.getAllowedPivots()){
+                            if(backupCrawledPages < PAGES_TO_CRAWL) {
+                                db.addPageToBackup(temp.getPivot());
+                                backupCrawledPages++;
+                            }
+                        }
+                        //  Apply the specified delay from robots.txt
+                        sleep(r.getCrawlDelay());
+                    }
+                    disallowedPivotList = r.getDisallowedPivots();
+                    //  if the whole directory is not Disallow: * and the directory is not disallowed ( extra miles in my assumption )
+                    if(!r.isDisallowALL() && !disallowedPivotList.contains(p.getPivot())) {
+                        doc = Jsoup.connect(p.getPivot()).get();
+                        Elements links = doc.body().select("a[href]");
+                        for (Element link : links) {
+
+                            // Check for disallowed directories
+                            Pivot crawled = new Pivot(link.attr("href"));
+                            if (!disallowedPivotList.contains(crawled.getPivot())) {
+                                myPivotList.add(crawled);
+                                //Add it to backup database
+                                if(backupCrawledPages < PAGES_TO_CRAWL) {
+                                    db.addPageToBackup(crawled.getPivot());
+                                    backupCrawledPages++;
+                                }
+                            }
                         }
                     }
+                    //After crawling all the links remove it from the backup database
+                    db.removePageFromBackup(p.getPivot());
                 }
                 myPivotList.remove(p);
                 //TODO: Handle exceptions with descriptive messages.
             } catch (HttpStatusException e) {
                 // ignore it
+                myPivotList.remove(p);
             }
             catch (SocketException e )
             {
@@ -170,6 +242,9 @@ public class Crawler implements Runnable{
         //FIXME: Many bad urls are crawled when recurring.
         crawl(myPivotList);
 
+    }
+    private boolean notCrawledYet(String url){
+        return db.isPageInBackup(url);
     }
 
     public List<Pivot> getPivotList() {
@@ -199,7 +274,7 @@ public class Crawler implements Runnable{
                         myPivots.add(pivotList.get(j));
                     }
                 }
-                System.out.println(myPivots.get(0).getPivot());
+                //System.out.println(myPivots.get(0).getPivot());
                 crawl(myPivots);
             }
 
@@ -223,7 +298,7 @@ public class Crawler implements Runnable{
         pivots.add(new Pivot("https://www.skysports.com/football"));
         pivots.add(new Pivot("https://www.bbc.com/sport/football"));
         // facebook shouldn' t be crawled
-        pivots.add(new Pivot("http://www.facebook.com/"));
+        //pivots.add(new Pivot("http://www.facebook.com/"));
         ArrayList<Thread> threadArr=new ArrayList<>();
 //        pivots.add(new Pivot("https://www.minutemedia.com/careers"));
 
@@ -231,6 +306,10 @@ public class Crawler implements Runnable{
         System.out.print("Enter the number of threads: ");
         int number = input.nextInt();
         input.close();
+        //if the number of threads is more than the seeds size this will be not useful
+//        if(number > pivots.size()){
+//            number = pivots.size();
+//        }
         Runnable crawler = new Crawler(pivots,number);
         for(int i=0;i<number;i++){
             threadArr.add(new Thread(crawler));

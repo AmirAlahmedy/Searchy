@@ -14,7 +14,17 @@ create table pages
     alt   text       not null,
     meta  text       not null,
     words int        null,
+    indexed tinyint(1) default 0 null,
     constraint pages_url_uindex
+        unique (url) using hash
+);
+
+create table Crawler_Backup
+(
+    id    int auto_increment
+        primary key,
+    url   text       not null,
+    constraint crawler_url_uindex
         unique (url) using hash
 );
 
@@ -65,3 +75,13 @@ create table Ranks
             on update cascade
 );
 
+create table Trends
+(
+    id      int auto_increment,
+    name    varchar(255),
+    country varchar(255),
+    frequency int,
+    primary key (name,country),
+    constraint Trends_pk
+        unique (id)
+);

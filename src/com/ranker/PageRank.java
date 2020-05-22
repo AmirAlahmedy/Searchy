@@ -1,6 +1,7 @@
 package com.ranker;
 
 import com.DbAdapter;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -72,18 +73,24 @@ public class PageRank {
 
     private void buildWebGraph() throws SQLException, IOException {
         while (this.resultSet.next()) {
-            int from = resultSet.getInt("id");
-            String url = resultSet.getString("url");
-            Document doc = Jsoup.connect(url).get();
-            Elements links = doc.body().select("a[href]");
-            for (Element link : links) {
-                String childURL = link.attr("href");
-                ResultSet resultSet1 = this.db.readID(childURL);
+            try {
+                int from = resultSet.getInt("id");
+                String url = resultSet.getString("url");
+//                if (url.equals("https://apps.apple.com/us/app/ftbpro/id600808581"))
+//                    System.out.println(from);
+                Document doc = Jsoup.connect(url).get();
+                Elements links = doc.body().select("a[href]");
+                for (Element link : links) {
+                    String childURL = link.attr("href");
+                    ResultSet resultSet1 = this.db.readID(childURL);
 
-                if (resultSet1.next()) {
-                    int to = resultSet1.getInt("id");
-                    this.graph.addDirectedEdge(from, to);
+                    if (resultSet1.next()) {
+                        int to = resultSet1.getInt("id");
+                        this.graph.addDirectedEdge(from, to);
+                    }
                 }
+            }catch (HttpStatusException e){
+                //do nothing
             }
         }
     }

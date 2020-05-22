@@ -12,15 +12,19 @@ import java.util.*;
 import java.sql.ResultSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class InvertedIndex {
-    private ResultSet resultSet;
+public class InvertedIndex implements Runnable{
+    //private ResultSet resultSet;
     private List<String> stopWords = Collections.emptyList();
     private DbAdapter dbAdapter;
+    private int pagesCount;
+    private int noThreads;
 
     // Constructor of the inverted index of a specific page.
-    public InvertedIndex() {
+    public InvertedIndex(int noThreads) {
         this.dbAdapter =  new DbAdapter();
-        this.resultSet = this.dbAdapter.readPages();
+        //this.resultSet = this.dbAdapter.readPages();
+        this.pagesCount = this.dbAdapter.pagesRows();
+        this.noThreads=noThreads;
         try{
             stopWords= Files.readAllLines(Paths.get("src/com/indexer/stopWords.txt"));
         }
@@ -30,23 +34,25 @@ public class InvertedIndex {
     }
 
     // Returns a list of terms, which are going to be the keys in the invertedIndex.
-    public void parseCollection() throws SQLException {
+    public void parseCollection(ResultSet myResultSet) throws SQLException {
 
-        while (resultSet.next()) {
+        while (myResultSet.next()) {
+            if(myResultSet.getBoolean("indexed") == true)
+                continue;
             int wordsInPage = 0;
-            int pageId = resultSet.getInt("id");
+            int pageId = myResultSet.getInt("id");
             //int words = resultSet.getInt("words");
             String parsedContent;
 
             // Depends on the order of the columns in the pages table.
             for (int i = 3; i <= 11; ++i) {
-                parsedContent = resultSet.getString(i);
+                parsedContent = myResultSet.getString(i);
 
                 // 1. Lowercase all words.
                 parsedContent = parsedContent.toLowerCase();
 
                 if (i == 11) {         // to extract the the image alt and src only
-                    String [] srcs = resultSet.getString(12).split("\n\n");
+                    String [] srcs = myResultSet.getString(12).split("\n\n");
                     String[] alts = parsedContent.split("\n\n");
                     //System.out.println(Integer.toString(srcs.length) + "    " +Integer.toString(alts.length));
                     int counter = 0;
@@ -111,25 +117,67 @@ public class InvertedIndex {
             }
             // End of one document
             //Need to set page word count & update the right TF by dividing on the total words
-            dbAdapter.updatePageWordCount(pageId,wordsInPage);
+            //dbAdapter.updatePageWordCount(pageId,wordsInPage);
+            dbAdapter.markPageAsIndexed(pageId);
             dbAdapter.updateTF(pageId,wordsInPage);
         }
         //End of all documents
         //Need to set idf
-        dbAdapter.setIDF();
+        //dbAdapter.setIDF();
+    }
+    @Override
+    public void run() {
+        int threadNumber = Integer.parseInt(Thread.currentThread().getName());
+        int pagesPerThread = pagesCount / noThreads;
+        //System.out.println(noThreads);
+        System.out.println(threadNumber);
+        ResultSet myResultSet;
+        for (int i = 0; i < noThreads; i++) {
+            if (threadNumber == i) {
+                if(threadNumber == noThreads-1){
+                    int remainingPages = pagesCount - (noThreads-1)*pagesPerThread;
+                    myResultSet = this.dbAdapter.readPagesThreads(remainingPages,i*pagesPerThread);
+                } else {
+                    myResultSet = this.dbAdapter.readPagesThreads(pagesPerThread,i*pagesPerThread);
+                }
+                //System.out.println(myPivots.get(0).getPivot());
+                try {
+                    parseCollection(myResultSet);
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }
+
+        }
     }
 
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) throws InterruptedException {
 
 //        CopyOnWriteArrayList<Pivot> pivots = new CopyOnWriteArrayList<>();
 //        pivots.add(new Pivot("https://en.wikipedia.org/wiki/Augmented_reality"));
 //
 //        Crawler crawler = new Crawler(pivots, 1);
 //        crawler.crawl();
+        Scanner input = new Scanner(System.in);
+        System.out.print("Enter the number of threads: ");
+        int number = input.nextInt();
+        input.close();
 
 
-        InvertedIndex indexer = new InvertedIndex();
-        indexer.parseCollection();
+        Runnable indexer = new InvertedIndex(number);
+        ArrayList<Thread> threadArr=new ArrayList<>();
+        for(int i=0;i<number;i++){
+            threadArr.add(new Thread(indexer));
+            threadArr.get(i).setName(Integer.toString(i));
+        }
+        for(int i=0;i<number;i++){
+            threadArr.get(i).start();
+        }
+
+        for(int i=0;i<number;i++){
+            threadArr.get(i).join();
+        }
+
     }
 
 }
