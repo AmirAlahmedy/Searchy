@@ -1,9 +1,0 @@
-<changelist name="Uncommitted_changes_before_Update_at_5_14_20,_11_50_PM_[Default_Changelist]" date="1589493105790" recycled="true" deleted="true">
-  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_5_14_20,_11_50_PM_[Default_Changelist]/shelved.patch" />
-  <option name="DESCRIPTION" value="Uncommitted changes before Update at 5/14/20, 11:50 PM [Default Changelist]" />
-  <binary>
-    <option name="BEFORE_PATH" value="out/production/Search Engine/com/DbAdapter.class" />
-    <option name="AFTER_PATH" value="out/production/Search Engine/com/DbAdapter.class" />
-    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_5_14_20,_11_50_PM_[Default_Changelist]/DbAdapter.class" />
-  </binary>
-</changelist>

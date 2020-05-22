@@ -2,6 +2,8 @@ import React, {Component} from 'react'
 import {Link} from 'react-router-dom';
 import './Home.css'
 import Silogo from '../../silogo.png'
+import Result from "../Result/Result";
+import Route from "react-router-dom/es/Route";
 //import lib from 'react-speech-recognition';
 //import Mic from './Mic'
 class Home extends Component {
@@ -44,6 +46,7 @@ class Home extends Component {
   render() {
     const {query} = this.state
     console.log(this.props)
+    console.log(query);
     return (
         <div className="container">
           <img src={Silogo} alt="Searchy"/>
@@ -53,7 +56,15 @@ class Home extends Component {
             <div>{this.renderSuggestions()}</div>
           </div>
           <div className="center">
-            <Link to="/results/1" className="myButton">Go</Link>
+            <Link to={{
+              pathname: "/results/1",
+              state: {
+                searchQuery: query
+              }
+               }} className="myButton">Go</Link>
+            <Route path="/results/1"  render={ props => (
+                <Result {...props} query='{{query}}'/>
+            )} />
             <Link to="/searchbyvoice" className="myButton">Voice Search</Link>
           </div>
         </div>

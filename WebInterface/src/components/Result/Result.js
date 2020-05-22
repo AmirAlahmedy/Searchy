@@ -1,22 +1,43 @@
 import React from 'react'
-import axios from 'axios'
+// import axios from 'axios'
 import {useState, useEffect} from 'react'
 import Results from './Results'
 import Pagination from './Pagination'
-
-const Result =()=>{
+import  axios  from '../../axios-instance'
+const Result = props =>{
     const [posts,setPosts] = useState([]);
     const [loading,setLoading] = useState(false);
     const[currentPage,setCurrentPage]=useState(1)
     const [postsPerPage] = useState(10);
 
+    if(props.location.state) {
+        localStorage.setItem('searchQuery',  props.location.state.searchQuery);
+    }
+    const searchQuery = localStorage.getItem('searchQuery');
+    console.log(searchQuery);
+
+    const params = new URLSearchParams();
+    params.append('search_query', searchQuery);
+    let data = {
+        searchQuery1: searchQuery
+    }
+
+    console.log(data);
+    let _data = JSON.stringify(data);
+
 
     useEffect(() => {
-        const fetchPosts = async () =>{
+        const fetchPosts =  () =>{
+
             setLoading(true);
-            const res = await axios.get('http://localhost:4000/results');
-            setPosts(res.data);
-            setLoading(false);
+
+            axios.post('/results', _data).then(r => {
+                    console.log(r);
+                    setPosts(r.data);
+                    setLoading(false);
+                }).catch(error => {
+                    console.error(error);
+                });
         };
         fetchPosts();
     }, []);
