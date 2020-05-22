@@ -30,7 +30,7 @@ public class DbAdapter {
 
                 return false;
             }
-            String query = "INSERT INTO `pages` (`id`, `url`, `title`, `h1`, `h2`, `h3`, `h4`, `h5`, `h6`, `body`, `alt`, `meta`, `words`) VALUES (NULL,? ,? ,?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)";
+            String query = "INSERT INTO `pages` (`id`, `url`, `title`, `h1`, `h2`, `h3`, `h4`, `h5`, `h6`, `body`, `alt`, `meta`, `words`, `indexed`) VALUES (NULL,? ,? ,?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, url);
             preparedStatement.setString(2, title);
@@ -43,6 +43,7 @@ public class DbAdapter {
             preparedStatement.setString(9, body);
             preparedStatement.setString(10, alt);
             preparedStatement.setString(11, meta);
+            preparedStatement.setBoolean(12,false);
             preparedStatement.execute();
             System.out.println("Added page to database successfully");
             return true;
@@ -82,6 +83,84 @@ public class DbAdapter {
         }
     }
 
+    public void addPageToBackup(String url){
+        try{
+            String query = "INSERT INTO `Crawler_Backup` (`id`, `url`) VALUES (NULL,?)"+
+                    "ON DUPLICATE KEY UPDATE url = ?";
+            //Equivalent to on duplicate update do nothing
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1,url);
+            preparedStatement.setString(2,url);
+            preparedStatement.execute();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public void removePageFromBackup(String url){
+        try{
+            String query = "DELETE FROM `crawler_backup` WHERE `url` = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1,url);
+            preparedStatement.execute();
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public int pageBackupCount(){
+        ResultSet resultSet = null;
+        try {
+            String query = "SELECT COUNT(*) FROM `crawler_backup`";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            return resultSet.getInt(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    public boolean isPageInBackup(String url){
+        try{
+            String query = "SELECT * FROM `crawler_backup` WHERE url = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1,url);
+            ResultSet resultSet=preparedStatement.executeQuery();
+            return resultSet.next();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return true;
+        }
+    }
+
+    public ResultSet getPagesInBackup(){
+        try{
+            String query = "SELECT * FROM `crawler_backup`";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            return  preparedStatement.executeQuery();
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return null;
+        }
+    }
+
+    public void markPageAsIndexed(int pageId){
+        try{
+            String query= "UPDATE `pages` SET `indexed` = ? WHERE `id` = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setBoolean(1,true);
+            preparedStatement.setInt(2,pageId);
+            preparedStatement.execute();
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
 
     public ResultSet readPagesThreads(int size,int offset) {
         ResultSet resultSet = null;

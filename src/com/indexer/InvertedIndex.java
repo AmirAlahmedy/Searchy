@@ -37,6 +37,8 @@ public class InvertedIndex implements Runnable{
     public void parseCollection(ResultSet myResultSet) throws SQLException {
 
         while (myResultSet.next()) {
+            if(myResultSet.getBoolean("indexed") == true)
+                continue;
             int wordsInPage = 0;
             int pageId = myResultSet.getInt("id");
             //int words = resultSet.getInt("words");
@@ -116,6 +118,7 @@ public class InvertedIndex implements Runnable{
             // End of one document
             //Need to set page word count & update the right TF by dividing on the total words
             //dbAdapter.updatePageWordCount(pageId,wordsInPage);
+            dbAdapter.markPageAsIndexed(pageId);
             dbAdapter.updateTF(pageId,wordsInPage);
         }
         //End of all documents
