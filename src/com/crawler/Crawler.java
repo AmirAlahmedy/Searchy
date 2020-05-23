@@ -29,7 +29,7 @@ import static java.lang.Thread.sleep;
 public class Crawler implements Runnable{
     private CopyOnWriteArrayList <Pivot> pivotList;
     private DbAdapter db;
-    private final int PAGES_TO_CRAWL = 50;
+    private final int PAGES_TO_CRAWL = 5000;
     private AtomicInteger crawledPages;
     private int backupCrawledPages;
     public List<PageContent> pages;

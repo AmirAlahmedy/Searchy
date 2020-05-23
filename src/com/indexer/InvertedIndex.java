@@ -170,8 +170,8 @@ public class InvertedIndex implements Runnable{
         System.out.print("Enter the number of threads: ");
         int number = input.nextInt();
         input.close();
-
-
+//
+//
         Runnable indexer = new InvertedIndex(number);
         ArrayList<Thread> threadArr=new ArrayList<>();
         for(int i=0;i<number;i++){
@@ -185,6 +185,7 @@ public class InvertedIndex implements Runnable{
         for(int i=0;i<number;i++){
             threadArr.get(i).join();
         }
+        System.out.println("Started IDF Setting");
         ((InvertedIndex) indexer).setIDFAllTerms();
 
     }
