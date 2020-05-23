@@ -25,13 +25,9 @@ import edu.stanford.nlp.util.Triple;
 public class Query_Engine {
     private final DbAdapter db;
     private List<String> stopWords = Collections.emptyList();
-//    private ResultSet terms;
-//    private ResultSet ranks;
 
     public Query_Engine(DbAdapter db){
         this.db = db;
-//        this.terms = this.db.getTerms();
-//        this.ranks = this.db.getRanks();
         try{
             stopWords= Files.readAllLines(Paths.get("src/com/indexer/stopWords.txt"));
         }
@@ -203,32 +199,6 @@ public class Query_Engine {
         }
         return pageIDS;
     }
-//    private ArrayList <Integer> retrievePagesIDS(ResultSet pageIdsResultSets)
-//    {
-//        ArrayList <Integer> pageIDS = new ArrayList<Integer>();
-//        try {
-//            while (pageIdsResultSets.next()) {
-//                pageIDS.add(pageIdsResultSets.getInt(1));
-//            }
-//        }
-//        catch( SQLException e){
-//            System.out.println(e.getErrorCode());
-//        }
-//        return pageIDS;
-//    }
-//    private ArrayList <String> retrievePagesSrc(ResultSet pageIdsResultSets)
-//    {
-//        ArrayList <String> pageSRCS = new ArrayList<String>();
-//        try {
-//            while (pageIdsResultSets.next()) {
-//                pageSRCS.add(pageIdsResultSets.getString(2));
-//            }
-//        }
-//        catch( SQLException e){
-//            System.out.println(e.getErrorCode());
-//        }
-//        return pageSRCS;
-//    }
 
     private void sort(double arr[],Integer[] pageIDS)
     {
@@ -282,6 +252,6 @@ public class Query_Engine {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
         String country="Egypt";
-        qe.processQuery("manchester city and liverpool and hima",country,true);
+        qe.processQuery("manchester city and liverpool",country,true);
     }
 }
