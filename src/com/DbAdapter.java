@@ -555,12 +555,57 @@ public class DbAdapter {
 
     }
 
+
+    public ResultSet selectCommonPages_images (ArrayList <String> terms) {
+        int numberOfTerms = terms.size();
+        try {
+            String query = "SELECT page_Id FROM `Images` WHERE `term` = ? ";
+            for(int i=1;i<numberOfTerms;i++)
+            {
+                query+= "INTERSECT SELECT page_Id FROM `Images` WHERE `term` = ? ";
+            }
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, terms.get(0));
+            for(int i=1;i<numberOfTerms;i++)
+            {
+                preparedStatement.setString(i+1, terms.get(i));
+            }
+            ResultSet resultSet = preparedStatement.executeQuery();
+            //resultSet.next();
+            return resultSet;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
     public ResultSet getPagesInfo (Integer[] page_id) {
         try {
             String query = "SELECT ID, URL, TITLE, BODY  FROM `pages` WHERE `id` = ? ";
             for(int i=1;i<page_id.length;i++)
             {
                 query+= "UNION SELECT ID, URL, TITLE, BODY  FROM `pages` WHERE `id` = ? ";
+            }
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1,page_id[0]);
+            for(int i=1;i<page_id.length;i++)
+            {
+                preparedStatement.setInt(i+1, page_id[i]);
+            }
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+    public ResultSet getPagesSRCS (Integer[] page_id) {
+        try {
+            String query = "SELECT id,src  FROM `Images` WHERE `page_Id` = ? ";
+            for(int i=1;i<page_id.length;i++)
+            {
+                query+= "UNION SELECT id,src  FROM `Images` WHERE `page_Id` = ? ";
             }
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1,page_id[0]);

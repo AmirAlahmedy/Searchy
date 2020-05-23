@@ -189,7 +189,10 @@ public class Launcher  implements HttpHandler {
     private String searchDB(String searchQuery) throws SQLException {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
-        ResultSet resultSet = qe.processQuery(searchQuery, "Egypt");
+
+        //  @todo Set this boolean for images search lama yet3emel men el interface @AMIR
+        boolean imagesSearch = false;
+        ResultSet resultSet = qe.processQuery(searchQuery, "Egypt", imagesSearch);
         String resultJSON = "[ ";
         while (resultSet.next()) {
             // 0: id, 1: url, 2: title, 3: body
