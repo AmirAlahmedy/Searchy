@@ -367,6 +367,16 @@ public class Stemmer
      * forcing lower case must be done outside the Stemmer class.
      * Usage: Stemmer file-name file-name ...
      */
+
+    public String stem(String s) {
+        char[] characters = s.toCharArray();
+        for (char character : characters) {
+            add(character);
+        }
+        stem();
+        return toString();
+    }
+
     public static void main(String[] args)
     {
         char[] w = new char[501];

@@ -269,7 +269,7 @@ public class DbAdapter {
         }
     }
 
-    public synchronized void addNewTerm(String term, int pageId, int htmlTag) {
+    public void addNewTerm(String term, int pageId, int htmlTag) {
 
         boolean update;
         try {
@@ -449,8 +449,23 @@ public class DbAdapter {
         return null;
     }
 
+    public void deleteOldIndex(int pageId){
+        try{
+            String query = "DELETE FROM `Terms` WHERE `Page_Id` = ?";
+            String query2 = "DELETE FROM `Images` WHERE `Page_Id` = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1,pageId);
+            preparedStatement.execute();
+            preparedStatement =connection.prepareStatement(query2);
+            preparedStatement.setInt(1,pageId);
+            preparedStatement.execute();
 
-    public synchronized void addNewImg(int pageId, String term, String url) {
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public void addNewImg(int pageId, String term, String url) {
         try {
             String query = "INSERT INTO `Images` (`id`,`term`,`page_Id`,`src`) VALUES (NULL,?,?,?)";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -585,6 +600,25 @@ public class DbAdapter {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public void deleteAll(){
+        try{
+            String query = "DELETE FROM `Terms`";
+            String query2 = "DELETE FROM `Images`";
+            String query3 = "DELETE FROM `pages`";
+            String query4 = "DELETE FROM `Crawler_Backup`";
+            PreparedStatement preparedStatement=connection.prepareStatement(query);
+            preparedStatement.execute();
+            preparedStatement = connection.prepareStatement(query2);
+            preparedStatement.execute();
+            preparedStatement = connection.prepareStatement(query3);
+            preparedStatement.execute();
+            preparedStatement = connection.prepareStatement(query4);
+            preparedStatement.execute();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
     }
 }

@@ -36,13 +36,17 @@ public class InvertedIndex implements Runnable{
     // Returns a list of terms, which are going to be the keys in the invertedIndex.
     public void parseCollection(ResultSet myResultSet) throws SQLException {
 
+        Stemmer stemmer = new Stemmer();
         while (myResultSet.next()) {
-            if(myResultSet.getBoolean("indexed") == true)
+            if(myResultSet.getBoolean("indexed"))
                 continue;
+
             int wordsInPage = 0;
             int pageId = myResultSet.getInt("id");
             //int words = resultSet.getInt("words");
             String parsedContent;
+            //Delete old index if found
+            dbAdapter.deleteOldIndex(pageId);
 
             // Depends on the order of the columns in the pages table.
             for (int i = 3; i <= 11; ++i) {
@@ -66,14 +70,14 @@ public class InvertedIndex implements Runnable{
                             //img = img.replaceAll("[^a-z0-9]", " ");
                             List<String> tokens = Arrays.asList(img.split("[^a-z0-9]"));
                             try {
-                                Stemmer stemmer = new Stemmer();
+                                //Stemmer stemmer = new Stemmer();
                                 for (String token : tokens) {
                                     if (!token.equals("") && !stopWords.contains(token)) {
-                                        char[] word = token.toCharArray();
-                                        int wordLength = token.length();
-                                        for (int c = 0; c < wordLength; c++) stemmer.add(word[c]);
-                                        stemmer.stem();
-                                        dbAdapter.addNewImg(pageId,stemmer.toString(),srcs[counter]);
+//                                        char[] word = token.toCharArray();
+//                                        int wordLength = token.length();
+//                                        for (int c = 0; c < wordLength; c++) stemmer.add(word[c]);
+//                                        stemmer.stem();
+                                        dbAdapter.addNewImg(pageId,stemmer.stem(token),srcs[counter]);
 
                                     }
                                 }
@@ -97,15 +101,15 @@ public class InvertedIndex implements Runnable{
                     List<String> tokens = Arrays.asList(parsedContent.split("[^a-z0-9]"));
 
                     try {
-                        Stemmer stemmer = new Stemmer();
+                        //Stemmer stemmer = new Stemmer();
                         for (String token : tokens) {
                             if (!token.equals("") && !stopWords.contains(token)) {
                                 wordsInPage++;
-                                char[] word = token.toCharArray();
-                                int wordLength = token.length();
-                                for (int c = 0; c < wordLength; c++) stemmer.add(word[c]);
-                                stemmer.stem();
-                                dbAdapter.addNewTerm(stemmer.toString(), pageId, i);
+//                                char[] word = token.toCharArray();
+//                                int wordLength = token.length();
+//                                for (int c = 0; c < wordLength; c++) stemmer.add(word[c]);
+//                                stemmer.stem();
+                                dbAdapter.addNewTerm(stemmer.stem(token), pageId, i);
                             }
                         }
 
@@ -126,6 +130,7 @@ public class InvertedIndex implements Runnable{
         //dbAdapter.setIDF();
     }
     @Override
+
     public void run() {
         int threadNumber = Integer.parseInt(Thread.currentThread().getName());
         int pagesPerThread = pagesCount / noThreads;
@@ -149,6 +154,9 @@ public class InvertedIndex implements Runnable{
             }
 
         }
+    }
+    public void setIDFAllTerms(){
+        dbAdapter.setIDF();
     }
 
     public static void main(String[] args) throws InterruptedException {
@@ -177,6 +185,7 @@ public class InvertedIndex implements Runnable{
         for(int i=0;i<number;i++){
             threadArr.get(i).join();
         }
+        ((InvertedIndex) indexer).setIDFAllTerms();
 
     }
 
