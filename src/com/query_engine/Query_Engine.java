@@ -69,7 +69,7 @@ public class Query_Engine {
         // RETRIEVING URLS, TITLE, BODY FROM IDS
         if(page_ids.length!=0) {
             if (images) {
-                resultSet = this.db.getPagesSRCS(page_ids);
+                resultSet = this.db.getImageSRCs(page_ids);
             } else {
                 resultSet = this.db.getPagesInfo(page_ids);
             }

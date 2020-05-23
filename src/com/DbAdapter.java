@@ -600,7 +600,7 @@ public class DbAdapter {
         }
 
     }
-    public ResultSet getPagesSRCS (Integer[] page_id) {
+    public ResultSet getImageSRCs (Integer[] page_id) {
         try {
             String query = "SELECT id,src  FROM `Images` WHERE `page_Id` = ? ";
             for(int i=1;i<page_id.length;i++)
