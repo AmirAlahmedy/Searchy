@@ -17,16 +17,17 @@ import java.util.ArrayList;
 public class PageRank {
     private final WebGraph graph;
     private final DbAdapter db;
-    private final ResultSet resultSet;
+    private final ResultSet resultSet; //a ResultSet pointing to the pages table
     private final int N;  //total number of web pages
     /**
      * @implNote  d is the damping ratio/decay factor, 85% of your users will be willing to continue visiting new web pages.
      * The other 15% simply stop where they are.
     */
     private final double d = .85;
-    private final double epsilon = .3;
+    private final double epsilon = .1;
+    private final int iterations = 100;
 
-    public PageRank() throws IOException, SQLException {
+    public PageRank() {
         this.db = new DbAdapter();
         this.N = this.db.pagesRows();
         this.graph = new WebGraph(this.N);
@@ -34,11 +35,13 @@ public class PageRank {
     }
 
     public void makePageRanks() {
-        //1 Initially, each web page will have a rank of (1-d)
-        this.db.fillRanks(1 - d);
+        //1 Initially, each web page will have a rank of 1/N
+        this.db.fillRanks((double) 1/N);
         boolean isConverged;
+        int iter = 0;
         //2 Update
         do {
+            iter++;
             isConverged = true;
             for (int i = 1; i <= N; ++i) {
                 if (!graph.adj.get(i).isEmpty()) {
@@ -49,8 +52,8 @@ public class PageRank {
                     isConverged = isConverged && updatePR(i, -1, N) <= epsilon;
                 }
             }
-            //3 Convergence check
-        } while (!isConverged);
+            //3 Convergence check: Either converges or reaches the maximum number of iterations
+        } while (!isConverged && iter <= iterations);
     }
 
 
@@ -60,11 +63,11 @@ public class PageRank {
         double newPR;
         if (adjacentPage != -1) {
             oldPR = db.getPR(adjacentPage);
-            newPR = oldPR + (d * (db.getPR(page) / U));
+            newPR = oldPR + (d * (db.getPR(page) / U)) + (1-d)/N;
             db.setPR(adjacentPage, newPR);
         } else {
             oldPR = db.getPR(page);
-            newPR = oldPR + (d * (oldPR / U));
+            newPR = oldPR + (d * (oldPR / U)) + (1-d)/N;
             db.setPR(page, newPR);
         }
         return Math.abs(newPR - oldPR);
