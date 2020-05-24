@@ -36,13 +36,20 @@ public class Crawler implements Runnable{
 
     private int noThreads;
 
-    public Crawler(CopyOnWriteArrayList<Pivot> pivotList,int noThreads) {
+    public Crawler(CopyOnWriteArrayList<Pivot> pivotList,int noThreads,boolean recrawl) {
 //        this.pivotList = pivotList;
         this.noThreads=noThreads;
         db = new DbAdapter();
+        if(recrawl){
+            deleteOldData();
+            crawledPages =new AtomicInteger();
+            this.pivotList = pivotList;
+            backupCrawledPages = 0;
+            return;
+        }
         crawledPages=new AtomicInteger(db.pagesRows());
         //System.out.println(crawledPages.get());
-        backupCrawledPages = db.pageBackupCount();
+        backupCrawledPages = db.pageBackupCount() + db.pagesRows();
         try {
             ResultSet resultSet = db.getPagesInBackup();
             if (!resultSet.next()) {
@@ -281,6 +288,11 @@ public class Crawler implements Runnable{
         }
     }
 
+    public void deleteOldData(){
+        db.deleteAll();
+        System.out.println(db.pageBackupCount());
+    }
+
     public static void main(String[] args) throws InterruptedException{
 
         CopyOnWriteArrayList<Pivot> pivots = new CopyOnWriteArrayList<>();
@@ -305,12 +317,23 @@ public class Crawler implements Runnable{
         Scanner input = new Scanner(System.in);
         System.out.print("Enter the number of threads: ");
         int number = input.nextInt();
+        input.nextLine();
+        System.out.println("Do you want to re-crawl from the beginning y/n? the default is no");
+        String recrawl = input.nextLine();
         input.close();
+
         //if the number of threads is more than the seeds size this will be not useful
 //        if(number > pivots.size()){
 //            number = pivots.size();
 //        }
-        Runnable crawler = new Crawler(pivots,number);
+        boolean recrawlFlag = false;
+        if(recrawl.equals("y"))
+            recrawlFlag = true;
+        Runnable crawler = new Crawler(pivots,number,recrawlFlag);
+
+        //Deleting data if I want to recrawl
+
+
         for(int i=0;i<number;i++){
             threadArr.add(new Thread(crawler));
             threadArr.get(i).setName(Integer.toString(i));

@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.mysql.jdbc.util.ResultSetUtil;
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
 import edu.stanford.nlp.ie.crf.*;
 import edu.stanford.nlp.ling.CoreLabel;
@@ -24,13 +25,9 @@ import edu.stanford.nlp.util.Triple;
 public class Query_Engine {
     private final DbAdapter db;
     private List<String> stopWords = Collections.emptyList();
-//    private ResultSet terms;
-//    private ResultSet ranks;
 
     public Query_Engine(DbAdapter db){
         this.db = db;
-//        this.terms = this.db.getTerms();
-//        this.ranks = this.db.getRanks();
         try{
             stopWords= Files.readAllLines(Paths.get("src/com/indexer/stopWords.txt"));
         }
@@ -62,23 +59,146 @@ public class Query_Engine {
         }
         return searchTerms;
     }
-    private ResultSet phraseSearch(String query)
-    {
-        ResultSet resultSet=null;
-//
-//        // STEMMING THE QUERY
-//        ArrayList<String> searchTerms = stemQuery(query);
-//        System.out.println(searchTerms);
-//
-//        //  GET PAGES WHERE TERMS MATCH
-//        for (String term : searchTerms) {
-//
-//        }
+    private ResultSet search(String query, boolean images) throws SQLException {
+        Integer [] page_ids = dbSearch(query,images);
+        ResultSet resultSet = null;
+        // RETRIEVING URLS, TITLE, BODY FROM IDS
+        if(page_ids.length!=0) {
+            if (images) {
+                resultSet = this.db.getImageSRCs(page_ids);
+            } else {
+                resultSet = this.db.getPagesInfo(page_ids);
+            }
+        }
+        else{
+            System.out.println("No Results Found!");
+        }
         return resultSet;
     }
 
-    private ResultSet search(String query) throws SQLException {
+    private ResultSet phraseSearch(String query) throws SQLException {
+        //ArrayList<String> searchTerms = stemQuery(query);
+
         ResultSet resultSet=null;
+        Integer [] page_ids = dbSearch(query,false);
+        ArrayList<Integer> matched_ids = new ArrayList<>();
+        for (Integer id : page_ids)
+        {
+            if(containsPhrase(query,id))
+            {
+                matched_ids.add(id);
+            }
+        }
+        if(matched_ids.size()!=0) {
+            Integer [] finalIDS = matched_ids.toArray(new Integer[0]);
+            //  @TODO ADD EL PAGES ELLY FEHA EL TERMS SEPARATE FEL AKHER
+            System.out.println("\nPhrase Matched IDS:");
+            for(Integer is:finalIDS)
+            {
+                System.out.print(is+ " ");
+            }
+            resultSet = this.db.getPagesInfo(page_ids);
+        }
+        else{
+            System.out.println("\nPHRASE No Results Found!");
+        }
+        return resultSet;
+    }
+
+    private boolean containsPhrase(String query, Integer page_id) throws SQLException {
+        // GET TEXT
+        ResultSet rs = this.db.getPageRow(page_id);
+        String pageText = rs.getString(1) ;
+//        + rs.getString(2) + rs.getString(3)
+//                + rs.getString(4) + rs.getString(5) + rs.getString(6)
+//                + rs.getString(7) +rs.getString(8);
+
+        query = query.substring(1, query.length()-1);
+        query = query.toLowerCase();
+        pageText = pageText.toLowerCase();
+        // APPLY KMP
+        return KMPSearch(query, pageText);
+    }
+
+    private boolean KMPSearch(String pat, String txt)
+    {
+        boolean found = false;
+
+        int M = pat.length();
+        int N = txt.length();
+
+        // create lps[] that will hold the longest
+        // prefix suffix values for pattern
+        int lps[] = new int[M];
+        int j = 0; // index for pat[]
+
+        // Preprocess the pattern (calculate lps[]
+        // array)
+        computeLPSArray(pat, M, lps);
+
+        int i = 0; // index for txt[]
+        while (i < N) {
+            if (pat.charAt(j) == txt.charAt(i)) {
+                j++;
+                i++;
+            }
+            if (j == M) {
+                found = true;
+//                System.out.println("Found pattern "
+//                        + "at index " + (i - j));
+
+                j = lps[j - 1];
+                //return found;
+            }
+
+            // mismatch after j matches
+            else if (i < N && pat.charAt(j) != txt.charAt(i)) {
+                // Do not match lps[0..lps[j-1]] characters,
+                // they will match anyway
+                if (j != 0)
+                    j = lps[j - 1];
+                else
+                    i = i + 1;
+            }
+        }
+        return found;
+    }
+
+    private void computeLPSArray(String pat, int M, int lps[])
+    {
+        // length of the previous longest prefix suffix
+        int len = 0;
+        int i = 1;
+        lps[0] = 0; // lps[0] is always 0
+
+        // the loop calculates lps[i] for i = 1 to M-1
+        while (i < M) {
+            if (pat.charAt(i) == pat.charAt(len)) {
+                len++;
+                lps[i] = len;
+                i++;
+            }
+            else // (pat[i] != pat[len])
+            {
+                // This is tricky. Consider the example.
+                // AAACAAAA and i = 7. The idea is similar
+                // to search step.
+                if (len != 0) {
+                    len = lps[len - 1];
+
+                    // Also, note that we do not increment
+                    // i here
+                }
+                else // if (len == 0)
+                {
+                    lps[i] = len;
+                    i++;
+                }
+            }
+        }
+    }
+
+    private Integer [] dbSearch(String query,boolean images) throws SQLException {
 
         // STEMMING THE QUERY
         ArrayList<String> searchTerms = stemQuery(query);
@@ -87,7 +207,8 @@ public class Query_Engine {
         //****************************************************
 
         //  GETTING PAGES THAT ARE COMMON IN ALL TERMS
-        ArrayList <Integer> pageIDS = findCommonPagesIDS(searchTerms);
+        ArrayList <Integer> pageIDS = findCommonPagesIDS(searchTerms, images);
+        //  @todo ADD PAGES FEEHA BA2ET EL TERM
         System.out.println(pageIDS);
 
         //****************************************************
@@ -101,22 +222,7 @@ public class Query_Engine {
         Integer [] page_ids = pageIDS.toArray(new Integer[0]);
         sort(pageScore,page_ids);
 
-        //****************************************************
 
-        // RETRIEVING URLS, TITLE, BODY FROM IDS
-        resultSet=this.db.getPagesInfo(page_ids);
-        try {
-            while (resultSet.next()) {
-               System.out.println(resultSet.getInt(3));
-            }
-        }
-        catch( SQLException e){
-            System.out.println(e.getErrorCode());
-        }
-
-        //****************************************************
-
-        /*
         int pagesNumber = pageIDS.size();
         System.out.println("Pages IDS Sorted:");
         for(int i=0; i<pagesNumber;i++)
@@ -124,27 +230,42 @@ public class Query_Engine {
             //System.out.print(pageScore[i]+ " ");
             System.out.print(page_ids[i]+" ");
         }
-        */
 
-        return resultSet;
+
+        return page_ids;
     }
 
-    public ResultSet processQuery(String query,String country)
+    public ResultSet processQuery(String query,String country, boolean images)
     {
         ResultSet rs = null;
-        if(query.startsWith("'") &&  query.endsWith("'")) {
-            System.out.println("Phrase Search");
-            rs= phraseSearch(query);
+        if(images)
+        {
+            System.out.println("Images Search");
+            try {
+                addTrend(query, country);
+                rs = search(query,true);
+            } catch (SQLException e) {
+                e.getErrorCode();
+            }
         }
         else {
-            System.out.println("Normal Search");
-            try {
-                addTrend(query,country);
-                rs= search(query);
-            }
-            catch (SQLException e)
-            {
-                e.getErrorCode();
+            if (query.startsWith("'") && query.endsWith("'")) {
+                System.out.println("Phrase Search");
+                try {
+                    rs = phraseSearch(query);
+                }
+                catch (SQLException e )
+                {
+                    e.getErrorCode();
+                }
+            } else {
+                System.out.println("Normal Search");
+                try {
+                    addTrend(query, country);
+                    rs = search(query, false);
+                } catch (SQLException e) {
+                    e.getErrorCode();
+                }
             }
         }
         return rs;
@@ -159,7 +280,6 @@ public class Query_Engine {
         for (int i = 0; i < termsNumber; i++) {
             ArrayList<Double>TermRow = new ArrayList<>();
             for (int j = 0; j < pagesNumber; j++) {
-                //termsIDF[i] = this.db.getIDF(searchTerms.get(i));
                 Double IDF = this.db.getIDF(searchTerms.get(i));
                 Double TF = this.db.getTF(searchTerms.get(i), pageIDS.get(j));
                 Double pageRank = this.db.getPR(pageIDS.get(j));
@@ -171,9 +291,16 @@ public class Query_Engine {
         return pageScore;
     }
 
-    private ArrayList <Integer> findCommonPagesIDS(ArrayList<String> searchTerms)
+    private ArrayList <Integer> findCommonPagesIDS(ArrayList<String> searchTerms, boolean images)
     {
-        ResultSet pageIdsResultSets = this.db.selectCommonPages(searchTerms);
+        ResultSet pageIdsResultSets = null;
+        if(images)
+        {
+            pageIdsResultSets = this.db.selectCommonPages_images(searchTerms);
+        }
+        else{
+            pageIdsResultSets = this.db.selectCommonPages(searchTerms);
+        }
         ArrayList <Integer> pageIDS = new ArrayList<Integer>();
         try {
             while (pageIdsResultSets.next()) {
@@ -185,6 +312,7 @@ public class Query_Engine {
         }
         return pageIDS;
     }
+
     private void sort(double arr[],Integer[] pageIDS)
     {
         int n = arr.length;
@@ -237,6 +365,6 @@ public class Query_Engine {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
         String country="Egypt";
-        qe.processQuery("Messi",country);
+        qe.processQuery("'the Premier league'",country,false);
     }
 }
