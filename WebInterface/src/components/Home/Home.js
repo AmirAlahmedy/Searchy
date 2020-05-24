@@ -5,6 +5,7 @@ import countries from "../../countries";
 import Silogo from "../../silogo.png";
 import CountryDropdown from "./Dropdown";
 
+
 class Home extends Component {
 
     state  = {
@@ -22,8 +23,8 @@ class Home extends Component {
         return(
             <div>
             <img src={Silogo} alt="Searchy" style={{
-                "align-self": "center",
-                "vertical-align": "middle",
+                "alignSelf": "center",
+                "verticalAlign": "middle",
                 "left": "50%",
                 "right": "50%",
                 "position": "absolute",
@@ -34,7 +35,7 @@ class Home extends Component {
                 "left": "75%",
                 "right": "25%",
                 "position": "absolute",
-                "top": "95%"
+                "bottom": "5%"
             }}/>
 
             </div>
