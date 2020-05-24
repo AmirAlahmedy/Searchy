@@ -13,7 +13,7 @@ class App extends Component {
       <div className="App">
         <Switch>
         <Route exact path='/' render={(props) => <Home {...props} items={countries} />}/>
-        <Route path ="/searchbyvoice" component={Mic} />
+        <Route path ="/voice" component={Mic} />
         <Route  path="/results/1" component={Result} />
         </Switch>
       </div>
