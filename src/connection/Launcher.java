@@ -52,7 +52,7 @@ public class Launcher  implements HttpHandler {
         System.out.println(searchQueryJSON);
         System.out.println(sq);
         // Lookup the database for relevant results
-        String results1 = searchDB(sq.searchQuery1);
+        String results1 = searchDB(sq.searchQuery1, sq.Country);
 //        String results =
 //              "[   {\n" +
 //                      "      \"id\":1,\n" +
@@ -191,13 +191,13 @@ public class Launcher  implements HttpHandler {
 
     }
 
-    private String searchDB(String searchQuery) throws SQLException {
+    private String searchDB(String searchQuery, String Country) throws SQLException {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
 
         //  @todo Set this boolean for images search lama yet3emel men el interface @AMIR
         boolean imagesSearch = false;
-        ResultSet resultSet = qe.processQuery(searchQuery, "Egypt", imagesSearch);
+        ResultSet resultSet = qe.processQuery(searchQuery, Country, imagesSearch);
         List<Result> data = new ArrayList<>();
         while (resultSet.next()) {
             // 0: id, 1: url, 2: title, 3: body
@@ -226,11 +226,13 @@ public class Launcher  implements HttpHandler {
 
     private static class SearchQuery {
         String searchQuery1;
+        String Country;
 
         @Override
         public String toString() {
-            return "SearchQuery{" +
-                    "searchQuery1='" + searchQuery1 + '\'' +
+            return "{" +
+                    "searchQuery='" + searchQuery1 + '\'' +
+                    "Country='" + Country + '\'' +
                     '}';
         }
     }

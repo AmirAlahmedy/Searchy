@@ -52,7 +52,6 @@ export default class CountryDropdown extends Component {
 
         return (
             <select {...attrs}>
-                {console.log()}
                 {this.getDefaultOption()}
                 {this.getCountries()}
             </select>

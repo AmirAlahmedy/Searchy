@@ -12,14 +12,16 @@ const Result = props =>{
 
     if(props.location.state) {
         localStorage.setItem('searchQuery',  props.location.state.searchQuery);
+        localStorage.setItem('country',  props.location.state.country);
     }
     const searchQuery = localStorage.getItem('searchQuery');
-    console.log(searchQuery);
+    const country = localStorage.getItem('country');
 
-    const params = new URLSearchParams();
-    params.append('search_query', searchQuery);
+    console.log(searchQuery, country);
+
     let data = {
-        searchQuery1: searchQuery
+        searchQuery1: searchQuery,
+        Country: country
     }
 
     console.log(data);
