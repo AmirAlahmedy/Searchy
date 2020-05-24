@@ -222,9 +222,8 @@ public class Query_Engine {
         for(int i=0; i<pagesNumber;i++)
         {
             System.out.print(page_ids[i]+" ");
-            System.out.println();
         }
-
+        System.out.println();
 
         return page_ids;
     }
