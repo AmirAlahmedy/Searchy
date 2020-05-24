@@ -360,6 +360,6 @@ public class Query_Engine {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
         String country="Egypt";
-        qe.processQuery("messi and ronaldo",country,true);
+        qe.processQuery("premier league",country,true);
     }
 }
