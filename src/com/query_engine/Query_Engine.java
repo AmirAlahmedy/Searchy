@@ -97,7 +97,7 @@ public class Query_Engine {
             {
                 System.out.print(is+ " ");
             }
-            resultSet = this.db.getPagesInfo(page_ids);
+            resultSet = this.db.getPagesInfo(finalIDS);
         }
         else{
             System.out.println("\nPHRASE No Results Found!");
@@ -108,10 +108,9 @@ public class Query_Engine {
     private boolean containsPhrase(String query, Integer page_id) throws SQLException {
         // GET TEXT
         ResultSet rs = this.db.getPageRow(page_id);
-        String pageText = rs.getString(1) ;
-//        + rs.getString(2) + rs.getString(3)
-//                + rs.getString(4) + rs.getString(5) + rs.getString(6)
-//                + rs.getString(7) +rs.getString(8);
+        String pageText = rs.getString(1) + rs.getString(2) + rs.getString(3)
+                + rs.getString(4) + rs.getString(5) + rs.getString(6)
+                + rs.getString(7) +rs.getString(8);
 
         query = query.substring(1, query.length()-1);
         query = query.toLowerCase();
@@ -365,6 +364,6 @@ public class Query_Engine {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
         String country="Egypt";
-        qe.processQuery("'the Premier league'",country,false);
+        qe.processQuery("'The Premier League'",country,false);
     }
 }
