@@ -1,5 +1,4 @@
 import React from 'react'
-// import axios from 'axios'
 import {useState, useEffect} from 'react'
 import Results from './Results'
 import Pagination from './Pagination'
@@ -56,7 +55,6 @@ const Result = props =>{
         <div>
             <h4 className="text mb-3"  style={{marginLeft: '2%', marginTop: '1%', marginBottom: '1%'}}>Search Results</h4>
             <Results posts={currentPosts} loading={loading} />
-            {/*<Pagination count={posts.length} color="secondary" />*/}
             <Pagination style={{marginBottom: '2%', float: 'bottom'}}
                 postsPerPage={postsPerPage}
                 totalPosts={posts.length}

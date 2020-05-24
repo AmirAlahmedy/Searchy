@@ -7,6 +7,9 @@ import Route from "react-router-dom/es/Route";
 //import lib from 'react-speech-recognition';
 //import Mic from './Mic'
 import countries from "../../countries";
+import Mic from "../Mic/Mic";
+import Voice from "./mic-fill.svg";
+
 
 
 class Search extends Component {
@@ -18,9 +21,11 @@ class Search extends Component {
     }
   }
 
-  handleChange = (e) => {
+  handleChange = (e, v) => {
     const {items} = this.props;
-    const query = e.target.value;
+    let query;
+    if(e) query = e.target.value;
+    else query = v;
     let suggestions = [];
     if (query.length > 0) {
       const regex = new RegExp(`^${query}`, `i`);
@@ -46,21 +51,59 @@ class Search extends Component {
     )
   }
 
+
   render() {
-    const {query} = this.state;
+    let {query} = this.state;
     const country = this.props.country;
+    let trnscrpt = "";
     console.log(country);
     console.log(query);
 
-    return (
-        <div className="container">
 
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const SpeechGrammarList = window.SpeechGrammarList || window.webkitSpeechGrammarList;
+
+      const grammar = '#JSGF V1.0;';
+
+      const recognition = new SpeechRecognition();
+      const speechRecognitionList = new SpeechGrammarList();
+      speechRecognitionList.addFromString(grammar, 1);
+      recognition.grammars = speechRecognitionList;
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+
+    recognition.onerror = (event) =>{
+      alert("Erorr! "+event.error);
+    }
+
+    recognition.onspeechend = () => {
+      recognition.stop();
+    };
+
+    recognition.onresult = (event) => {
+      const last = event.results.length - 1;
+      const command = event.results[last][0].transcript;
+      console.log(command);
+      query = command;
+      document.getElementById("search-input").value = query;
+      this.handleChange(null, command);
+    };
+
+
+
+    return (
+        <div className="container" >
           <div className="AutoCompleteText">
             <input onChange={this.handleChange} value={query} type="text"
-                   class="form-control form-control-sm ml-3 w-100" id="search-input" placeholder="Search..."/>
+                   className="form-control form-control-sm ml-3 w-100" id="search-input" placeholder="Search..."/>
             <div>{this.renderSuggestions()}</div>
           </div>
-          <div className="center">
+          <div className="center flex-container" style={{
+              display: "flex",
+              flexWrap: "wrap",
+            justifyContent: "space-between",
+            alignItems: "center"
+          }}>
             <Link to={{
               pathname: "/results/1",
               state: {
@@ -71,7 +114,18 @@ class Search extends Component {
             <Route path="/results/1"  render={ props => (
                 <Result {...props}/>
             )} />
-            <Link to="/searchbyvoice" className="myButton">Voice Search</Link>
+            {/*<Link to="/voice" className="myButton">Voice Search</Link>*/}
+            <img src={Voice} id="voiceRecognition" className="img-responsive center-block"
+                 alt="Voice Recognition"  onClick={ event => {recognition.start(); }}
+                 style={{
+                   minHeight: "50px",
+                   minWidth: "50px",
+                   height: "15%",
+                   width: "15%",
+                   marginTop: "5%",
+                   position: "relative",
+                   alignSelf: "center"
+                 }}/>
           </div>
         </div>
     )

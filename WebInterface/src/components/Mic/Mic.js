@@ -1,22 +1,32 @@
-import React, {Component } from 'react'
-import SpeechRecognition from 'react-speech-recognition'
-import './Mic.css'
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import SpeechRecognition from "react-speech-recognition";
 
-class Mic extends Component {
-  render() {
-    const { transcript, resetTranscript, browserSupportsSpeechRecognition } = this.props
+const propTypes = {
+  // Props injected by SpeechRecognition
+  transcript: PropTypes.string,
+  resetTranscript: PropTypes.func,
+  browserSupportsSpeechRecognition: PropTypes.bool
+};
 
-    if (!browserSupportsSpeechRecognition) {
-      return null
-    }
-
-    return (
-      <div className="container">
-        <button class="myButton"onClick={resetTranscript}>Reset</button>
-    <div className="contentmic"><span>{transcript}</span></div>      
-      </div>
-    )
+const Dictaphone = ({
+                      transcript,
+                      resetTranscript,
+                      browserSupportsSpeechRecognition
+                    }) => {
+  if (!browserSupportsSpeechRecognition) {
+    return null;
   }
-}
+  console.log(propTypes);
 
-export default SpeechRecognition(Mic)
+  return (
+      // <div>
+        <button className={"myButton"} onClick={resetTranscript}>Reset</button>
+        //<span>{transcript}</span>
+      // </div>
+  );
+};
+
+Dictaphone.propTypes = propTypes;
+
+export default SpeechRecognition(Dictaphone);
