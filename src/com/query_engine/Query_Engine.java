@@ -60,12 +60,16 @@ public class Query_Engine {
         return searchTerms;
     }
     private ResultSet search(String query, boolean images) throws SQLException {
+        ArrayList<String> searchTerms = stemQuery(query);
         Integer [] page_ids = dbSearch(query,images);
         ResultSet resultSet = null;
-        // RETRIEVING URLS, TITLE, BODY FROM IDS
         if(page_ids.length!=0) {
             if (images) {
-                resultSet = this.db.getImageSRCs(page_ids);
+                resultSet= this.db.getImagesInfo(page_ids, searchTerms);
+                    while (resultSet.next()) {
+                        System.out.println("Image src: "+resultSet.getString(1));
+                        System.out.println("Image url: "+resultSet.getString(2));
+                    }
             } else {
                 resultSet = this.db.getPagesInfo(page_ids);
             }
@@ -77,7 +81,6 @@ public class Query_Engine {
     }
 
     private ResultSet phraseSearch(String query) throws SQLException {
-        //ArrayList<String> searchTerms = stemQuery(query);
 
         ResultSet resultSet=null;
         Integer [] page_ids = dbSearch(query,false);
@@ -143,9 +146,6 @@ public class Query_Engine {
             }
             if (j == M) {
                 found = true;
-//                System.out.println("Found pattern "
-//                        + "at index " + (i - j));
-
                 j = lps[j - 1];
                 //return found;
             }
@@ -203,19 +203,14 @@ public class Query_Engine {
         ArrayList<String> searchTerms = stemQuery(query);
         System.out.println(searchTerms);
 
-        //****************************************************
-
         //  GETTING PAGES THAT ARE COMMON IN ALL TERMS
+
         ArrayList <Integer> pageIDS = findCommonPagesIDS(searchTerms, images);
         //  @todo ADD PAGES FEEHA BA2ET EL TERM
         System.out.println(pageIDS);
 
-        //****************************************************
-
         // CALCULATING PAGES SCORES
         double [] pageScore = calculatePageScore(pageIDS,searchTerms);
-
-        //****************************************************
 
         // SORTING PAGES ACCORDING TO SCORES
         Integer [] page_ids = pageIDS.toArray(new Integer[0]);
@@ -226,8 +221,8 @@ public class Query_Engine {
         System.out.println("Pages IDS Sorted:");
         for(int i=0; i<pagesNumber;i++)
         {
-            //System.out.print(pageScore[i]+ " ");
             System.out.print(page_ids[i]+" ");
+            System.out.println();
         }
 
 
@@ -271,6 +266,7 @@ public class Query_Engine {
     }
     private double [] calculatePageScore(ArrayList <Integer> pageIDS ,ArrayList<String> searchTerms)
     {
+        //@todo ADD TITLE/H1/H2 INTO COUNT + number of pages
         int termsNumber = searchTerms.size();
         int pagesNumber = pageIDS.size();
         double [] pageScore = new double[pagesNumber];
@@ -364,6 +360,6 @@ public class Query_Engine {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
         String country="Egypt";
-        qe.processQuery("'The Premier League'",country,false);
+        qe.processQuery("messi and ronaldo",country,true);
     }
 }

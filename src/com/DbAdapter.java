@@ -600,18 +600,24 @@ public class DbAdapter {
         }
 
     }
-    public ResultSet getImageSRCs (Integer[] page_id) {
+    public ResultSet getImagesInfo (Integer[] page_id, ArrayList<String> searchTerms) {
         try {
-            String query = "SELECT id,src  FROM `Images` WHERE `page_Id` = ? ";
-            for(int i=1;i<page_id.length;i++)
-            {
-                query+= "UNION SELECT id,src  FROM `Images` WHERE `page_Id` = ? ";
+            String query = "SELECT src, url  FROM `Images`, `pages` WHERE `page_Id` = ? AND `term` = ? AND pages.id = Images.page_Id ";
+            for(int j=0; j<page_id.length;j++) {
+                for (int i = 1; i < searchTerms.size(); i++) {
+                    query += "UNION SELECT src, url  FROM `Images`, `pages` WHERE `page_Id` = ? AND `term` = ? AND pages.id = Images.page_Id";
+                }
             }
             PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1,page_id[0]);
-            for(int i=1;i<page_id.length;i++)
-            {
-                preparedStatement.setInt(i+1, page_id[i]);
+            int k=0;
+            preparedStatement.setInt(++k, page_id[0]);
+            preparedStatement.setString(++k, searchTerms.get(0));
+
+            for(int j=0; j<page_id.length;j++) {
+                for (int i = 1; i < searchTerms.size(); i++) {
+                    preparedStatement.setInt(++k , page_id[j]);
+                    preparedStatement.setString(++k , searchTerms.get(i));
+                }
             }
             ResultSet resultSet = preparedStatement.executeQuery();
             return resultSet;
