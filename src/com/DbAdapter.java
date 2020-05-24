@@ -621,6 +621,22 @@ public class DbAdapter {
         }
 
     }
+
+    public ResultSet getPageRow (Integer page_id) {
+        try {
+            String query = "SELECT title,h1,h2,h3,h4,h5,h6,body  FROM `pages` WHERE id = ? ";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1,page_id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            return resultSet;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
     public void addNameTrend (String name, String country){
         try {
             String query = "INSERT INTO `Trends` (`id`,`name`,`country`,`frequency`) VALUES (NULL,?,?,?)" +
