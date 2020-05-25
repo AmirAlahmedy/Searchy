@@ -21,8 +21,8 @@ class Home extends Component {
     }
     render() {
         return(
-            <div>
-            <img src={Silogo} alt="Searchy" style={{
+            <div id={"logo-div"}>
+            <img src={Silogo} id={'search-logo'} alt="Searchy" style={{
                 "alignSelf": "center",
                 "verticalAlign": "middle",
                 "left": "50%",
