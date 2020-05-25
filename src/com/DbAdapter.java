@@ -655,7 +655,7 @@ public class DbAdapter {
 
     public ResultSet getTrends(String country){
         try {
-            String query = "SELECT * FROM `Trends` WHERE `country` = ?";
+            String query = "SELECT * FROM `Trends` WHERE `country` = ? ORDER BY `frequency` DESC LIMIT 10";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1,country);
             ResultSet resultSet = preparedStatement.executeQuery();
