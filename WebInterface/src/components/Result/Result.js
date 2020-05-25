@@ -3,6 +3,9 @@ import {useState, useEffect} from 'react'
 import Results from './Results'
 import Pagination from './Pagination'
 import  axios  from '../../axios-instance'
+import './Result.css'
+
+
 const Result = props =>{
     const [posts,setPosts] = useState([]);
     const [loading,setLoading] = useState(false);

@@ -1,0 +1,13 @@
+h4 {
+    font-family:  Publico,Georgia,serif;
+    font-weight: bolder;
+    text-decoration: underline overline;
+    text-decoration-color: crimson;
+    text-decoration-style: double;
+    width: 12.7ch;
+    background-color: lemonchiffon;
+}
+
+.post-card {
+    width: 65%;
+}
