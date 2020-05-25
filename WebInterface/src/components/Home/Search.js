@@ -118,7 +118,13 @@ class Search extends Component {
                     <Result {...props}/>
                 )} />
                   <Link to="/trends"><Button className="myButton">Trends</Button></Link>
-                  <Link to="/images"><Button className="myButton">Image Search</Button></Link>
+                  <Link to={{
+                      pathname: "/images/1",
+                      state: {
+                          searchQuery: query,
+                          country: country
+                      }
+                  }}><Button className="myButton">Image Search</Button></Link>
               </div>
 
               <img src={Voice} id="voiceRecognition" className="img-responsive center-block"
