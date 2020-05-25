@@ -4,6 +4,7 @@ import './Search.css'
 import Silogo from '../../silogo.png'
 import Result from "../Result/Result";
 import Route from "react-router-dom/es/Route";
+import {Button} from 'react-bootstrap'
 //import lib from 'react-speech-recognition';
 //import Mic from './Mic'
 import countries from "../../countries";
@@ -126,6 +127,7 @@ class Search extends Component {
                    position: "relative",
                    alignSelf: "center"
                  }}/>
+                 <Link to="/trends"><Button className="myButton">Trends</Button></Link> 
           </div>
         </div>
     )
