@@ -45,13 +45,14 @@ border: 10px none #ddd;
 	cursor:pointer;
 	color:#ffffff;
 	font-family:Arial;
-	font-size:19px;
+	font-size:14px;
 	padding:12px 37px;
 	text-decoration:none;
     text-shadow:0px 1px 0px #283966;
     position: relative;
     top: 16px;
     margin-left: 20px;
+	margin-top: 1.5%;
 }
 .myButton:hover {
 	background:linear-gradient(to bottom, #476e9e 5%, #7892c2 100%);

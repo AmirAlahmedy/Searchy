@@ -23,17 +23,18 @@ const Trends =()=>{
 
   const paginate = pageNumber => setCurrentPage(pageNumber);
          return(
-             <div>
-            <div className="fixed-top ">
-                <h4 className="text mb-3">Search Results</h4>
+
+            <div>
+                <h4 className="text mb-3" style={{marginLeft: '2%', marginTop: '1%', marginBottom: '1%'}}>Search Results</h4>
                 <Results posts={currentPosts} loading={loading} />
-      <Pagination
-        postsPerPage={postsPerPage}
-        totalPosts={posts.length}
-        paginate={paginate}
-      />
+                <Pagination
+                  postsPerPage={postsPerPage}
+                  totalPosts={posts.length}
+                  paginate={paginate}
+                  currentPage={currentPage}
+                />
             </div>
-            </div>
+
             
         )
     }

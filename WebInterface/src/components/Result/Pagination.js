@@ -7,6 +7,18 @@ const Pagination = ({ postsPerPage, totalPosts, paginate, currentPage }) => {
   for (let i = 1; i <= Math.ceil(totalPosts / postsPerPage); i++) {
     pageNumbers.push(i);
   }
+
+  let pageNumbersElements = document.getElementsByClassName("pgnum");
+  for(let item of pageNumbersElements) {
+      console.log(item);
+      if(item.value == currentPage) {
+          item.style.color = 'tomato';
+      } else {
+          item.style.color = '#0056b3';
+      }
+  }
+
+
   return (
 
       <ul className='pagination' style={{margin: '0', marginLeft: '5%'}}>
@@ -17,7 +29,7 @@ const Pagination = ({ postsPerPage, totalPosts, paginate, currentPage }) => {
           </li>
         {pageNumbers.map(number => (
           <li key={number} className='page-item'>
-            <button onClick={() => paginate(number)}   className='page-link'>
+            <button onClick={() => paginate(number)}   value={number} className='page-link pgnum'>
               {number}
             </button>
           </li>

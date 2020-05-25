@@ -99,36 +99,48 @@ class Search extends Component {
                    className="form-control form-control-sm ml-3 w-100" id="search-input" placeholder="Search..."/>
             <div>{this.renderSuggestions()}</div>
           </div>
+
           <div className="center flex-container" style={{
               display: "flex",
               flexWrap: "wrap",
             justifyContent: "space-between",
             alignItems: "center"
           }}>
-            <Link to={{
-              pathname: "/results/1",
-              state: {
-                searchQuery: query,
-                country: country
-              }
-               }} className="myButton">Go</Link>
-            <Route path="/results/1"  render={ props => (
-                <Result {...props}/>
-            )} />
-            {/*<Link to="/voice" className="myButton">Voice Search</Link>*/}
-            <img src={Voice} id="voiceRecognition" className="img-responsive center-block"
+              <div className={"buttons"}>
+                <Link to={{
+                  pathname: "/results/1",
+                  state: {
+                    searchQuery: query,
+                    country: country
+                  }
+                   }}><Button className="myButton">Go</Button></Link>
+                <Route path="/results/1"  render={ props => (
+                    <Result {...props}/>
+                )} />
+                  <Link to="/trends"><Button className="myButton">Trends</Button></Link>
+                  <Link to="/images"><Button className="myButton">Image Search</Button></Link>
+              </div>
+
+              <img src={Voice} id="voiceRecognition" className="img-responsive center-block"
                  alt="Voice Recognition"  onClick={ event => {recognition.start(); }}
                  style={{
-                   minHeight: "50px",
-                   minWidth: "50px",
-                   height: "15%",
-                   width: "15%",
+                   minHeight: "20px",
+                   minWidth: "20px",
+                   height: "10%",
+                   width: "10%",
                    marginTop: "5%",
                    position: "relative",
-                   alignSelf: "center"
+                   alignSelf: "center",
+                   cursor: "pointer"
                  }}/>
-                 <Link to="/trends"><Button className="myButton">Trends</Button></Link> 
+
           </div>
+          {/*<div className="form-check" style={{*/}
+          {/*  margin:"5% 5% 0 0"*/}
+          {/*}}>*/}
+          {/*  <input type="checkbox" className="form-check-input" id="exampleCheck1"/>*/}
+          {/*    <label className="form-check-label" htmlFor="exampleCheck1">Image Search</label>*/}
+          {/*</div>*/}
         </div>
     )
   }
