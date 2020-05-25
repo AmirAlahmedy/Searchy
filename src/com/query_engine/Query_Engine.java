@@ -245,6 +245,7 @@ public class Query_Engine {
             if (query.startsWith("'") && query.endsWith("'")) {
                 System.out.println("Phrase Search");
                 try {
+                    addTrend(query, country);
                     rs = phraseSearch(query);
                 }
                 catch (SQLException e )
@@ -359,6 +360,10 @@ public class Query_Engine {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
         String country="Egypt";
-        qe.processQuery("premier league",country,true);
+        qe.processQuery("Messi",country,true);
+//        ResultSet rs =db.getTrends("Egypt");
+//        while (rs.next()){
+//            System.out.println(rs.getString(2));
+//        }
     }
 }
