@@ -23,12 +23,12 @@ public class Main {
         Document doc = Jsoup.connect("https://www.mirror.co.uk/sport/football/news/premier-leagues-three-key-meetings-22084188").get();
         Elements elements = doc.select("[itemprop=datePublished]");
         for(Element e : elements){
-            System.out.println(e.attr("content"));
+            System.out.println(e.attr("content").replaceAll("[-/]","").split("[T ]")[0]);
         }
         Document doc2 = Jsoup.connect("https://www.si.com/soccer/2020/05/25/borussia-dortmund-bayern-munich-der-klassiker-bundesliga-preview").get();
         Elements elements2 = doc2.select("[itemprop=datePublished]");
         for(Element e: elements2){
-            System.out.println(e.attr("content"));
+            System.out.println(e.attr("content").replaceAll("[-/]","").split("[T ]")[0]);
         }
 
 
@@ -36,9 +36,15 @@ public class Main {
         Elements elements3 = doc3.select("[itemprop=datePublished]");
         for(Element e: elements3){
             if(e.attr("content").equals(""))
-                System.out.println(e.attr("dateTime"));
+                System.out.println(e.attr("dateTime").replaceAll("[-/]","").split("[T ]")[0]);
         }
 
+
+        Document doc4 = Jsoup.connect("https://www.bbc.com/sport/football/52801776").get();
+        Elements elements4 = doc4.select("[property=rnews:datePublished]");
+        for(Element e: elements4){
+            System.out.println(e.attr("content").replaceAll("[-/]","").split("[T ]")[0]);
+        }
 
 
     }
