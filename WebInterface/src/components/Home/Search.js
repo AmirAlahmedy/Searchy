@@ -55,7 +55,6 @@ class Search extends Component {
         let trnscrpt = "";
         console.log(country);
         console.log(query);
-        console.log(window.chrome);
 
         let recognition = null;
         if (window.chrome) {
@@ -100,6 +99,7 @@ class Search extends Component {
 
         return (
             <div className="container">
+                <form onSubmit={e => {e.preventDefault();}}>
                 <div className="AutoCompleteText">
                     <input onChange={this.handleChange} value={query} type="text"
                            className="form-control form-control-sm ml-3 w-100" id="search-input"
@@ -115,18 +115,18 @@ class Search extends Component {
                 }}>
                     <div className={"buttons"}>
                         <Link to={{
-                            pathname: "/results/1",
+                            pathname: "/results",
                             state: {
                                 searchQuery: query,
                                 country: country
                             }
-                        }}><Button className="myButton">Go</Button></Link>
-                        <Route path="/results/1" render={props => (
+                        }} id={"go"} ><Button type={"submit"} className="myButton">Go</Button></Link>
+                        <Route path="/results" render={props => (
                             <Result {...props}/>
                         )}/>
                         <Link to="/trends"><Button className="myButton">Trends</Button></Link>
                         <Link to={{
-                            pathname: "/images/1",
+                            pathname: "/images",
                             state: {
                                 searchQuery: query,
                                 country: country
@@ -135,7 +135,9 @@ class Search extends Component {
                     </div>
 
                     <img src={Voice} id="voiceRecognition" className="img-responsive center-block"
-                         alt="Voice Recognition" onClick={event => { handleVoiceRecognition(recognition); }}
+                         alt="Voice Recognition" onClick={event => {
+                        handleVoiceRecognition(recognition);
+                    }}
                          style={{
                              minHeight: "20px",
                              minWidth: "20px",
@@ -148,14 +150,10 @@ class Search extends Component {
                          }}/>
 
                 </div>
-                {/*<div className="form-check" style={{*/}
-                {/*  margin:"5% 5% 0 0"*/}
-                {/*}}>*/}
-                {/*  <input type="checkbox" className="form-check-input" id="exampleCheck1"/>*/}
-                {/*    <label className="form-check-label" htmlFor="exampleCheck1">Image Search</label>*/}
-                {/*</div>*/}
+                </form>
             </div>
         )
+
     }
 }
 

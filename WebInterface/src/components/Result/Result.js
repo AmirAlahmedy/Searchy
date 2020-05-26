@@ -50,9 +50,11 @@ const Result = props =>{
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
     const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
-    window.history.pushState(null, null, '/results/'+currentPage);
+    // window.history.pushState(null, null, '/results/'+currentPage);
     console.log(currentPosts.length);
     const paginate = pageNumber => setCurrentPage(pageNumber);
+
+    document.body.style.overflow = "visible";
     if(document.body.getElementsByTagName("canvas")[0])
         document.body.getElementsByTagName("canvas")[0].style.display = "none";
     return(

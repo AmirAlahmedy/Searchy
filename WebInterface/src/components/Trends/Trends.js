@@ -24,6 +24,7 @@ const Trends = () => {
 
     const paginate = pageNumber => setCurrentPage(pageNumber);
 
+    document.body.style.overflow = "visible";
     if(document.body.getElementsByTagName("canvas")[0])
     document.body.getElementsByTagName("canvas")[0].style.display = "none";
 

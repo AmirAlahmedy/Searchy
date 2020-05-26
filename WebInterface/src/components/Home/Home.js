@@ -24,6 +24,8 @@ class Home extends Component {
 
 
     render() {
+        if( document.getElementsByTagName("canvas")[0])
+        document.getElementsByTagName("canvas")[0].style.display = "block";
         if(i) {
             i = null;
             var scene = new THREE.Scene();

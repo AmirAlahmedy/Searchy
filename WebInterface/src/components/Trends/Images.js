@@ -21,8 +21,11 @@ const Result = () => {
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
     const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
     const paginate = pageNumber => setCurrentPage(pageNumber);
+
+    document.body.style.overflow = "visible";
     if(document.body.getElementsByTagName("canvas")[0])
         document.body.getElementsByTagName("canvas")[0].style.display = "none";
+
     return (
         <div className="container">
             <h4 className="center">Search Results</h4>

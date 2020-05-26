@@ -16,9 +16,9 @@ class App extends Component {
         <Switch>
         <Route exact path='/' render={(props) => <Home {...props} items={countries} />}/>
         <Route path ="/voice" component={Mic} />
-        <Route  path="/results/1" component={Result} />
+        <Route  path="/results" component={Result} />
         <Route path="/trends" component={Trends} />
-        <Route  path="/images/1" component={Images} />
+        <Route  path="/images" component={Images} />
         </Switch>
       </div>
       </BrowserRouter>
