@@ -131,6 +131,8 @@ public class Crawler implements Runnable{
                         String h6 = doc.select("h6").text();
                         String meta = "";
                         String alt ="";
+
+                        //Getting images srcs and alts to put it in meta and alt
                         Elements imgs = doc.select("img");
                         for (Element el : imgs){
                             if(el.attr("alt") != null && !el.attr("alt").equals("") && el.attr("src") != null && !el.attr("src").equals("")){
@@ -138,9 +140,62 @@ public class Crawler implements Runnable{
                                 meta = meta + el.attr("src") + "\n\n";
                             }
                         }
+                        String country = null;
+                        String date = "";
+                        //Getting date
+                        Elements dates = doc.select("[itemprop=datePublished]");
+                        for(Element e: dates){
+                            if(e.attr("content") != null && !e.attr("content").equals(""))
+                                //splitting and replacing to get the year month day only
+                                date = e.attr("content").replaceAll("[-/]","").split("[T ]")[0];
+
+                            if(e.attr("datetime") != null && !e.attr("datetime").equals(""))
+                                //splitting and replacing to get the year month day only
+                                date = e.attr("datetime").replaceAll("[-/]","").split("[T ]")[0];
+
+                        }
+                        // IF there is still no date
+                        if(date.equals("")){
+                            dates = doc.select("[property=rnews:datePublished]");
+                            for(Element e :dates){
+                                if(e.attr("content") != null && !e.attr("content").equals(""))
+                                    //splitting and replacing to get the year month day only
+                                    date = e.attr("content").replaceAll("[-/]","").split("[T ]")[0];
+                            }
+
+                            // IF there is still no date
+                            if(date.equals("")){
+                                dates = doc.select("[property=article:published_time]");
+                                for(Element e :dates){
+                                    if(e.attr("content") != null && !e.attr("content").equals(""))
+                                        //splitting and replacing to get the year month day only
+                                        date = e.attr("content").replaceAll("[-/]","").split("[T ]")[0];
+                                }
+
+                                // IF there is still no date
+                                if(date.equals("")){
+                                    dates = doc.select("[property=article:published_time]");
+                                    for(Element e :dates){
+                                        if(e.attr("content") != null && !e.attr("content").equals(""))
+                                            //splitting and replacing to get the year month day only
+                                            date = e.attr("content").replaceAll("[-/]","").split("[T ]")[0];
+                                    }
+                                }
+
+                            }
+                        }
+
+                        int integerDate;
+                        try {
+                            integerDate = Integer.parseInt(date);
+                        } catch (NumberFormatException e) {
+                            // Found no date
+                            integerDate = 0;
+                        }
+
 
                         //  int words = title.length() + h1.length() + h2.length() + h3.length() + h4.length() + h5.length() + h6.length() + meta.length() + alt.length() + body.length();
-                        boolean done = this.db.addNewPage(p.getPivot(), title, h1, h2, h3, h4, h5, h6, body, alt, meta);
+                        boolean done = this.db.addNewPage(p.getPivot(), title, h1, h2, h3, h4, h5, h6, body, alt, meta,integerDate,country);
                         if (done) {
                             crawledPages.incrementAndGet();
                             if(crawledPages.get() >= PAGES_TO_CRAWL ) return;
