@@ -93,13 +93,17 @@ public class Query_Engine {
             }
         }
         if(matched_ids.size()!=0) {
-            Integer [] finalIDS = matched_ids.toArray(new Integer[0]);
-            //  @TODO ADD EL PAGES ELLY FEHA EL TERMS SEPARATE FEL AKHER
-            System.out.println("\nPhrase Matched IDS:");
-            for(Integer is:finalIDS)
-            {
-                System.out.print(is+ " ");
+            System.out.println("\nPhrase Matched IDS ONLY:");
+            System.out.println(matched_ids);
+            //Integer [] restOfTheMatches = new Integer[page_ids.length-matched_ids.size()];
+            for (Integer page_id : page_ids) {
+                if (!matched_ids.contains(page_id)) {
+                    matched_ids.add(page_id);
+                }
             }
+            System.out.println("\nAll Matched IDS Sorted phrase first:");
+            System.out.println(matched_ids);
+            Integer [] finalIDS = matched_ids.toArray(new Integer[0]);
             resultSet = this.db.getPagesInfo(finalIDS);
         }
         else{
@@ -360,7 +364,7 @@ public class Query_Engine {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
         String country="Egypt";
-        qe.processQuery("Messi",country,true);
+        qe.processQuery("'Messi'",country,false);
 //        ResultSet rs =db.getTrends("Egypt");
 //        while (rs.next()){
 //            System.out.println(rs.getString(2));
