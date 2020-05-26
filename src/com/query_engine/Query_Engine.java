@@ -226,6 +226,7 @@ public class Query_Engine {
         for(int i=0; i<pagesNumber;i++)
         {
             System.out.print(page_ids[i]+" ");
+            //System.out.print(pageScore[i]+" ");
         }
         System.out.println();
 
@@ -279,11 +280,23 @@ public class Query_Engine {
         for (int i = 0; i < termsNumber; i++) {
             ArrayList<Double>TermRow = new ArrayList<>();
             for (int j = 0; j < pagesNumber; j++) {
+                ResultSet context = this.db.getContextScore(searchTerms.get(i),pageIDS.get(j));
+                Double contextScore = 0.0D;
+                if (context != null) {
+                    try {
+                        contextScore = context.getDouble(1)*20 + context.getDouble(2)*7
+                                + context.getDouble(3)*5 + context.getDouble(4)*3
+                                + context.getDouble(5)*2 + context.getDouble(6)*0.7
+                                + context.getDouble(7)*0.5;
+                    } catch (SQLException e) {
+                        e.getErrorCode();
+                    }
+                }
                 Double IDF = this.db.getIDF(searchTerms.get(i));
                 Double TF = this.db.getTF(searchTerms.get(i), pageIDS.get(j));
                 Double pageRank = this.db.getPR(pageIDS.get(j));
-                TermRow.add(IDF*TF*pageRank);
-                pageScore[j]+=IDF*TF*pageRank;
+                TermRow.add((IDF*TF*pageRank)+contextScore);
+                pageScore[j]+=(IDF*TF*pageRank)+contextScore;
             }
             System.out.println(TermRow);
         }
@@ -364,7 +377,7 @@ public class Query_Engine {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
         String country="Egypt";
-        qe.processQuery("'Messi'",country,false);
+        qe.processQuery("Messi",country,false);
 //        ResultSet rs =db.getTrends("Egypt");
 //        while (rs.next()){
 //            System.out.println(rs.getString(2));
