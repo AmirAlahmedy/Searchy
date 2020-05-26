@@ -602,6 +602,21 @@ public class DbAdapter {
         }
 
     }
+    public ResultSet getContextScore(String term, Integer pageID)
+    {
+        try {
+            String query = "SELECT Title,H1,H2,H3,H4,H5,H6 FROM `Terms` WHERE `Term` = ? AND `Page_Id` = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, term);
+            preparedStatement.setInt(2, pageID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            return resultSet;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
     public ResultSet getImagesInfo (Integer[] page_id, ArrayList<String> searchTerms) {
         try {
             String query = "SELECT src, url  FROM `Images`, `pages` WHERE `page_Id` = ? AND `term` = ? AND pages.id = Images.page_Id ";
