@@ -53,9 +53,12 @@ const Result = props =>{
     window.history.pushState(null, null, '/results/'+currentPage);
     console.log(currentPosts.length);
     const paginate = pageNumber => setCurrentPage(pageNumber);
+    if(document.body.getElementsByTagName("canvas")[0])
+        document.body.getElementsByTagName("canvas")[0].style.display = "none";
     return(
 
         <div>
+
             <h4 className="text mb-3"  style={{marginLeft: '2%', marginTop: '1%', marginBottom: '1%'}}>Search Results</h4>
             <Results posts={currentPosts} loading={loading} />
             <Pagination style={{marginBottom: '2%', float: 'bottom'}}

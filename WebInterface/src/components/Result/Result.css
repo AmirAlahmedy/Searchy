@@ -11,3 +11,26 @@ h4 {
 .post-card {
     width: 65%;
 }
+
+.element {
+    position: absolute;
+    right: 10%;
+    animation:
+            pulse 3s ease infinite alternate,
+            nudge 5s linear infinite alternate;
+}
+
+@keyframes nudge {
+    0% {
+       transform: translateY(1000%);
+
+
+    }
+    50% {
+        transform: scale(2, 2);
+    }
+
+    100% {
+        transform: translateY(-60%);
+    }
+}
