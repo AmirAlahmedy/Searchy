@@ -11,7 +11,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Timer;
 
 public class Main {
 
@@ -40,11 +43,16 @@ public class Main {
         }
 
 
+
         Document doc4 = Jsoup.connect("https://www.bbc.com/sport/football/52801776").get();
         Elements elements4 = doc4.select("[property=rnews:datePublished]");
         for(Element e: elements4){
             System.out.println(e.attr("content").replaceAll("[-/]","").split("[T ]")[0]);
         }
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+        String date = simpleDateFormat.format(new Date());
+        System.out.println("Delw2tyyyy   "+date);
 
 
     }
