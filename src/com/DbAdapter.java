@@ -21,7 +21,7 @@ public class DbAdapter {
         }
     }
 
-    public synchronized boolean addNewPage(String url, String title, String h1, String h2, String h3, String h4, String h5, String h6, String body, String alt, String meta) {
+    public synchronized boolean addNewPage(String url, String title, String h1, String h2, String h3, String h4, String h5, String h6, String body, String alt, String meta, int date, String country) {
         try {
             //statement = connection.createStatement();
             //statement.executeUpdate("INSERT INTO `pages` (`id`, `url`, `title`, `h1`, `h2`, `h3`, `h4`, `h5`, `h6`, `body`, `alt`, `meta`) VALUES (NULL,'"+url+"','"+title+"','"+h1+"', '"+h2+"', '"+h3+"', '"+h4+"', '"+h5+"', '"+h6+"', '"+body+"', '"+alt+"', '"+meta+"');");
@@ -30,7 +30,7 @@ public class DbAdapter {
 
                 return false;
             }
-            String query = "INSERT INTO `pages` (`id`, `url`, `title`, `h1`, `h2`, `h3`, `h4`, `h5`, `h6`, `body`, `alt`, `meta`, `words`, `indexed`) VALUES (NULL,? ,? ,?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)";
+            String query = "INSERT INTO `pages` (`id`, `url`, `title`, `h1`, `h2`, `h3`, `h4`, `h5`, `h6`, `body`, `alt`, `meta`, `date`, `indexed`, `country`) VALUES (NULL,? ,? ,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, url);
             preparedStatement.setString(2, title);
@@ -43,7 +43,9 @@ public class DbAdapter {
             preparedStatement.setString(9, body);
             preparedStatement.setString(10, alt);
             preparedStatement.setString(11, meta);
-            preparedStatement.setBoolean(12,false);
+            preparedStatement.setInt(12,date);
+            preparedStatement.setBoolean(13,false);
+            preparedStatement.setString(14,country);
             preparedStatement.execute();
             System.out.println("Added page to database successfully");
             return true;
