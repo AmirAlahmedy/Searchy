@@ -524,8 +524,10 @@ public class DbAdapter {
             preparedStatement.setString(1, term);
             preparedStatement.setInt(2, pageID);
             ResultSet resultSet = preparedStatement.executeQuery();
-            resultSet.next();
-            return resultSet.getDouble(1);
+            if(resultSet.next()) {
+                return resultSet.getDouble(1);
+            }
+            return 0.0D;
         } catch (SQLException e) {
             e.printStackTrace();
             return 0.0D;
@@ -538,7 +540,7 @@ public class DbAdapter {
             String query = "SELECT Page_Id FROM `Terms` WHERE `Term` = ? ";
             for(int i=1;i<numberOfTerms;i++)
             {
-                query+= "INTERSECT SELECT Page_Id FROM `Terms` WHERE `Term` = ? ";
+                query+= "UNION SELECT Page_Id FROM `Terms` WHERE `Term` = ? ";
             }
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, terms.get(0));
@@ -563,7 +565,7 @@ public class DbAdapter {
             String query = "SELECT page_Id FROM `Images` WHERE `term` = ? ";
             for(int i=1;i<numberOfTerms;i++)
             {
-                query+= "INTERSECT SELECT page_Id FROM `Images` WHERE `term` = ? ";
+                query+= "UNION SELECT page_Id FROM `Images` WHERE `term` = ? ";
             }
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, terms.get(0));
@@ -609,7 +611,10 @@ public class DbAdapter {
             preparedStatement.setString(1, term);
             preparedStatement.setInt(2, pageID);
             ResultSet resultSet = preparedStatement.executeQuery();
-            resultSet.next();
+            if(!resultSet.next())
+            {
+                return null;
+            }
             return resultSet;
         } catch (SQLException e) {
             e.printStackTrace();

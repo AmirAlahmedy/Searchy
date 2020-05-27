@@ -50,6 +50,7 @@ public class Query_Engine {
                     for (int c = 0; c < wordLength; c++) stemmer.add(word[c]);
                     stemmer.stem();
                     //  System.out.println(stemmer.toString());
+                    //searchTerms.add(stemmer.toString().toLowerCase());
                     searchTerms.add(stemmer.toString());
                 }
             }
@@ -210,7 +211,6 @@ public class Query_Engine {
         //  GETTING PAGES THAT ARE COMMON IN ALL TERMS
 
         ArrayList <Integer> pageIDS = findCommonPagesIDS(searchTerms, images);
-        //  @todo ADD PAGES FEEHA BA2ET EL TERM
         System.out.println(pageIDS);
 
         // CALCULATING PAGES SCORES
@@ -271,7 +271,6 @@ public class Query_Engine {
     }
     private double [] calculatePageScore(ArrayList <Integer> pageIDS ,ArrayList<String> searchTerms)
     {
-        //@todo ADD TITLE/H1/H2 INTO COUNT + number of pages
         int termsNumber = searchTerms.size();
         int pagesNumber = pageIDS.size();
         double [] pageScore = new double[pagesNumber];
@@ -279,24 +278,27 @@ public class Query_Engine {
         //ArrayList<ArrayList<Double>> PageColumn = new ArrayList<>();
         for (int i = 0; i < termsNumber; i++) {
             ArrayList<Double>TermRow = new ArrayList<>();
+            Double IDF = this.db.getIDF(searchTerms.get(i));
             for (int j = 0; j < pagesNumber; j++) {
                 ResultSet context = this.db.getContextScore(searchTerms.get(i),pageIDS.get(j));
                 Double contextScore = 0.0D;
-                if (context != null) {
-                    try {
-                        contextScore = context.getDouble(1)*20 + context.getDouble(2)*7
-                                + context.getDouble(3)*5 + context.getDouble(4)*3
-                                + context.getDouble(5)*2 + context.getDouble(6)*0.7
-                                + context.getDouble(7)*0.5;
-                    } catch (SQLException e) {
-                        e.getErrorCode();
-                    }
-                }
-                Double IDF = this.db.getIDF(searchTerms.get(i));
+                //  @todo Calculate context score with respect to pages
+//                if (context != null) {
+//                    try {
+//                        contextScore = context.getDouble(1)*20 + context.getDouble(2)*7
+//                                + context.getDouble(3)*5 + context.getDouble(4)*3
+//                                + context.getDouble(5)*2 + context.getDouble(6)*0.7
+//                                + context.getDouble(7)*0.5;
+//                    } catch (SQLException e) {
+//                        e.getErrorCode();
+//                    }
+//                }
                 Double TF = this.db.getTF(searchTerms.get(i), pageIDS.get(j));
-                Double pageRank = this.db.getPR(pageIDS.get(j));
-                TermRow.add((IDF*TF*pageRank)+contextScore);
-                pageScore[j]+=(IDF*TF*pageRank)+contextScore;
+                if(TF!=0.0D) {
+                    Double pageRank = this.db.getPR(pageIDS.get(j));
+                    TermRow.add((IDF * TF * pageRank) + contextScore);
+                    pageScore[j] += (IDF * TF * pageRank) + contextScore;
+                }
             }
             System.out.println(TermRow);
         }
@@ -377,7 +379,7 @@ public class Query_Engine {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
         String country="Egypt";
-        qe.processQuery("Messi",country,false);
+        qe.processQuery("messi and ibrahimovic",country,false);
 //        ResultSet rs =db.getTrends("Egypt");
 //        while (rs.next()){
 //            System.out.println(rs.getString(2));
