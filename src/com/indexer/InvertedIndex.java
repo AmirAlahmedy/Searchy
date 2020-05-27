@@ -124,8 +124,8 @@ public class InvertedIndex implements Runnable{
             // End of one document
             //Need to set page word count & update the right TF by dividing on the total words
             //dbAdapter.updatePageWordCount(pageId,wordsInPage);
-            //dbAdapter.updateTF(pageId,wordsInPage);
-            //dbAdapter.markPageAsIndexed(pageId);
+            dbAdapter.updateTF(pageId,wordsInPage);
+            dbAdapter.markPageAsIndexed(pageId);
         }
         //End of all documents
         //Need to set idf
