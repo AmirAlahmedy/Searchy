@@ -83,7 +83,6 @@ public class Crawler implements Runnable{
 
         for(Pivot p : myPivotList) {
             try {
-                // 1. Retrieve a web page (i.e. a document).
                 boolean used =db.isLinkUsedBefore(p.getPivot());
 
                 //Robots r = followRobotExclusionProtocol(p);
@@ -208,9 +207,10 @@ public class Crawler implements Runnable{
                         // 2. Collect all Hyper links within this Doc.
                         Elements links = doc.body().select("a[href]");
                         for (Element link : links) {
-
                             // Check for disallowed directories
                             Pivot crawled = new Pivot(link.attr("href"));
+                            if(!crawled.getPivot().startsWith("http"))
+                                continue;
                             if(!disallowedPivotList.contains(crawled.getPivot()))
                             {
                                 myPivotList.add(crawled);
@@ -261,6 +261,8 @@ public class Crawler implements Runnable{
 
                             // Check for disallowed directories
                             Pivot crawled = new Pivot(link.attr("href"));
+                            if(!crawled.getPivot().startsWith("http"))
+                                continue;
                             if (!disallowedPivotList.contains(crawled.getPivot())) {
                                 myPivotList.add(crawled);
                                 //Add it to backup database
