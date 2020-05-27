@@ -62,10 +62,10 @@ public class InvertedIndex implements Runnable{
                     int counter = 0;
                     for (String img : alts){
                         if(!img.equals("")) {
-                            if(!srcs[counter].startsWith("http")){
-                                counter = counter + 1;
-                                continue;
-                            }
+//                            if(!srcs[counter].startsWith("http")){
+//                                counter = counter + 1;
+//                                continue;
+//                            }
                             // the first element is the alt and the second is the src
                             //img = img.replaceAll("[^a-z0-9]", " ");
                             List<String> tokens = Arrays.asList(img.split("[^a-z0-9]"));
