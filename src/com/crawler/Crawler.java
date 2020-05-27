@@ -1,7 +1,6 @@
 package com.crawler;
 
 import com.DbAdapter;
-//import javafx.scene.input.PickResult;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.UnsupportedMimeTypeException;
@@ -141,7 +140,7 @@ public class Crawler implements Runnable{
                                 meta = meta + el.attr("src") + "\n\n";
                             }
                         }
-                        String country = null;
+                        //String country = null;
                         String date = "";
                         //Getting date
                         Elements dates = doc.select("[itemprop=datePublished]");
@@ -210,7 +209,13 @@ public class Crawler implements Runnable{
                         Elements links = doc.body().select("a[href]");
                         for (Element link : links) {
                             // Check for disallowed directories
-                            Pivot crawled = new Pivot(link.attr("href"));
+                            Pivot crawled;
+                            if(link.attr("href").startsWith("/")){
+                                crawled = new Pivot(p.pivotRootDirectory()+link.attr("href"));
+                            }
+                            else {
+                                crawled = new Pivot(link.attr("href"));
+                            }
                             if(!crawled.getPivot().startsWith("http"))
                                 continue;
                             if(!disallowedPivotList.contains(crawled.getPivot()))
@@ -262,7 +267,13 @@ public class Crawler implements Runnable{
                         for (Element link : links) {
 
                             // Check for disallowed directories
-                            Pivot crawled = new Pivot(link.attr("href"));
+                            Pivot crawled;
+                            if(link.attr("href").startsWith("/")){
+                                crawled = new Pivot(p.pivotRootDirectory()+link.attr("href"));
+                            }
+                            else {
+                                crawled = new Pivot(link.attr("href"));
+                            }
                             if(!crawled.getPivot().startsWith("http"))
                                 continue;
                             if (!disallowedPivotList.contains(crawled.getPivot())) {
