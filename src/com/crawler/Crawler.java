@@ -196,7 +196,7 @@ public class Crawler implements Runnable{
 
 
                         //  int words = title.length() + h1.length() + h2.length() + h3.length() + h4.length() + h5.length() + h6.length() + meta.length() + alt.length() + body.length();
-                        boolean done = this.db.addNewPage(p.getPivot(), title, h1, h2, h3, h4, h5, h6, body, alt, meta,integerDate,country);
+                        boolean done = this.db.addNewPage(p.getPivot(), title, h1, h2, h3, h4, h5, h6, body, alt, meta,integerDate);
                         if (done) {
                             crawledPages.incrementAndGet();
                             if(crawledPages.get() >= PAGES_TO_CRAWL ) return;
