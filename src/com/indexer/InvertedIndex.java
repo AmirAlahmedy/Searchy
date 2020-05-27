@@ -68,11 +68,12 @@ public class InvertedIndex implements Runnable{
 //                            }
                             // the first element is the alt and the second is the src
                             //img = img.replaceAll("[^a-z0-9]", " ");
-                            List<String> tokens = Arrays.asList(img.split("[^a-z0-9]"));
+                            List<String> tokens = new ArrayList<String>(Arrays.asList(img.split("[^a-z0-9]")));
+                            tokens.removeAll(stopWords);
                             try {
                                 //Stemmer stemmer = new Stemmer();
                                 for (String token : tokens) {
-                                    if (!token.equals("") && !stopWords.contains(token)) {
+                                    if (!token.equals("") ){ //&& !stopWords.contains(token)) {
 //                                        char[] word = token.toCharArray();
 //                                        int wordLength = token.length();
 //                                        for (int c = 0; c < wordLength; c++) stemmer.add(word[c]);
@@ -98,12 +99,13 @@ public class InvertedIndex implements Runnable{
 
                     // 3. Filter out stop words and stem each token.
                     // Extract tokens from the page content into a list.
-                    List<String> tokens = Arrays.asList(parsedContent.split("[^a-z0-9]"));
 
+                    List<String> tokens = new ArrayList<String>(Arrays.asList(parsedContent.split("[^a-z0-9]")));
+                    tokens.removeAll(stopWords);
                     try {
                         //Stemmer stemmer = new Stemmer();
                         for (String token : tokens) {
-                            if (!token.equals("") && !stopWords.contains(token)) {
+                            if (!token.equals("") ){//&& !stopWords.contains(token)) {
                                 wordsInPage++;
 //                                char[] word = token.toCharArray();
 //                                int wordLength = token.length();
@@ -122,8 +124,8 @@ public class InvertedIndex implements Runnable{
             // End of one document
             //Need to set page word count & update the right TF by dividing on the total words
             //dbAdapter.updatePageWordCount(pageId,wordsInPage);
-            dbAdapter.updateTF(pageId,wordsInPage);
-            dbAdapter.markPageAsIndexed(pageId);
+            //dbAdapter.updateTF(pageId,wordsInPage);
+            //dbAdapter.markPageAsIndexed(pageId);
         }
         //End of all documents
         //Need to set idf
@@ -178,6 +180,7 @@ public class InvertedIndex implements Runnable{
             threadArr.add(new Thread(indexer));
             threadArr.get(i).setName(Integer.toString(i));
         }
+        long start=System.currentTimeMillis();
         for(int i=0;i<number;i++){
             threadArr.get(i).start();
         }
@@ -185,6 +188,8 @@ public class InvertedIndex implements Runnable{
         for(int i=0;i<number;i++){
             threadArr.get(i).join();
         }
+        long finish=System.currentTimeMillis();
+        System.out.println(finish-start);
         System.out.println("Started IDF Setting");
         ((InvertedIndex) indexer).setIDFAllTerms();
 
