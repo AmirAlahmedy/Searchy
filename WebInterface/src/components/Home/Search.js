@@ -4,8 +4,6 @@ import './Search.css'
 import Result from "../Result/Result";
 import Route from "react-router-dom/es/Route";
 import {Button} from 'react-bootstrap'
-//import lib from 'react-speech-recognition';
-//import Mic from './Mic'
 import Voice from "./mic-fill.svg";
 
 
