@@ -411,17 +411,19 @@ public class DbAdapter {
         }
     }
 
-    public void setTermIDF(String term, int allDocs) {
+    public Double setTermIDF(String term, int allDocs) {
         try {
             String query = "UPDATE `Terms` SET `IDF` = ? WHERE `Term` = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             int termDocs = termRows(term);
-            preparedStatement.setDouble(1, Math.log((double) allDocs / termDocs));
+            Double IDF = Math.log((double) allDocs / termDocs);
+            preparedStatement.setDouble(1, IDF);
             preparedStatement.setString(2, term);
-
             preparedStatement.execute();
+            return IDF;
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+            return 0.0D;
         }
     }
 
@@ -535,13 +537,20 @@ public class DbAdapter {
         }
     }
 
-    public ResultSet selectCommonPages (ArrayList <String> terms) {
+    public ResultSet selectCommonPages (ArrayList <String> terms, boolean phrase) {
         int numberOfTerms = terms.size();
         try {
             String query = "SELECT Page_Id FROM `Terms` WHERE `Term` = ? ";
-            for(int i=1;i<numberOfTerms;i++)
-            {
-                query+= "UNION SELECT Page_Id FROM `Terms` WHERE `Term` = ? ";
+            // OPTIMIZATION TO AVOID KMP IN ALL THE PAGES
+            if(phrase) {
+                for (int i = 1; i < numberOfTerms; i++) {
+                    query += "INTERSECT SELECT Page_Id FROM `Terms` WHERE `Term` = ? ";
+                }
+            }
+            else{
+                for (int i = 1; i < numberOfTerms; i++) {
+                    query += "UNION SELECT Page_Id FROM `Terms` WHERE `Term` = ? ";
+                }
             }
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, terms.get(0));
