@@ -1,13 +1,12 @@
 import React,{Component } from 'react';
-import { BrowserRouter,Route,Switch} from 'react-router-dom'
+import { BrowserRouter, Route, Switch} from 'react-router-dom'
 import Home from './components/Home/Home'
 import Result from './components/Result/Result'
 import countries from './countries'
-import Mic from './components/Mic/Mic'
 import Images from './components/Trends/Images'
 import Trends from './components/Trends/Trends'
-import Chart from './components/Chart'
-//import SpeechRecognition from 'react-speech-recognition'
+import Chart from './components/Trends/Chart'
+
 
 class App extends Component {
   render(){
@@ -16,11 +15,10 @@ class App extends Component {
       <div className="App">
         <Switch>
         <Route exact path='/' render={(props) => <Home {...props} items={countries} />}/>
-        <Route path ="/voice" component={Mic} />
         <Route  path="/results" component={Result} />
         <Route path="/trends" component={Trends} />
         <Route  path="/images" component={Images} />
-        <Route path="/chart" render={(props) => <Chart {...props} chartData={this.state.chartData} location="Egypt" legendPosition="bottom"/>} />
+        {/*<Route path="/chart" render={(props) => <Chart {...props} chartData={this.state.chartData} location="Egypt" legendPosition="bottom"/>} />*/}
         </Switch>
       </div>
       </BrowserRouter>
