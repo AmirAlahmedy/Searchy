@@ -14,6 +14,7 @@ create table pages
     alt   text       not null,
     meta  text       not null,
     date  int        null,
+    country varchar(255)    null,
     indexed tinyint(1) default 0 null,
     constraint pages_url_uindex
         unique (url) using hash

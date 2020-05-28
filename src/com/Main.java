@@ -1,13 +1,19 @@
 package com;
 
 import com.indexer.Stemmer;
+import com.maxmind.geoip2.DatabaseReader;
+import com.maxmind.geoip2.exception.GeoIp2Exception;
+import com.maxmind.geoip2.model.CountryResponse;
+import com.maxmind.geoip2.record.Country;
 import com.query_engine.Query_Engine;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,8 +42,31 @@ public class Main {
 //            System.out.println("Ma3lesh");
 //        }
 
-        Document test2 = Jsoup.connect("https://uk.sports.yahoo.com/news/tottenham-complete-bergwijn-signing-104727841.html").get();
-        System.out.println(test2.body().text());
+//        Document doc = Jsoup.connect("https://www.si.com/soccer/2020/05/27/fake-crowd-noise-soccer-tv-broadcasts-bundesliga").get();
+//        System.out.println(doc.select("p").text().length()
+//                + doc.select("li").text().length()
+//                + doc.select("ol").text().length()
+//                + doc.select("td").text().length()
+//                + doc.select("th").text().length()
+//                + doc.select("ul").text().length());
+//        System.out.println("bodyyyy");
+//        System.out.println( doc.body().text().length());
+
+        File database = new File("src/com/crawler/GeoLite2-Country.mmdb");
+        DatabaseReader reader = new DatabaseReader.Builder(database).build();
+        try {
+            InetAddress ipAddress = InetAddress.getByName("www.independent.co.uk");
+            //System.out.println(ipAddress.toString());
+            System.out.println(ipAddress.toString());
+            CountryResponse response = reader.country(ipAddress);
+            Country country = response.getCountry();
+            System.out.println(country.getName());
+
+        } catch (GeoIp2Exception e) {
+            e.printStackTrace();
+        }
+
+
     }
 
 }
