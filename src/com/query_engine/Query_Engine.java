@@ -25,9 +25,11 @@ import edu.stanford.nlp.util.Triple;
 public class Query_Engine {
     private final DbAdapter db;
     private List<String> stopWords = Collections.emptyList();
+    private int alldocs;
 
     public Query_Engine(DbAdapter db){
         this.db = db;
+        this.alldocs = this.db.pagesRows();
         try{
             stopWords= Files.readAllLines(Paths.get("src/com/indexer/stopWords.txt"));
         }
@@ -62,7 +64,7 @@ public class Query_Engine {
     }
     private ResultSet search(String query, boolean images) throws SQLException {
         ArrayList<String> searchTerms = stemQuery(query);
-        Integer [] page_ids = dbSearch(query,images);
+        Integer [] page_ids = dbSearch(query,images,false);
         ResultSet resultSet = null;
         if(page_ids.length!=0) {
             if (images) {
@@ -84,7 +86,7 @@ public class Query_Engine {
     private ResultSet phraseSearch(String query) throws SQLException {
 
         ResultSet resultSet=null;
-        Integer [] page_ids = dbSearch(query,false);
+        Integer [] page_ids = dbSearch(query,false,true);
         ArrayList<Integer> matched_ids = new ArrayList<>();
         for (Integer id : page_ids)
         {
@@ -93,23 +95,19 @@ public class Query_Engine {
                 matched_ids.add(id);
             }
         }
-        if(matched_ids.size()!=0) {
-            System.out.println("\nPhrase Matched IDS ONLY:");
-            System.out.println(matched_ids);
-            //Integer [] restOfTheMatches = new Integer[page_ids.length-matched_ids.size()];
-            for (Integer page_id : page_ids) {
-                if (!matched_ids.contains(page_id)) {
-                    matched_ids.add(page_id);
-                }
+        System.out.println("\nPhrase Matched IDS ONLY:");
+        System.out.println(matched_ids);
+        Integer [] restOfTheMatches = dbSearch(query,false,false);
+        for (Integer page_id : restOfTheMatches) {
+            if (!matched_ids.contains(page_id)) {
+                matched_ids.add(page_id);
             }
-            System.out.println("\nAll Matched IDS Sorted phrase first:");
-            System.out.println(matched_ids);
-            Integer [] finalIDS = matched_ids.toArray(new Integer[0]);
-            resultSet = this.db.getPagesInfo(finalIDS);
         }
-        else{
-            System.out.println("\nPHRASE No Results Found!");
-        }
+        System.out.println("\nAll Matched IDS Sorted phrase first:");
+        System.out.println(matched_ids);
+        Integer [] finalIDS = matched_ids.toArray(new Integer[0]);
+        resultSet = this.db.getPagesInfo(finalIDS);
+
         return resultSet;
     }
 
@@ -202,15 +200,14 @@ public class Query_Engine {
         }
     }
 
-    private Integer [] dbSearch(String query,boolean images) throws SQLException {
+    private Integer [] dbSearch(String query,boolean images, boolean phrase) throws SQLException {
 
         // STEMMING THE QUERY
         ArrayList<String> searchTerms = stemQuery(query);
         System.out.println(searchTerms);
 
         //  GETTING PAGES THAT ARE COMMON IN ALL TERMS
-
-        ArrayList <Integer> pageIDS = findCommonPagesIDS(searchTerms, images);
+        ArrayList <Integer> pageIDS = findCommonPagesIDS(searchTerms, images, phrase);
         System.out.println(pageIDS);
 
         // CALCULATING PAGES SCORES
@@ -279,6 +276,11 @@ public class Query_Engine {
         for (int i = 0; i < termsNumber; i++) {
             ArrayList<Double>TermRow = new ArrayList<>();
             Double IDF = this.db.getIDF(searchTerms.get(i));
+            if(IDF==0.0D)
+            {
+                IDF=this.db.setTermIDF(searchTerms.get(i),this.alldocs);
+                System.out.println("IDF set to :" + IDF);
+            }
             for (int j = 0; j < pagesNumber; j++) {
                 ResultSet context = this.db.getContextScore(searchTerms.get(i),pageIDS.get(j));
                 Double contextScore = 0.0D;
@@ -305,7 +307,7 @@ public class Query_Engine {
         return pageScore;
     }
 
-    private ArrayList <Integer> findCommonPagesIDS(ArrayList<String> searchTerms, boolean images)
+    private ArrayList <Integer> findCommonPagesIDS(ArrayList<String> searchTerms, boolean images, boolean phrase)
     {
         ResultSet pageIdsResultSets = null;
         if(images)
@@ -313,7 +315,7 @@ public class Query_Engine {
             pageIdsResultSets = this.db.selectCommonPages_images(searchTerms);
         }
         else{
-            pageIdsResultSets = this.db.selectCommonPages(searchTerms);
+            pageIdsResultSets = this.db.selectCommonPages(searchTerms,phrase);
         }
         ArrayList <Integer> pageIDS = new ArrayList<Integer>();
         try {
@@ -379,7 +381,7 @@ public class Query_Engine {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
         String country="Egypt";
-        qe.processQuery("messi and ibrahimovic",country,false);
+        qe.processQuery("PREMIER LEAGUE",country,false);
 //        ResultSet rs =db.getTrends("Egypt");
 //        while (rs.next()){
 //            System.out.println(rs.getString(2));
