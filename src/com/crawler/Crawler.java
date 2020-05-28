@@ -1,6 +1,9 @@
 package com.crawler;
 
 import com.DbAdapter;
+import com.maxmind.geoip2.DatabaseReader;
+import com.maxmind.geoip2.model.CountryResponse;
+import com.maxmind.geoip2.record.Country;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.UnsupportedMimeTypeException;
@@ -10,10 +13,9 @@ import org.jsoup.select.Elements;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -28,10 +30,11 @@ import static java.lang.Thread.sleep;
 public class Crawler implements Runnable{
     private CopyOnWriteArrayList <Pivot> pivotList;
     private DbAdapter db;
-    private final int PAGES_TO_CRAWL = 5000;
+    private final int PAGES_TO_CRAWL = 50;
     private AtomicInteger crawledPages;
     private int backupCrawledPages;
     public List<PageContent> pages;
+    private DatabaseReader countryReader;
 
     private int noThreads;
 
@@ -39,6 +42,12 @@ public class Crawler implements Runnable{
 //        this.pivotList = pivotList;
         this.noThreads=noThreads;
         db = new DbAdapter();
+        try {
+            File database = new File("src/com/crawler/GeoLite2-Country.mmdb");
+            countryReader = new DatabaseReader.Builder(database).build();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         if(recrawl){
             deleteOldData();
             crawledPages =new AtomicInteger();
@@ -46,6 +55,8 @@ public class Crawler implements Runnable{
             backupCrawledPages = 0;
             return;
         }
+        //Setting the country reader
+
         crawledPages=new AtomicInteger(db.pagesRows());
         //System.out.println(crawledPages.get());
         backupCrawledPages = db.pageBackupCount() + db.pagesRows();
@@ -140,7 +151,20 @@ public class Crawler implements Runnable{
                                 meta = meta + el.attr("src") + "\n\n";
                             }
                         }
-                        //String country = null;
+                        String country = null;
+                        //Getting country from ip
+
+                        try {
+                            InetAddress ipAddress = InetAddress.getByName(new URL(p.getPivot()).getHost());
+                            CountryResponse response = countryReader.country(ipAddress);
+                            Country countryResponse = response.getCountry();
+                            country = countryResponse.getName();
+                            System.out.println(country);
+                        }catch (Exception e){
+                            //country will still be null
+                            e.printStackTrace();
+                        }
+
                         String date = "";
                         //Getting date
                         Elements dates = doc.select("[itemprop=datePublished]");
@@ -195,15 +219,12 @@ public class Crawler implements Runnable{
 
 
                         //  int words = title.length() + h1.length() + h2.length() + h3.length() + h4.length() + h5.length() + h6.length() + meta.length() + alt.length() + body.length();
-                        boolean done = this.db.addNewPage(p.getPivot(), title, h1, h2, h3, h4, h5, h6, body, alt, meta,integerDate);
+                        boolean done = this.db.addNewPage(p.getPivot(), title, h1, h2, h3, h4, h5, h6, body, alt, meta,integerDate,country);
                         if (done) {
                             crawledPages.incrementAndGet();
                             if(crawledPages.get() >= PAGES_TO_CRAWL ) return;
                         }
-                            //  this.db.addNewPage(page);
-                            //  if(!pages.contains(page)) {
-                            //      pages.add(new PageContent(p.getPivot(), title, body, h1, h2, h3, h4, h5, h6, meta, alt));
-                            //  }
+
 
                         // 2. Collect all Hyper links within this Doc.
                         Elements links = doc.body().select("a[href]");
@@ -366,7 +387,7 @@ public class Crawler implements Runnable{
     public static void main(String[] args) throws InterruptedException{
 
         CopyOnWriteArrayList<Pivot> pivots = new CopyOnWriteArrayList<>();
-        pivots.add(new Pivot("https://uk.sports.yahoo.com/football/?guccounter=1"));
+        //pivots.add(new Pivot("https://uk.sports.yahoo.com/football/?guccounter=1"));
         pivots.add(new Pivot("https://www.independent.co.uk/sport/football"));
         pivots.add(new Pivot("https://www.si.com/soccer"));
         pivots.add(new Pivot("https://www.mirror.co.uk/sport/football/"));

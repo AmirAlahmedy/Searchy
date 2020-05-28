@@ -28,5 +28,6 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="geoip2-2.13" level="project" />
   </component>
 </module>
