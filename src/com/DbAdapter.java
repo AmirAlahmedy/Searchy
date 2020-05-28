@@ -70,7 +70,7 @@ public class DbAdapter {
 //        }
 //    }
 
-    public synchronized boolean isLinkUsedBefore(String url) {
+    public boolean isLinkUsedBefore(String url) {
         try {
             String query = "SELECT * FROM `pages` WHERE `url` = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
