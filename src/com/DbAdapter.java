@@ -55,19 +55,19 @@ public class DbAdapter {
         }
     }
 
-    public void updatePageWordCount(int pageId, int words) {
-        try {
-            String query = "UPDATE `pages` SET `words` = ? WHERE `id` = ?";
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, words);
-            preparedStatement.setInt(2, pageId);
-
-            preparedStatement.execute();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+//    public void updatePageWordCount(int pageId, int words) {
+//        try {
+//            String query = "UPDATE `pages` SET `words` = ? WHERE `id` = ?";
+//            PreparedStatement preparedStatement = connection.prepareStatement(query);
+//            preparedStatement.setInt(1, words);
+//            preparedStatement.setInt(2, pageId);
+//
+//            preparedStatement.execute();
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     public synchronized boolean isLinkUsedBefore(String url) {
         try {

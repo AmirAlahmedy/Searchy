@@ -68,12 +68,13 @@ public class InvertedIndex implements Runnable{
 //                            }
                             // the first element is the alt and the second is the src
                             //img = img.replaceAll("[^a-z0-9]", " ");
+                            //List<String> tokens = Arrays.asList(img.split("[^a-z0-9]"));
                             List<String> tokens = new ArrayList<String>(Arrays.asList(img.split("[^a-z0-9]")));
                             tokens.removeAll(stopWords);
                             try {
                                 //Stemmer stemmer = new Stemmer();
                                 for (String token : tokens) {
-                                    if (!token.equals("") ){ //&& !stopWords.contains(token)) {
+                                    if (!token.equals("")){ //&& !stopWords.contains(token)) {
 //                                        char[] word = token.toCharArray();
 //                                        int wordLength = token.length();
 //                                        for (int c = 0; c < wordLength; c++) stemmer.add(word[c]);
@@ -100,12 +101,13 @@ public class InvertedIndex implements Runnable{
                     // 3. Filter out stop words and stem each token.
                     // Extract tokens from the page content into a list.
 
+                    //List<String> tokens = Arrays.asList(parsedContent.split("[^a-z0-9]"));
                     List<String> tokens = new ArrayList<String>(Arrays.asList(parsedContent.split("[^a-z0-9]")));
                     tokens.removeAll(stopWords);
                     try {
                         //Stemmer stemmer = new Stemmer();
                         for (String token : tokens) {
-                            if (!token.equals("") ){//&& !stopWords.contains(token)) {
+                            if (!token.equals("") ){ //&& !stopWords.contains(token)) {
                                 wordsInPage++;
 //                                char[] word = token.toCharArray();
 //                                int wordLength = token.length();
@@ -163,11 +165,7 @@ public class InvertedIndex implements Runnable{
 
     public static void main(String[] args) throws InterruptedException {
 
-//        CopyOnWriteArrayList<Pivot> pivots = new CopyOnWriteArrayList<>();
-//        pivots.add(new Pivot("https://en.wikipedia.org/wiki/Augmented_reality"));
-//
-//        Crawler crawler = new Crawler(pivots, 1);
-//        crawler.crawl();
+
         Scanner input = new Scanner(System.in);
         System.out.print("Enter the number of threads: ");
         int number = input.nextInt();
@@ -190,8 +188,8 @@ public class InvertedIndex implements Runnable{
         }
         long finish=System.currentTimeMillis();
         System.out.println(finish-start);
-        System.out.println("Started IDF Setting");
-        ((InvertedIndex) indexer).setIDFAllTerms();
+//        System.out.println("Started IDF Setting");
+//        ((InvertedIndex) indexer).setIDFAllTerms();
 
     }
 
