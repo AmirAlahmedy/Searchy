@@ -1,21 +1,50 @@
 import React, {useEffect, useState} from 'react'
-import axios from 'axios'
-import Results from '../Result/Results'
+import axios from '../../axios-instance'
 import Pagination from '../Result/Pagination'
 import '../Result/Result.css'
+import TrendsResults from "./TrendsResults"
 
-const Trends = () => {
+const Trends = (props) => {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1)
+    const [currentPage, setCurrentPage] = useState(1);
     const [postsPerPage] = useState(10);
+
+    if (props.location.state) {
+        localStorage.setItem('searchQuery', props.location.state.searchQuery);
+        localStorage.setItem('country', props.location.state.country);
+    }
+    const searchQuery = localStorage.getItem('searchQuery');
+    const country = localStorage.getItem('country');
+    console.log(searchQuery, country);
+
+    let data = {
+        searchQuery: searchQuery,
+        Country: country,
+        Trends: true,
+        Images: false
+    }
+    console.log(data);
+    let _data = JSON.stringify(data);
+
     useEffect(() => {
-        const fetchPosts = async () => {
+        const fetchPosts = () => {
+
             setLoading(true);
-            const res = await axios.get('https://jsonplaceholder.typicode.com/posts');
-            setPosts(res.data);
-            setLoading(false);
+            axios.post('/results', _data).then(r => {
+                console.log(r);
+                setPosts(r.data);
+                setLoading(false);
+            }).catch(error => {
+                console.error(error);
+            });
         };
+        // const fetchPosts = async () => {
+        //     setLoading(true);
+        //     const res = await axios.get('https://jsonplaceholder.typicode.com/posts');
+        //     setPosts(res.data);
+        //     setLoading(false);
+        // };
         fetchPosts();
     }, []);
     const indexOfLastPost = currentPage * postsPerPage;
@@ -25,17 +54,14 @@ const Trends = () => {
     const paginate = pageNumber => setCurrentPage(pageNumber);
 
     document.body.style.overflow = "visible";
-    if(document.body.getElementsByTagName("canvas")[0])
-    document.body.getElementsByTagName("canvas")[0].style.display = "none";
+    if (document.body.getElementsByTagName("canvas")[0])
+        document.body.getElementsByTagName("canvas")[0].style.display = "none";
 
     return (
         <div>
             <h4 className="text mb-3" style={{marginLeft: '2%', marginTop: '1%', marginBottom: '1%'}}>Search
                 Results</h4>
-            {/*<svg height="100" width="100" className={'element'}>*/}
-            {/*    <circle cx="50" cy="50" r="40" stroke="black" strokeWidth="3" fill="crimson"/>*/}
-            {/*</svg>*/}
-            <Results posts={currentPosts} loading={loading}/>
+            <TrendsResults posts={currentPosts} loading={loading}/>
             <Pagination
                 postsPerPage={postsPerPage}
                 totalPosts={posts.length}
@@ -43,8 +69,6 @@ const Trends = () => {
                 currentPage={currentPage}
             />
         </div>
-
-
     )
 }
 export default Trends

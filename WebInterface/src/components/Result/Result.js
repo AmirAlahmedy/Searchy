@@ -9,7 +9,7 @@ import './Result.css'
 const Result = props =>{
     const [posts,setPosts] = useState([]);
     const [loading,setLoading] = useState(false);
-    const[currentPage,setCurrentPage]=useState(1)
+    const[currentPage,setCurrentPage]=useState(1);
     const [postsPerPage] = useState(10);
 
     if(props.location.state) {
@@ -18,14 +18,14 @@ const Result = props =>{
     }
     const searchQuery = localStorage.getItem('searchQuery');
     const country = localStorage.getItem('country');
-
     console.log(searchQuery, country);
 
     let data = {
-        searchQuery1: searchQuery,
-        Country: country
+        searchQuery: searchQuery,
+        Country: country,
+        Trends: false,
+        Images: false
     }
-
     console.log(data);
     let _data = JSON.stringify(data);
 
@@ -34,7 +34,6 @@ const Result = props =>{
         const fetchPosts =  () =>{
 
             setLoading(true);
-
             axios.post('/results', _data).then(r => {
                     console.log(r);
                     setPosts(r.data);
@@ -50,7 +49,6 @@ const Result = props =>{
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
     const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
-    // window.history.pushState(null, null, '/results/'+currentPage);
     console.log(currentPosts.length);
     const paginate = pageNumber => setCurrentPage(pageNumber);
 
@@ -60,7 +58,6 @@ const Result = props =>{
     return(
 
         <div>
-
             <h4 className="text mb-3"  style={{marginLeft: '2%', marginTop: '1%', marginBottom: '1%'}}>Search Results</h4>
             <Results posts={currentPosts} loading={loading} />
             <Pagination style={{marginBottom: '2%', float: 'bottom'}}

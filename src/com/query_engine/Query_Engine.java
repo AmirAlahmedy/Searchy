@@ -67,10 +67,10 @@ public class Query_Engine {
         if(page_ids.length!=0) {
             if (images) {
                 resultSet= this.db.getImagesInfo(page_ids, searchTerms);
-                    while (resultSet.next()) {
-                        System.out.println("Image src: "+resultSet.getString(1));
-                        System.out.println("Image url: "+resultSet.getString(2));
-                    }
+//                    while (resultSet.next()) {
+//                        System.out.println("Image src: "+resultSet.getString(1));
+//                        System.out.println("Image url: "+resultSet.getString(2));
+//                    }
             } else {
                 resultSet = this.db.getPagesInfo(page_ids);
             }
