@@ -6,6 +6,7 @@ import countries from './countries'
 import Mic from './components/Mic/Mic'
 import Images from './components/Trends/Images'
 import Trends from './components/Trends/Trends'
+import Chart from './components/Chart'
 //import SpeechRecognition from 'react-speech-recognition'
 
 class App extends Component {
@@ -19,6 +20,7 @@ class App extends Component {
         <Route  path="/results" component={Result} />
         <Route path="/trends" component={Trends} />
         <Route  path="/images" component={Images} />
+        <Route path="/chart" render={(props) => <Chart {...props} chartData={this.state.chartData} location="Egypt" legendPosition="bottom"/>} />
         </Switch>
       </div>
       </BrowserRouter>
