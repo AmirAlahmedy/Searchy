@@ -100,14 +100,14 @@ public class Crawler implements Runnable{
                     if(REP)
                     {
                         //  Add allowed Pivots from robots.txt
-                        myPivotList.addAllAbsent(r.getAllowedPivots());
-                        // Adding them to the crawler backup
-                        for(Pivot temp : r.getAllowedPivots()){
-                            if(backupCrawledPages < PAGES_TO_CRAWL) {
-                                db.addPageToBackup(temp.getPivot());
-                                backupCrawledPages++;
-                            }
-                        }
+//                        myPivotList.addAllAbsent(r.getAllowedPivots());
+//                        // Adding them to the crawler backup
+//                        for(Pivot temp : r.getAllowedPivots()){
+//                            if(backupCrawledPages < PAGES_TO_CRAWL) {
+//                                db.addPageToBackup(temp.getPivot());
+//                                backupCrawledPages++;
+//                            }
+//                        }
                         //  Apply the specified delay from robots.txt
                         sleep(r.getCrawlDelay());
                     }
@@ -249,13 +249,13 @@ public class Crawler implements Runnable{
                     if(REP)
                     {
                         //  Add allowed Pivots from robots.txt
-                        myPivotList.addAllAbsent(r.getAllowedPivots());
-                        for(Pivot temp : r.getAllowedPivots()){
-                            if(backupCrawledPages < PAGES_TO_CRAWL) {
-                                db.addPageToBackup(temp.getPivot());
-                                backupCrawledPages++;
-                            }
-                        }
+//                        myPivotList.addAllAbsent(r.getAllowedPivots());
+//                        for(Pivot temp : r.getAllowedPivots()){
+//                            if(backupCrawledPages < PAGES_TO_CRAWL) {
+//                                db.addPageToBackup(temp.getPivot());
+//                                backupCrawledPages++;
+//                            }
+//                        }
                         //  Apply the specified delay from robots.txt
                         sleep(r.getCrawlDelay());
                     }
