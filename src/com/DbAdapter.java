@@ -416,11 +416,14 @@ public class DbAdapter {
             String query = "UPDATE `Terms` SET `IDF` = ? WHERE `Term` = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             int termDocs = termRows(term);
-            Double IDF = Math.log((double) allDocs / termDocs);
-            preparedStatement.setDouble(1, IDF);
-            preparedStatement.setString(2, term);
-            preparedStatement.execute();
-            return IDF;
+            if(termDocs!=0) {
+                Double IDF = Math.log((double) allDocs / termDocs);
+                preparedStatement.setDouble(1, IDF);
+                preparedStatement.setString(2, term);
+                preparedStatement.execute();
+                return IDF;
+            }
+            return 0.0D;
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return 0.0D;
@@ -513,8 +516,10 @@ public class DbAdapter {
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, term);
             ResultSet resultSet = preparedStatement.executeQuery();
-            resultSet.next();
-            return resultSet.getDouble(1);
+            if(resultSet.next()) {
+                return resultSet.getDouble(1);
+            }
+            return 0.0D;
         } catch (SQLException e) {
             e.printStackTrace();
             return 0.0D;
@@ -537,12 +542,12 @@ public class DbAdapter {
         }
     }
 
-    public ResultSet selectCommonPages (ArrayList <String> terms, boolean phrase) {
+    public ResultSet selectPages (ArrayList <String> terms, boolean common) {
         int numberOfTerms = terms.size();
         try {
             String query = "SELECT Page_Id FROM `Terms` WHERE `Term` = ? ";
             // OPTIMIZATION TO AVOID KMP IN ALL THE PAGES
-            if(phrase) {
+            if(common) {
                 for (int i = 1; i < numberOfTerms; i++) {
                     query += "INTERSECT SELECT Page_Id FROM `Terms` WHERE `Term` = ? ";
                 }
@@ -569,13 +574,19 @@ public class DbAdapter {
     }
 
 
-    public ResultSet selectCommonPages_images (ArrayList <String> terms) {
+    public ResultSet selectImages (ArrayList <String> terms,boolean common) {
         int numberOfTerms = terms.size();
         try {
             String query = "SELECT page_Id FROM `Images` WHERE `term` = ? ";
-            for(int i=1;i<numberOfTerms;i++)
-            {
-                query+= "UNION SELECT page_Id FROM `Images` WHERE `term` = ? ";
+            if(common) {
+                for (int i = 1; i < numberOfTerms; i++) {
+                    query += "INTERSECT SELECT page_Id FROM `Images` WHERE `term` = ? ";
+                }
+            }
+            else {
+                for (int i = 1; i < numberOfTerms; i++) {
+                    query += "UNION SELECT page_Id FROM `Images` WHERE `term` = ? ";
+                }
             }
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, terms.get(0));
@@ -612,6 +623,34 @@ public class DbAdapter {
             return null;
         }
 
+    }
+    public Integer getPageDate(Integer page_id)
+    {
+        try {
+            String query = "SELECT date  FROM `pages` WHERE `id` = ? ";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1,page_id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if(resultSet.next()) return resultSet.getInt(1);
+            return 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 1;
+        }
+    }
+    public String getPageCountry(Integer page_id)
+    {
+        try {
+            String query = "SELECT country  FROM `pages` WHERE `id` = ? ";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1,page_id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if(resultSet.next()) return resultSet.getString(1);
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
     public ResultSet getContextScore(String term, Integer pageID)
     {

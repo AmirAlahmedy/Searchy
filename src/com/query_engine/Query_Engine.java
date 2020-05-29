@@ -10,10 +10,8 @@ import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import com.mysql.jdbc.util.ResultSetUtil;
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
@@ -25,7 +23,9 @@ import edu.stanford.nlp.util.Triple;
 public class Query_Engine {
     private final DbAdapter db;
     private List<String> stopWords = Collections.emptyList();
-    private int alldocs;
+    private final int alldocs;
+    private int todayDate;
+    private String country;
 
     public Query_Engine(DbAdapter db){
         this.db = db;
@@ -64,7 +64,20 @@ public class Query_Engine {
     }
     private ResultSet search(String query, boolean images) throws SQLException {
         ArrayList<String> searchTerms = stemQuery(query);
-        Integer [] page_ids = dbSearch(query,images,false);
+
+        Integer [] commonPages = dbSearch(query,images,true);
+        ArrayList<Integer> allPagesIDS = new ArrayList<>();
+        for (Integer page_id : commonPages) {
+            allPagesIDS.add(page_id);
+        }
+        System.out.println("Common images bas:"+allPagesIDS);
+        Integer [] restOfThePages = dbSearch(query,images,false);
+        for (Integer page_id : restOfThePages) {
+            if (!allPagesIDS.contains(page_id)) {
+                allPagesIDS.add(page_id);
+            }
+        }
+        Integer [] page_ids = allPagesIDS.toArray(new Integer[0]);
         ResultSet resultSet = null;
         if(page_ids.length!=0) {
             if (images) {
@@ -97,6 +110,11 @@ public class Query_Engine {
         }
         System.out.println("\nPhrase Matched IDS ONLY:");
         System.out.println(matched_ids);
+        for (Integer page_id : page_ids) {
+            if (!matched_ids.contains(page_id)) {
+                matched_ids.add(page_id);
+            }
+        }
         Integer [] restOfTheMatches = dbSearch(query,false,false);
         for (Integer page_id : restOfTheMatches) {
             if (!matched_ids.contains(page_id)) {
@@ -200,14 +218,14 @@ public class Query_Engine {
         }
     }
 
-    private Integer [] dbSearch(String query,boolean images, boolean phrase) throws SQLException {
+    private Integer [] dbSearch(String query,boolean images, boolean common) throws SQLException {
 
         // STEMMING THE QUERY
         ArrayList<String> searchTerms = stemQuery(query);
         System.out.println(searchTerms);
 
         //  GETTING PAGES THAT ARE COMMON IN ALL TERMS
-        ArrayList <Integer> pageIDS = findCommonPagesIDS(searchTerms, images, phrase);
+        ArrayList <Integer> pageIDS = findCommonPagesIDS(searchTerms, images, common);
         System.out.println(pageIDS);
 
         // CALCULATING PAGES SCORES
@@ -233,6 +251,12 @@ public class Query_Engine {
     public ResultSet processQuery(String query,String country, boolean images)
     {
         ResultSet rs = null;
+        //  Save date
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+        String date = simpleDateFormat.format(new Date());
+        this.todayDate = Integer.parseInt(date);
+        //  Save Country
+        this.country = country;
         if(images)
         {
             System.out.println("Images Search");
@@ -282,19 +306,38 @@ public class Query_Engine {
                 System.out.println("IDF set to :" + IDF);
             }
             for (int j = 0; j < pagesNumber; j++) {
-                ResultSet context = this.db.getContextScore(searchTerms.get(i),pageIDS.get(j));
                 Double contextScore = 0.0D;
-                //  @todo Calculate context score with respect to pages
-//                if (context != null) {
-//                    try {
-//                        contextScore = context.getDouble(1)*20 + context.getDouble(2)*7
-//                                + context.getDouble(3)*5 + context.getDouble(4)*3
-//                                + context.getDouble(5)*2 + context.getDouble(6)*0.7
-//                                + context.getDouble(7)*0.5;
-//                    } catch (SQLException e) {
-//                        e.getErrorCode();
-//                    }
-//                }
+                //  DATE
+                Integer pageDate =this.db.getPageDate(pageIDS.get(j));
+                if(pageDate!=1) // FEEH DATE LEL PAGE
+                {
+                    if(pageDate==this.todayDate) {
+                        contextScore+=1.0D;
+                    }
+                    else {
+                        contextScore+=1/(this.todayDate-pageDate);
+                    }
+                }
+                // TITLE,H1,H2,H3..ETC
+                ResultSet context = this.db.getContextScore(searchTerms.get(i),pageIDS.get(j));
+                if (context != null) {
+                    try {
+                        contextScore += context.getDouble(1)*2 + context.getDouble(2)*1.5
+                                + context.getDouble(3)*0.3 + context.getDouble(4)*0.2
+                                + context.getDouble(5)*0.1 + context.getDouble(6)*0.05
+                                + context.getDouble(7)*0.05;
+
+
+                    } catch (SQLException e) {
+                        e.getErrorCode();
+                    }
+                }
+                // COUNTRY
+                String pageCountry = this.db.getPageCountry(pageIDS.get(j));
+                if(pageCountry==this.country)
+                {
+                    contextScore+=10;
+                }
                 Double TF = this.db.getTF(searchTerms.get(i), pageIDS.get(j));
                 if(TF!=0.0D) {
                     Double pageRank = this.db.getPR(pageIDS.get(j));
@@ -307,15 +350,15 @@ public class Query_Engine {
         return pageScore;
     }
 
-    private ArrayList <Integer> findCommonPagesIDS(ArrayList<String> searchTerms, boolean images, boolean phrase)
+    private ArrayList <Integer> findCommonPagesIDS(ArrayList<String> searchTerms, boolean images, boolean common)
     {
         ResultSet pageIdsResultSets = null;
         if(images)
         {
-            pageIdsResultSets = this.db.selectCommonPages_images(searchTerms);
+            pageIdsResultSets = this.db.selectImages(searchTerms,common);
         }
         else{
-            pageIdsResultSets = this.db.selectCommonPages(searchTerms,phrase);
+            pageIdsResultSets = this.db.selectPages(searchTerms,common);
         }
         ArrayList <Integer> pageIDS = new ArrayList<Integer>();
         try {
@@ -381,7 +424,7 @@ public class Query_Engine {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
         String country="Egypt";
-        qe.processQuery("PREMIER LEAGUE",country,false);
+        qe.processQuery("bayern munchen",country,false);
 //        ResultSet rs =db.getTrends("Egypt");
 //        while (rs.next()){
 //            System.out.println(rs.getString(2));
