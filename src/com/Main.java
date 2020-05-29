@@ -55,18 +55,18 @@ public class Main {
 //        System.out.println("bodyyyy");
 //        System.out.println( doc.body().text().length());
 
-//        File database = new File("src/com/crawler/GeoLite2-Country.mmdb");
-//        DatabaseReader reader = new DatabaseReader.Builder(database).build();
-//        try {
-//            InetAddress ipAddress = InetAddress.getByName("www.nbcsports.com");
-//            System.out.println(ipAddress.toString());
-//            CountryResponse response = reader.country(ipAddress);
-//            Country country = response.getCountry();
-//            System.out.println(country.getName());
-//
-//        } catch (GeoIp2Exception e) {
-//            e.printStackTrace();
-//        }
+        File database = new File("src/com/crawler/GeoLite2-Country.mmdb");
+        DatabaseReader reader = new DatabaseReader.Builder(database).build();
+        try {
+            InetAddress ipAddress = InetAddress.getByName("www.nbcsports.com");
+            System.out.println(ipAddress.toString());
+            CountryResponse response = reader.country(ipAddress);
+            Country country = response.getCountry();
+            System.out.println(country.getName());
+
+        } catch (GeoIp2Exception e) {
+            e.printStackTrace();
+        }
 
         // Java program to demonstrate
 // how to fetch public IP Address

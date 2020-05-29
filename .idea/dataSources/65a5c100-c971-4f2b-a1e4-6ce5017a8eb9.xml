@@ -22,8 +22,8 @@
       <Current>1</Current>
       <Collation>utf8mb4_general_ci</Collation>
     </schema>
-    <schema id="7" parent="1" name="test">
-      <Collation>latin1_swedish_ci</Collation>
+    <schema id="7" parent="1" name="username">
+      <Collation>utf8mb4_general_ci</Collation>
     </schema>
     <collation id="8" parent="1" name="armscii8_bin">
       <Charset>armscii8</Charset>
@@ -1043,346 +1043,352 @@
     <user id="333" parent="1" name="root">
       <Host>localhost</Host>
     </user>
-    <table id="334" parent="6" name="crawler_backup"/>
-    <table id="335" parent="6" name="images"/>
-    <table id="336" parent="6" name="pages"/>
-    <table id="337" parent="6" name="ranks"/>
-    <table id="338" parent="6" name="terms"/>
-    <table id="339" parent="6" name="trends"/>
-    <column id="340" parent="334" name="id">
+    <user id="334" parent="1" name="username2">
+      <Host>localhost</Host>
+    </user>
+    <user id="335" parent="1" name="username">
+      <Host>localhost</Host>
+    </user>
+    <table id="336" parent="6" name="crawler_backup"/>
+    <table id="337" parent="6" name="images"/>
+    <table id="338" parent="6" name="pages"/>
+    <table id="339" parent="6" name="ranks"/>
+    <table id="340" parent="6" name="terms"/>
+    <table id="341" parent="6" name="trends"/>
+    <column id="342" parent="336" name="id">
       <Position>1</Position>
       <DataType>int(11)|0s</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="341" parent="334" name="url">
+    <column id="343" parent="336" name="url">
       <Position>2</Position>
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <index id="342" parent="334" name="crawler_url_uindex">
+    <index id="344" parent="336" name="crawler_url_uindex">
       <ColNames>url</ColNames>
       <Unique>1</Unique>
       <Type>hash</Type>
     </index>
-    <key id="343" parent="334" name="PRIMARY">
+    <key id="345" parent="336" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="344" parent="334" name="crawler_url_uindex">
+    <key id="346" parent="336" name="crawler_url_uindex">
       <ColNames>url</ColNames>
       <UnderlyingIndexName>crawler_url_uindex</UnderlyingIndexName>
     </key>
-    <column id="345" parent="335" name="id">
+    <column id="347" parent="337" name="id">
       <Position>1</Position>
       <DataType>int(11)|0s</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="346" parent="335" name="term">
+    <column id="348" parent="337" name="term">
       <Position>2</Position>
       <DataType>varchar(255)|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="347" parent="335" name="page_Id">
+    <column id="349" parent="337" name="page_Id">
       <Position>3</Position>
       <DataType>int(11)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="348" parent="335" name="src">
+    <column id="350" parent="337" name="src">
       <Position>4</Position>
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <index id="349" parent="335" name="Images_pages__fk">
+    <index id="351" parent="337" name="Images_pages__fk">
       <ColNames>page_Id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="350" parent="335" name="PRIMARY">
+    <key id="352" parent="337" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <foreign-key id="351" parent="335" name="Images_pages__fk">
+    <foreign-key id="353" parent="337" name="Images_pages__fk">
       <ColNames>page_Id</ColNames>
       <RefTableName>pages</RefTableName>
       <RefColNames>id</RefColNames>
       <OnUpdate>cascade</OnUpdate>
       <OnDelete>cascade</OnDelete>
     </foreign-key>
-    <column id="352" parent="336" name="id">
+    <column id="354" parent="338" name="id">
       <Position>1</Position>
       <DataType>int(11)|0s</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="353" parent="336" name="url">
+    <column id="355" parent="338" name="url">
       <Position>2</Position>
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="354" parent="336" name="title">
+    <column id="356" parent="338" name="title">
       <Position>3</Position>
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="355" parent="336" name="h1">
+    <column id="357" parent="338" name="h1">
       <Position>4</Position>
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="356" parent="336" name="h2">
+    <column id="358" parent="338" name="h2">
       <Position>5</Position>
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="357" parent="336" name="h3">
+    <column id="359" parent="338" name="h3">
       <Position>6</Position>
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="358" parent="336" name="h4">
+    <column id="360" parent="338" name="h4">
       <Position>7</Position>
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="359" parent="336" name="h5">
+    <column id="361" parent="338" name="h5">
       <Position>8</Position>
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="360" parent="336" name="h6">
+    <column id="362" parent="338" name="h6">
       <Position>9</Position>
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="361" parent="336" name="body">
+    <column id="363" parent="338" name="body">
       <Position>10</Position>
       <DataType>mediumtext|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="362" parent="336" name="alt">
+    <column id="364" parent="338" name="alt">
       <Position>11</Position>
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="363" parent="336" name="meta">
+    <column id="365" parent="338" name="meta">
       <Position>12</Position>
       <DataType>mediumtext|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="364" parent="336" name="date">
+    <column id="366" parent="338" name="date">
       <Position>13</Position>
       <DataType>int(11)|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="365" parent="336" name="country">
+    <column id="367" parent="338" name="country">
       <Position>14</Position>
       <DataType>varchar(255)|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="366" parent="336" name="indexed">
+    <column id="368" parent="338" name="indexed">
       <Position>15</Position>
       <DataType>tinyint(1)|0s</DataType>
       <DefaultExpression>0</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <index id="367" parent="336" name="pages_url_uindex">
+    <index id="369" parent="338" name="pages_url_uindex">
       <ColNames>url</ColNames>
       <Unique>1</Unique>
       <Type>hash</Type>
     </index>
-    <key id="368" parent="336" name="PRIMARY">
+    <key id="370" parent="338" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="369" parent="336" name="pages_url_uindex">
+    <key id="371" parent="338" name="pages_url_uindex">
       <ColNames>url</ColNames>
       <UnderlyingIndexName>pages_url_uindex</UnderlyingIndexName>
     </key>
-    <column id="370" parent="337" name="pageId">
+    <column id="372" parent="339" name="pageId">
       <Position>1</Position>
       <DataType>int(11)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="371" parent="337" name="PR">
+    <column id="373" parent="339" name="PR">
       <Position>2</Position>
       <DataType>double|0s</DataType>
       <DefaultExpression>0</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <key id="372" parent="337" name="PRIMARY">
+    <key id="374" parent="339" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>pageId</ColNames>
       <Primary>1</Primary>
     </key>
-    <foreign-key id="373" parent="337" name="Ranks_pages__fk">
+    <foreign-key id="375" parent="339" name="Ranks_pages__fk">
       <ColNames>pageId</ColNames>
       <RefTableName>pages</RefTableName>
       <RefColNames>id</RefColNames>
       <OnUpdate>cascade</OnUpdate>
     </foreign-key>
-    <column id="374" parent="338" name="id">
+    <column id="376" parent="340" name="id">
       <Position>1</Position>
       <DataType>int(11)|0s</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="375" parent="338" name="Term">
+    <column id="377" parent="340" name="Term">
       <Position>2</Position>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="376" parent="338" name="Page_Id">
+    <column id="378" parent="340" name="Page_Id">
       <Position>3</Position>
       <DataType>int(11)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="377" parent="338" name="TF">
+    <column id="379" parent="340" name="TF">
       <Position>4</Position>
       <DataType>double|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="378" parent="338" name="IDF">
+    <column id="380" parent="340" name="IDF">
       <Position>5</Position>
       <DataType>double|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="379" parent="338" name="Title">
+    <column id="381" parent="340" name="Title">
       <Position>6</Position>
       <DataType>tinyint(1)|0s</DataType>
       <DefaultExpression>0</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="380" parent="338" name="Meta">
+    <column id="382" parent="340" name="Meta">
       <Position>7</Position>
       <DataType>tinyint(1)|0s</DataType>
       <DefaultExpression>0</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="381" parent="338" name="H1">
+    <column id="383" parent="340" name="H1">
       <Position>8</Position>
       <DataType>tinyint(1)|0s</DataType>
       <DefaultExpression>0</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="382" parent="338" name="H2">
+    <column id="384" parent="340" name="H2">
       <Position>9</Position>
       <DataType>tinyint(1)|0s</DataType>
       <DefaultExpression>0</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="383" parent="338" name="H3">
+    <column id="385" parent="340" name="H3">
       <Position>10</Position>
       <DataType>tinyint(1)|0s</DataType>
       <DefaultExpression>0</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="384" parent="338" name="H4">
+    <column id="386" parent="340" name="H4">
       <Position>11</Position>
       <DataType>tinyint(1)|0s</DataType>
       <DefaultExpression>0</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="385" parent="338" name="H5">
+    <column id="387" parent="340" name="H5">
       <Position>12</Position>
       <DataType>tinyint(1)|0s</DataType>
       <DefaultExpression>0</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="386" parent="338" name="H6">
+    <column id="388" parent="340" name="H6">
       <Position>13</Position>
       <DataType>tinyint(1)|0s</DataType>
       <DefaultExpression>0</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="387" parent="338" name="Alt">
+    <column id="389" parent="340" name="Alt">
       <Position>14</Position>
       <DataType>tinyint(1)|0s</DataType>
       <DefaultExpression>0</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <index id="388" parent="338" name="Terms_pk">
+    <index id="390" parent="340" name="Terms_pk">
       <ColNames>id</ColNames>
       <Unique>1</Unique>
       <Type>btree</Type>
     </index>
-    <key id="389" parent="338" name="PRIMARY">
+    <key id="391" parent="340" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>Page_Id
 Term</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="390" parent="338" name="Terms_pk">
+    <key id="392" parent="340" name="Terms_pk">
       <ColNames>id</ColNames>
       <UnderlyingIndexName>Terms_pk</UnderlyingIndexName>
     </key>
-    <foreign-key id="391" parent="338" name="Terms_pages__fk">
+    <foreign-key id="393" parent="340" name="Terms_pages__fk">
       <ColNames>Page_Id</ColNames>
       <RefTableName>pages</RefTableName>
       <RefColNames>id</RefColNames>
       <OnUpdate>cascade</OnUpdate>
       <OnDelete>cascade</OnDelete>
     </foreign-key>
-    <column id="392" parent="339" name="id">
+    <column id="394" parent="341" name="id">
       <Position>1</Position>
       <DataType>int(11)|0s</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="393" parent="339" name="name">
+    <column id="395" parent="341" name="name">
       <Position>2</Position>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="394" parent="339" name="country">
+    <column id="396" parent="341" name="country">
       <Position>3</Position>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="395" parent="339" name="frequency">
+    <column id="397" parent="341" name="frequency">
       <Position>4</Position>
       <DataType>int(11)|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <index id="396" parent="339" name="Trends_pk">
+    <index id="398" parent="341" name="Trends_pk">
       <ColNames>id</ColNames>
       <Unique>1</Unique>
       <Type>btree</Type>
     </index>
-    <key id="397" parent="339" name="PRIMARY">
+    <key id="399" parent="341" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>name
 country</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="398" parent="339" name="Trends_pk">
+    <key id="400" parent="341" name="Trends_pk">
       <ColNames>id</ColNames>
       <UnderlyingIndexName>Trends_pk</UnderlyingIndexName>
     </key>

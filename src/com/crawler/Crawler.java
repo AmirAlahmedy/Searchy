@@ -172,40 +172,50 @@ public class Crawler implements Runnable{
                         //Getting date
                         Elements dates = doc.select("[itemprop=datePublished]");
                         for(Element e: dates){
-                            if(e.attr("content") != null && !e.attr("content").equals(""))
+                            if(e.attr("content") != null && !e.attr("content").equals("")) {
                                 //splitting and replacing to get the year month day only
-                                date = e.attr("content").replaceAll("[-/]","").split("[T ]")[0];
+                                date = e.attr("content").replaceAll("[-/]", "").split("[T ]")[0];
+                                break;
+                            }
 
-                            if(e.attr("datetime") != null && !e.attr("datetime").equals(""))
+                            if(e.attr("datetime") != null && !e.attr("datetime").equals("")) {
                                 //splitting and replacing to get the year month day only
-                                date = e.attr("datetime").replaceAll("[-/]","").split("[T ]")[0];
+                                date = e.attr("datetime").replaceAll("[-/]", "").split("[T ]")[0];
+                                break;
+                            }
 
                         }
                         // IF there is still no date
                         if(date.equals("")){
                             dates = doc.select("[property=rnews:datePublished]");
                             for(Element e :dates){
-                                if(e.attr("content") != null && !e.attr("content").equals(""))
+                                if(e.attr("content") != null && !e.attr("content").equals("")) {
                                     //splitting and replacing to get the year month day only
-                                    date = e.attr("content").replaceAll("[-/]","").split("[T ]")[0];
+                                    date = e.attr("content").replaceAll("[-/]", "").split("[T ]")[0];
+                                    break;
+                                }
                             }
 
                             // IF there is still no date
                             if(date.equals("")){
                                 dates = doc.select("[property=article:published_time]");
                                 for(Element e :dates){
-                                    if(e.attr("content") != null && !e.attr("content").equals(""))
+                                    if(e.attr("content") != null && !e.attr("content").equals("")) {
                                         //splitting and replacing to get the year month day only
-                                        date = e.attr("content").replaceAll("[-/]","").split("[T ]")[0];
+                                        date = e.attr("content").replaceAll("[-/]", "").split("[T ]")[0];
+                                        break;
+                                    }
                                 }
 
                                 // IF there is still no date
                                 if(date.equals("")){
                                     dates = doc.select("[property=article:published_time]");
                                     for(Element e :dates){
-                                        if(e.attr("content") != null && !e.attr("content").equals(""))
+                                        if(e.attr("content") != null && !e.attr("content").equals("")) {
                                             //splitting and replacing to get the year month day only
-                                            date = e.attr("content").replaceAll("[-/]","").split("[T ]")[0];
+                                            date = e.attr("content").replaceAll("[-/]", "").split("[T ]")[0];
+                                            break;
+                                        }
                                     }
                                 }
 
@@ -328,30 +338,35 @@ public class Crawler implements Runnable{
                 //TODO: Handle exceptions with descriptive messages.
             } catch (HttpStatusException e) {
                 // ignore it
-                myPivotList.remove(p);
-            }catch (SSLHandshakeException e){
-                //ignore it
-                myPivotList.remove(p);
-            }catch (SSLException e) {
+                //e.printStackTrace();
                 myPivotList.remove(p);
             }
+//            }catch (SSLHandshakeException e){
+//                //ignore it
+//                myPivotList.remove(p);
+//            }catch (SSLException e) {
+//                myPivotList.remove(p);
+//            }
             catch (SocketException e )
             {
+                e.printStackTrace();
                 //e.printStackTrace();
-            } catch (IllegalArgumentException e){
-                // ignore it
+            //}
+//            } catch (IllegalArgumentException e){
+//                // ignore it
+//                e.printStackTrace();
 
             } catch (MalformedURLException e) {
                 System.err.println("Bad URL:  " + p.getPivot());
                 myPivotList.remove(p);
             } catch (UnknownHostException e) {
                 System.err.println("Unable to connect to " + p.getPivot() + " due to weak internet connection.");
-            } catch( UnsupportedMimeTypeException e){
-                myPivotList.remove(p);
-            } catch (IOException e) {
-                //e.printStackTrace();
+//            } catch( UnsupportedMimeTypeException e){
+//                myPivotList.remove(p);
+//            } catch (IOException e) {
+//                e.printStackTrace();
             } catch (Exception e){
-                e.printStackTrace();
+                //e.printStackTrace();
                 myPivotList.remove(p);
             }
 //            } catch (final Exception | Error ignored){
@@ -409,28 +424,28 @@ public class Crawler implements Runnable{
 
         CopyOnWriteArrayList<Pivot> pivots = new CopyOnWriteArrayList<>();
         //SPORTS SEEDS
-        pivots.add(new Pivot("https://www.independent.co.uk/"));
-        pivots.add(new Pivot("https://www.si.com/"));
-        pivots.add(new Pivot("https://www.mirror.co.uk/"));
-        //pivots.add(new Pivot("https://www.foxsports.com/"));
-        pivots.add(new Pivot("https://www.goal.com/en"));
-        pivots.add(new Pivot("https://www.nbcsports.com/"));
-        pivots.add(new Pivot("https://global.espn.com/"));
-        pivots.add(new Pivot("https://www.theguardian.com/"));
-        pivots.add(new Pivot("https://www.bbc.com/"));
-        pivots.add(new Pivot("https://www.kingfut.com/"));
-
-        pivots.add(new Pivot("https://www.marca.com/en"));
-        //pivots.add(new Pivot("https://www.90min.com/"));
-        pivots.add(new Pivot("http://bleacherreport.com/uk"));
-        //NEWS SEEDS
-        //pivots.add(new Pivot("https://www.bbc.com/news/"));
-        pivots.add(new Pivot("https://edition.cnn.com/"));
-        //pivots.add(new Pivot("https://www.foxnews.com/"));
-        pivots.add(new Pivot("https://www.nbcnews.com/"));
+//        pivots.add(new Pivot("https://www.independent.co.uk/"));
+//        pivots.add(new Pivot("https://www.si.com/"));
+//        pivots.add(new Pivot("https://www.mirror.co.uk/"));
+//        //pivots.add(new Pivot("https://www.foxsports.com/"));
+//        pivots.add(new Pivot("https://www.goal.com/en"));
+//        pivots.add(new Pivot("https://www.nbcsports.com/"));
+        pivots.add(new Pivot("https://www.espn.com/"));
+//        pivots.add(new Pivot("https://www.theguardian.com/"));
+//        pivots.add(new Pivot("https://www.bbc.com/"));
+//        pivots.add(new Pivot("https://www.kingfut.com/"));
+//
+//        pivots.add(new Pivot("https://www.marca.com/en"));
+//        //pivots.add(new Pivot("https://www.90min.com/"));
+//        pivots.add(new Pivot("http://bleacherreport.com/uk"));
+//        //NEWS SEEDS
+//        //pivots.add(new Pivot("https://www.bbc.com/news/"));
+//        pivots.add(new Pivot("https://edition.cnn.com/"));
+//        //pivots.add(new Pivot("https://www.foxnews.com/"));
+//        pivots.add(new Pivot("https://www.nbcnews.com/"));
         pivots.add(new Pivot("https://www.nytimes.com/"));
-        pivots.add(new Pivot("https://www.dailymail.co.uk/"));
-        pivots.add(new Pivot("https://egyptianstreets.com/"));
+//        pivots.add(new Pivot("https://www.dailymail.co.uk/"));
+//        pivots.add(new Pivot("https://egyptianstreets.com/"));
 
 
         // facebook shouldn' t be crawled

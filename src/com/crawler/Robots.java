@@ -75,15 +75,21 @@ class Robots {
         {
             if (arrOfProtocols[i].equals("Disallow:")) {
                 //System.out.println(arrOfProtocols[i] + "" + arrOfProtocols[i + 1]);
+                if ((i+1) == arrOfProtocols.length)
+                    return false;
                 if(arrOfProtocols[i + 1].equals("/"))   // disallow all
                 {
                     this.disallowALL = true;
                 }
-                if( (i+1)==arrOfProtocols.length || arrOfProtocols[i + 1].equals(" ") || arrOfProtocols[i + 1].equals("") || arrOfProtocols[i + 1].equals("\n") || arrOfProtocols[i + 1].equals(" \n"))  // allow all
+                if( arrOfProtocols[i + 1].equals(" ") || arrOfProtocols[i + 1].equals("") || arrOfProtocols[i + 1].equals("\n") || arrOfProtocols[i + 1].equals(" \n"))  // allow all
                 {
                     return false;
                 }
-                String disallowedURL = new String(this.URL + arrOfProtocols[i + 1].substring(arrOfProtocols[i + 1].indexOf("/")+1,arrOfProtocols[i + 1].length()));
+                String disallowedURL;
+                if(arrOfProtocols[i+1].startsWith("/"))
+                    disallowedURL = new String(this.URL + arrOfProtocols[i+1].substring(1));
+                else
+                    disallowedURL = new String(this.URL + arrOfProtocols[i + 1]);
 
                 this.disallowedPivots.add(disallowedURL);
             } else if (arrOfProtocols[i].equals("Allow:")) {
