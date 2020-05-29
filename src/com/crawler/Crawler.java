@@ -11,6 +11,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
@@ -30,7 +32,7 @@ import static java.lang.Thread.sleep;
 public class Crawler implements Runnable{
     private CopyOnWriteArrayList <Pivot> pivotList;
     private DbAdapter db;
-    private final int PAGES_TO_CRAWL = 50;
+    private final int PAGES_TO_CRAWL = 5000;
     private AtomicInteger crawledPages;
     private int backupCrawledPages;
     public List<PageContent> pages;
@@ -159,10 +161,10 @@ public class Crawler implements Runnable{
                             CountryResponse response = countryReader.country(ipAddress);
                             Country countryResponse = response.getCountry();
                             country = countryResponse.getName();
-                            System.out.println(country);
+                            //System.out.println(country);
                         }catch (Exception e){
                             //country will still be null
-                            e.printStackTrace();
+                            //e.printStackTrace();
                         }
 
                         String date = "";
@@ -223,6 +225,11 @@ public class Crawler implements Runnable{
                         if (done) {
                             crawledPages.incrementAndGet();
                             if(crawledPages.get() >= PAGES_TO_CRAWL ) return;
+                            System.out.println("BY THREAD NUMBER "+Thread.currentThread().getName());
+                        }
+                        else{
+                            myPivotList.remove(p.getPivot());
+                            return;
                         }
 
 
@@ -232,7 +239,7 @@ public class Crawler implements Runnable{
                             // Check for disallowed directories
                             Pivot crawled;
                             if(link.attr("href").startsWith("/")){
-                                crawled = new Pivot(p.pivotRootDirectory()+link.attr("href"));
+                                crawled = new Pivot(p.pivotRootDirectory()+link.attr("href").substring(1));
                             }
                             else {
                                 crawled = new Pivot(link.attr("href"));
@@ -315,10 +322,14 @@ public class Crawler implements Runnable{
             } catch (HttpStatusException e) {
                 // ignore it
                 myPivotList.remove(p);
+            }catch (SSLHandshakeException e){
+                //ignore it
+            }catch (SSLException e) {
+                //
             }
             catch (SocketException e )
             {
-                e.printStackTrace();
+                //e.printStackTrace();
             } catch (IllegalArgumentException e){
                 // ignore it
             } catch (MalformedURLException e) {
@@ -361,8 +372,8 @@ public class Crawler implements Runnable{
         System.out.println(threadNumber);
 
         for (int i = 0; i < noThreads; i++) {
-            CopyOnWriteArrayList<Pivot> myPivots = new CopyOnWriteArrayList<>();
             if (threadNumber == i) {
+                CopyOnWriteArrayList<Pivot> myPivots = new CopyOnWriteArrayList<>();
                 if(threadNumber == noThreads-1){
                     for (int j = pivotsPerThread * i; j < pivotList.size(); j++) {
                         myPivots.add(pivotList.get(j));
@@ -387,23 +398,31 @@ public class Crawler implements Runnable{
     public static void main(String[] args) throws InterruptedException{
 
         CopyOnWriteArrayList<Pivot> pivots = new CopyOnWriteArrayList<>();
-        //pivots.add(new Pivot("https://uk.sports.yahoo.com/football/?guccounter=1"));
-        pivots.add(new Pivot("https://www.independent.co.uk/sport/football"));
-        pivots.add(new Pivot("https://www.si.com/soccer"));
+        //SPORTS SEEDS
+        pivots.add(new Pivot("https://www.independent.co.uk/sport/football/"));
+        pivots.add(new Pivot("https://www.si.com/soccer/"));
         pivots.add(new Pivot("https://www.mirror.co.uk/sport/football/"));
-        pivots.add(new Pivot("https://www.90min.com/"));
         pivots.add(new Pivot("https://www.foxsports.com/"));
         pivots.add(new Pivot("https://www.goal.com/en"));
         pivots.add(new Pivot("https://www.nbcsports.com/"));
-        pivots.add(new Pivot("https://global.espn.com/football/?src=com"));
-        pivots.add(new Pivot("https://www.theguardian.com/football"));
-        pivots.add(new Pivot("http://bleacherreport.com/uk"));
-        pivots.add(new Pivot("https://www.skysports.com/football"));
-        pivots.add(new Pivot("https://www.bbc.com/sport/football"));
+        pivots.add(new Pivot("https://global.espn.com/football/?src=com/"));
+        pivots.add(new Pivot("https://www.theguardian.com/football/"));
+        pivots.add(new Pivot("https://www.bbc.com/sport/football/"));
+        pivots.add(new Pivot("https://www.kingfut.com/"));
+        //pivots.add(new Pivot("https://www.skysports.com/football"));
+        //pivots.add(new Pivot("https://www.90min.com/"));
+        //pivots.add(new Pivot("http://bleacherreport.com/uk"));
+        //NEWS SEEDS
+        pivots.add(new Pivot("https://www.bbc.com/news/"));
+        pivots.add(new Pivot("https://edition.cnn.com/"));
+        pivots.add(new Pivot("https://www.foxnews.com/"));
+        pivots.add(new Pivot("https://www.nbcnews.com/"));
+        pivots.add(new Pivot("https://www.nytimes.com/"));
+        pivots.add(new Pivot("https://egyptianstreets.com/"));
+
         // facebook shouldn' t be crawled
         //pivots.add(new Pivot("http://www.facebook.com/"));
         ArrayList<Thread> threadArr=new ArrayList<>();
-//        pivots.add(new Pivot("https://www.minutemedia.com/careers"));
 
         Scanner input = new Scanner(System.in);
         System.out.print("Enter the number of threads: ");

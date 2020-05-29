@@ -4,6 +4,7 @@ import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -44,7 +45,7 @@ class Robots {
             this.robotDoc = Jsoup.connect(this.URL + "robots.txt").get();
         }
         catch (IOException e) { // If 404 throws exception therefore return false
-            e.printStackTrace();
+            //e.printStackTrace();
             return false;
         }
 

@@ -1,5 +1,6 @@
 package com;
 
+import com.crawler.Pivot;
 import com.indexer.Stemmer;
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
@@ -11,8 +12,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
 import java.sql.ResultSet;
@@ -52,21 +55,23 @@ public class Main {
 //        System.out.println("bodyyyy");
 //        System.out.println( doc.body().text().length());
 
-        File database = new File("src/com/crawler/GeoLite2-Country.mmdb");
-        DatabaseReader reader = new DatabaseReader.Builder(database).build();
-        try {
-            InetAddress ipAddress = InetAddress.getByName("www.independent.co.uk");
-            //System.out.println(ipAddress.toString());
-            System.out.println(ipAddress.toString());
-            CountryResponse response = reader.country(ipAddress);
-            Country country = response.getCountry();
-            System.out.println(country.getName());
+//        File database = new File("src/com/crawler/GeoLite2-Country.mmdb");
+//        DatabaseReader reader = new DatabaseReader.Builder(database).build();
+//        try {
+//            InetAddress ipAddress = InetAddress.getByName("www.independent.co.uk");
+//            System.out.println(ipAddress.toString());
+//            CountryResponse response = reader.country(ipAddress);
+//            Country country = response.getCountry();
+//            System.out.println(country.getName());
+//
+//        } catch (GeoIp2Exception e) {
+//            e.printStackTrace();
+//        }
 
-        } catch (GeoIp2Exception e) {
-            e.printStackTrace();
-        }
-
+        // Java program to demonstrate
+// how to fetch public IP Address
+        Pivot p =new Pivot("https://accounts.bcc/");
+        System.out.println(p.getPivot().substring(1));
 
     }
-
 }

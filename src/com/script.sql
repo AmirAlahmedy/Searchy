@@ -12,7 +12,7 @@ create table pages
     h6    text       not null,
     body  mediumtext not null,
     alt   text       not null,
-    meta  text       not null,
+    meta  mediumtext       not null,
     date  int        null,
     country varchar(255)    null,
     indexed tinyint(1) default 0 null,
