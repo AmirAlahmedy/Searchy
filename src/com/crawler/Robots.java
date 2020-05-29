@@ -73,6 +73,8 @@ class Robots {
 
         for (int i=0;i<arrOfProtocols.length;i++)
         {
+            if(arrOfProtocols[i].endsWith("User-Agent:"))
+                break;
             if (arrOfProtocols[i].equals("Disallow:")) {
                 //System.out.println(arrOfProtocols[i] + "" + arrOfProtocols[i + 1]);
                 if ((i+1) == arrOfProtocols.length)

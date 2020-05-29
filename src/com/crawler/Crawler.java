@@ -424,28 +424,29 @@ public class Crawler implements Runnable{
 
         CopyOnWriteArrayList<Pivot> pivots = new CopyOnWriteArrayList<>();
         //SPORTS SEEDS
-//        pivots.add(new Pivot("https://www.independent.co.uk/"));
-//        pivots.add(new Pivot("https://www.si.com/"));
-//        pivots.add(new Pivot("https://www.mirror.co.uk/"));
-//        //pivots.add(new Pivot("https://www.foxsports.com/"));
-//        pivots.add(new Pivot("https://www.goal.com/en"));
-//        pivots.add(new Pivot("https://www.nbcsports.com/"));
+        pivots.add(new Pivot("https://www.independent.co.uk/"));
+        pivots.add(new Pivot("https://www.si.com/"));
+        pivots.add(new Pivot("https://www.mirror.co.uk/"));
+        //pivots.add(new Pivot("https://www.foxsports.com/"));
+        pivots.add(new Pivot("https://www.goal.com/en"));
+        pivots.add(new Pivot("https://www.nbcsports.com/"));
         pivots.add(new Pivot("https://www.espn.com/"));
-//        pivots.add(new Pivot("https://www.theguardian.com/"));
-//        pivots.add(new Pivot("https://www.bbc.com/"));
-//        pivots.add(new Pivot("https://www.kingfut.com/"));
-//
-//        pivots.add(new Pivot("https://www.marca.com/en"));
-//        //pivots.add(new Pivot("https://www.90min.com/"));
-//        pivots.add(new Pivot("http://bleacherreport.com/uk"));
-//        //NEWS SEEDS
-//        //pivots.add(new Pivot("https://www.bbc.com/news/"));
-//        pivots.add(new Pivot("https://edition.cnn.com/"));
-//        //pivots.add(new Pivot("https://www.foxnews.com/"));
-//        pivots.add(new Pivot("https://www.nbcnews.com/"));
+        pivots.add(new Pivot("https://www.theguardian.com/"));
+        pivots.add(new Pivot("https://www.bbc.com/"));
+        pivots.add(new Pivot("https://www.kingfut.com/"));
+
+        pivots.add(new Pivot("https://www.marca.com/en"));
+        //pivots.add(new Pivot("https://www.90min.com/"));
+        pivots.add(new Pivot("http://bleacherreport.com/uk"));
+        //NEWS SEEDS
+
+        //pivots.add(new Pivot("https://www.bbc.com/news/"));
+        pivots.add(new Pivot("https://edition.cnn.com/"));
+        //pivots.add(new Pivot("https://www.foxnews.com/"));
+        pivots.add(new Pivot("https://www.nbcnews.com/"));
         pivots.add(new Pivot("https://www.nytimes.com/"));
-//        pivots.add(new Pivot("https://www.dailymail.co.uk/"));
-//        pivots.add(new Pivot("https://egyptianstreets.com/"));
+        pivots.add(new Pivot("https://www.dailymail.co.uk/"));
+        pivots.add(new Pivot("https://egyptianstreets.com/"));
 
 
         // facebook shouldn' t be crawled
