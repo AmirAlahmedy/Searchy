@@ -1191,7 +1191,7 @@
     </column>
     <column id="365" parent="338" name="meta">
       <Position>12</Position>
-      <DataType>text|0s</DataType>
+      <DataType>mediumtext|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>

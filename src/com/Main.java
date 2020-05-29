@@ -38,12 +38,12 @@ public class Main {
 //        System.out.println("Delw2tyyyy   "+date);
 //
 //
-//        String test ="1";
-//        try {
-//            System.out.println(Integer.parseInt(test));
-//        } catch (NumberFormatException e) {
-//            System.out.println("Ma3lesh");
-//        }
+        String test ="1";
+        try {
+            System.out.println(Float.parseFloat(test));
+        } catch (NumberFormatException e) {
+            System.out.println("Ma3lesh");
+        }
 
 //        Document doc = Jsoup.connect("https://www.si.com/soccer/2020/05/27/fake-crowd-noise-soccer-tv-broadcasts-bundesliga").get();
 //        System.out.println(doc.select("p").text().length()
@@ -58,7 +58,7 @@ public class Main {
 //        File database = new File("src/com/crawler/GeoLite2-Country.mmdb");
 //        DatabaseReader reader = new DatabaseReader.Builder(database).build();
 //        try {
-//            InetAddress ipAddress = InetAddress.getByName("www.independent.co.uk");
+//            InetAddress ipAddress = InetAddress.getByName("www.nbcsports.com");
 //            System.out.println(ipAddress.toString());
 //            CountryResponse response = reader.country(ipAddress);
 //            Country country = response.getCountry();

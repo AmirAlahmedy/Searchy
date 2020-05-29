@@ -42,6 +42,7 @@ public class Crawler implements Runnable{
 
     public Crawler(CopyOnWriteArrayList<Pivot> pivotList,int noThreads,boolean recrawl) {
 //        this.pivotList = pivotList;
+
         this.noThreads=noThreads;
         db = new DbAdapter();
         try {
@@ -83,7 +84,7 @@ public class Crawler implements Runnable{
 
 
 
-    private void crawl(CopyOnWriteArrayList<Pivot> myPivotList) {
+    private void crawl(CopyOnWriteArrayList<Pivot> myPivotList , int debugging) {
         if(crawledPages.get() >= PAGES_TO_CRAWL || myPivotList.isEmpty()) return;
         //        for (Pivot a : myPivotList) {
         //            System.out.print(a.getPivot() + " ");
@@ -122,7 +123,7 @@ public class Crawler implements Runnable{
 //                            }
 //                        }
                         //  Apply the specified delay from robots.txt
-                        sleep(r.getCrawlDelay());
+                        sleep(Math.round(r.getCrawlDelay()));
                     }
                     disallowedPivotList = r.getDisallowedPivots();
 
@@ -225,7 +226,7 @@ public class Crawler implements Runnable{
                         if (done) {
                             crawledPages.incrementAndGet();
                             if(crawledPages.get() >= PAGES_TO_CRAWL ) return;
-                            System.out.println("BY THREAD NUMBER "+Thread.currentThread().getName());
+                            System.out.println("BY THREAD NUMBER "+Thread.currentThread().getName() +" "+ Integer.toString(++debugging));
                         }
                         else{
                             myPivotList.remove(p.getPivot());
@@ -238,7 +239,10 @@ public class Crawler implements Runnable{
                         for (Element link : links) {
                             // Check for disallowed directories
                             Pivot crawled;
-                            if(link.attr("href").startsWith("/")){
+                            if(link.attr("href").startsWith("//")){
+                                crawled = new Pivot("https:"+link.attr("href"));
+                            }
+                            else if(link.attr("href").startsWith("/")){
                                 crawled = new Pivot(p.pivotRootDirectory()+link.attr("href").substring(1));
                             }
                             else {
@@ -250,7 +254,7 @@ public class Crawler implements Runnable{
                             {
                                 myPivotList.add(crawled);
                                 //Add it to backup database
-                                if(backupCrawledPages < PAGES_TO_CRAWL) {
+                                if(backupCrawledPages < 3*PAGES_TO_CRAWL) {
                                     db.addPageToBackup(crawled.getPivot());
                                     backupCrawledPages++;
                                 }
@@ -263,10 +267,12 @@ public class Crawler implements Runnable{
 
                             //TODO: See if the link already exists in the database before adding
                             // If it does not exist in the database add it, otherwise update it.
+                            // If it does not exist in the database add it, otherwise update it.
 
                         }
                         //After crawling all the links remove it from the backup database
                         db.removePageFromBackup(p.getPivot());
+                        //backupCrawledPages--;
                     }
                 }else if(notCrawledYet(p.getPivot())){
                     Robots r = new Robots(p);
@@ -285,7 +291,7 @@ public class Crawler implements Runnable{
 //                            }
 //                        }
                         //  Apply the specified delay from robots.txt
-                        sleep(r.getCrawlDelay());
+                        sleep(Math.round(r.getCrawlDelay()));
                     }
                     disallowedPivotList = r.getDisallowedPivots();
                     //  if the whole directory is not Disallow: * and the directory is not disallowed ( extra miles in my assumption )
@@ -307,7 +313,7 @@ public class Crawler implements Runnable{
                             if (!disallowedPivotList.contains(crawled.getPivot())) {
                                 myPivotList.add(crawled);
                                 //Add it to backup database
-                                if(backupCrawledPages < PAGES_TO_CRAWL) {
+                                if(backupCrawledPages < 3*PAGES_TO_CRAWL) {
                                     db.addPageToBackup(crawled.getPivot());
                                     backupCrawledPages++;
                                 }
@@ -316,6 +322,7 @@ public class Crawler implements Runnable{
                     }
                     //After crawling all the links remove it from the backup database
                     db.removePageFromBackup(p.getPivot());
+                    //backupCrawledPages--;
                 }
                 myPivotList.remove(p);
                 //TODO: Handle exceptions with descriptive messages.
@@ -324,14 +331,16 @@ public class Crawler implements Runnable{
                 myPivotList.remove(p);
             }catch (SSLHandshakeException e){
                 //ignore it
+                myPivotList.remove(p);
             }catch (SSLException e) {
-                //
+                myPivotList.remove(p);
             }
             catch (SocketException e )
             {
                 //e.printStackTrace();
             } catch (IllegalArgumentException e){
                 // ignore it
+
             } catch (MalformedURLException e) {
                 System.err.println("Bad URL:  " + p.getPivot());
                 myPivotList.remove(p);
@@ -340,8 +349,9 @@ public class Crawler implements Runnable{
             } catch( UnsupportedMimeTypeException e){
                 myPivotList.remove(p);
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             } catch (Exception e){
+                e.printStackTrace();
                 myPivotList.remove(p);
             }
 //            } catch (final Exception | Error ignored){
@@ -349,7 +359,7 @@ public class Crawler implements Runnable{
 //            }
         }
         //FIXME: Many bad urls are crawled when recurring.
-        crawl(myPivotList);
+        crawl(myPivotList,debugging);
 
     }
     private boolean notCrawledYet(String url){
@@ -384,7 +394,7 @@ public class Crawler implements Runnable{
                     }
                 }
                 //System.out.println(myPivots.get(0).getPivot());
-                crawl(myPivots);
+                crawl(myPivots,0);
             }
 
         }
@@ -399,26 +409,29 @@ public class Crawler implements Runnable{
 
         CopyOnWriteArrayList<Pivot> pivots = new CopyOnWriteArrayList<>();
         //SPORTS SEEDS
-        pivots.add(new Pivot("https://www.independent.co.uk/sport/football/"));
-        pivots.add(new Pivot("https://www.si.com/soccer/"));
-        pivots.add(new Pivot("https://www.mirror.co.uk/sport/football/"));
-        pivots.add(new Pivot("https://www.foxsports.com/"));
+        pivots.add(new Pivot("https://www.independent.co.uk/"));
+        pivots.add(new Pivot("https://www.si.com/"));
+        pivots.add(new Pivot("https://www.mirror.co.uk/"));
+        //pivots.add(new Pivot("https://www.foxsports.com/"));
         pivots.add(new Pivot("https://www.goal.com/en"));
         pivots.add(new Pivot("https://www.nbcsports.com/"));
-        pivots.add(new Pivot("https://global.espn.com/football/?src=com/"));
-        pivots.add(new Pivot("https://www.theguardian.com/football/"));
-        pivots.add(new Pivot("https://www.bbc.com/sport/football/"));
+        pivots.add(new Pivot("https://global.espn.com/"));
+        pivots.add(new Pivot("https://www.theguardian.com/"));
+        pivots.add(new Pivot("https://www.bbc.com/"));
         pivots.add(new Pivot("https://www.kingfut.com/"));
-        //pivots.add(new Pivot("https://www.skysports.com/football"));
+
+        pivots.add(new Pivot("https://www.marca.com/en"));
         //pivots.add(new Pivot("https://www.90min.com/"));
-        //pivots.add(new Pivot("http://bleacherreport.com/uk"));
+        pivots.add(new Pivot("http://bleacherreport.com/uk"));
         //NEWS SEEDS
-        pivots.add(new Pivot("https://www.bbc.com/news/"));
+        //pivots.add(new Pivot("https://www.bbc.com/news/"));
         pivots.add(new Pivot("https://edition.cnn.com/"));
-        pivots.add(new Pivot("https://www.foxnews.com/"));
+        //pivots.add(new Pivot("https://www.foxnews.com/"));
         pivots.add(new Pivot("https://www.nbcnews.com/"));
         pivots.add(new Pivot("https://www.nytimes.com/"));
+        pivots.add(new Pivot("https://www.dailymail.co.uk/"));
         pivots.add(new Pivot("https://egyptianstreets.com/"));
+
 
         // facebook shouldn' t be crawled
         //pivots.add(new Pivot("http://www.facebook.com/"));

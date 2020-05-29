@@ -14,13 +14,13 @@ class Robots {
     private CopyOnWriteArrayList <String> disallowedPivots;
     private CopyOnWriteArrayList <Pivot> allowedPivots;
     private CopyOnWriteArrayList <Pivot> siteMaps;
-    private int crawlDelay = 0;
+    private float crawlDelay = 0;
     private boolean disallowALL;
     private Pivot pivot;
     private Document robotDoc;
     private String URL;
 
-    public Robots(CopyOnWriteArrayList <String> disallowedPivots, CopyOnWriteArrayList <Pivot> allowedPivots, CopyOnWriteArrayList <Pivot> siteMaps, int crawlDelay, boolean disallowALL) {
+    public Robots(CopyOnWriteArrayList <String> disallowedPivots, CopyOnWriteArrayList <Pivot> allowedPivots, CopyOnWriteArrayList <Pivot> siteMaps, float crawlDelay, boolean disallowALL) {
         this.disallowedPivots = disallowedPivots;
         this.allowedPivots = allowedPivots;
         this.siteMaps = siteMaps;
@@ -96,7 +96,10 @@ class Robots {
                 this.siteMaps.add(siteMap);
             } else if (arrOfProtocols[i].equals("Crawl-delay:")) {
                 //System.out.println(arrOfProtocols[i] + "" + arrOfProtocols[i + 1]);
-                this.crawlDelay = Integer.parseInt(arrOfProtocols[i + 1]);
+                try {
+                    this.crawlDelay = Float.parseFloat(arrOfProtocols[i + 1]);
+                }catch (NumberFormatException e){
+                }
             }
             else{
                 //  DO NOTHING
@@ -116,7 +119,7 @@ class Robots {
 
     //public void setSiteMaps(CopyOnWriteArrayList<Pivot> siteMaps) { this.siteMaps = siteMaps; }
 
-    public int getCrawlDelay() { return crawlDelay; }
+    public float getCrawlDelay() { return crawlDelay; }
 
     //public void setCrawlDelay(int crawlDelay) { this.crawlDelay = crawlDelay; }
 
