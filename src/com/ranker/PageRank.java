@@ -1,6 +1,7 @@
 package com.ranker;
 
 import com.DbAdapter;
+import com.crawler.Pivot;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -82,9 +83,20 @@ public class PageRank {
 //                if (url.equals("https://apps.apple.com/us/app/ftbpro/id600808581"))
 //                    System.out.println(from);
                 Document doc = Jsoup.connect(url).get();
+                Pivot p = new Pivot(url);
                 Elements links = doc.body().select("a[href]");
                 for (Element link : links) {
-                    String childURL = link.attr("href");
+                    String childURL;
+                    //= link.attr("href");
+                    if(link.attr("href").startsWith("//")){
+                        childURL = "https:"+link.attr("href");
+                    }
+                    else if(link.attr("href").startsWith("/")){
+                        childURL = p.pivotRootDirectory()+link.attr("href").substring(1);
+                    }
+                    else {
+                        childURL = link.attr("href");
+                    }
                     ResultSet resultSet1 = this.db.readID(childURL);
 
                     if (resultSet1.next()) {
