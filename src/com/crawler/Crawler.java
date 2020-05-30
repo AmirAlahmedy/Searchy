@@ -312,8 +312,11 @@ public class Crawler implements Runnable{
 
                             // Check for disallowed directories
                             Pivot crawled;
-                            if(link.attr("href").startsWith("/")){
-                                crawled = new Pivot(p.pivotRootDirectory()+link.attr("href"));
+                            if(link.attr("href").startsWith("//")){
+                                crawled = new Pivot("https:"+link.attr("href"));
+                            }
+                            else if(link.attr("href").startsWith("/")){
+                                crawled = new Pivot(p.pivotRootDirectory()+link.attr("href").substring(1));
                             }
                             else {
                                 crawled = new Pivot(link.attr("href"));
