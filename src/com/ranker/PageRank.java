@@ -1,6 +1,7 @@
 package com.ranker;
 
 import com.DbAdapter;
+import com.crawler.Pivot;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,16 +14,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 
-
 public class PageRank {
     private final WebGraph graph;
     private final DbAdapter db;
     private final ResultSet resultSet; //a ResultSet pointing to the pages table
     private final int N;  //total number of web pages
     /**
-     * @implNote  d is the damping ratio/decay factor, 85% of your users will be willing to continue visiting new web pages.
+     * @implNote d is the damping ratio/decay factor, 85% of your users will be willing to continue visiting new web pages.
      * The other 15% simply stop where they are.
-    */
+     */
     private final double d = .85;
     private final double epsilon = .1;
     private final int iterations = 100;
@@ -36,7 +36,7 @@ public class PageRank {
 
     public void makePageRanks() {
         //1 Initially, each web page will have a rank of 1/N
-        this.db.fillRanks((double) 1/N);
+        this.db.fillRanks((double) 1 / N);
         boolean isConverged;
         int iter = 0;
         //2 Update
@@ -63,11 +63,11 @@ public class PageRank {
         double newPR;
         if (adjacentPage != -1) {
             oldPR = db.getPR(adjacentPage);
-            newPR = oldPR + (d * (db.getPR(page) / U)) + (1-d)/N;
+            newPR = oldPR + (d * (db.getPR(page) / U)) + (1 - d) / N;
             db.setPR(adjacentPage, newPR);
         } else {
             oldPR = db.getPR(page);
-            newPR = oldPR + (d * (oldPR / U)) + (1-d)/N;
+            newPR = oldPR + (d * (oldPR / U)) + (1 - d) / N;
             db.setPR(page, newPR);
         }
         return Math.abs(newPR - oldPR);
@@ -79,20 +79,26 @@ public class PageRank {
             try {
                 int from = resultSet.getInt("id");
                 String url = resultSet.getString("url");
-//                if (url.equals("https://apps.apple.com/us/app/ftbpro/id600808581"))
-//                    System.out.println(from);
+                Pivot p = new Pivot(url);
                 Document doc = Jsoup.connect(url).get();
                 Elements links = doc.body().select("a[href]");
                 for (Element link : links) {
-                    String childURL = link.attr("href");
-                    ResultSet resultSet1 = this.db.readID(childURL);
+
+                    Pivot childURL;
+                    if (link.attr("href").startsWith("/")) {
+                        childURL = new Pivot(p.pivotRootDirectory() + link.attr("href").substring(1));
+                    } else {
+                        childURL = new Pivot(link.attr("href"));
+                    }
+
+                    ResultSet resultSet1 = this.db.readID(childURL.getPivot());
 
                     if (resultSet1.next()) {
                         int to = resultSet1.getInt("id");
                         this.graph.addDirectedEdge(from, to);
                     }
                 }
-            }catch (HttpStatusException e){
+            } catch (HttpStatusException e) {
                 //do nothing
             }
         }

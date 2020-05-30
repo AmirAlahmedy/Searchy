@@ -74,31 +74,22 @@ const Trends = (props) => {
                 labels: name,
                 datasets: [{
                     label: name,
-                    // backgroundColor: [
-                    //     '#FF6384',
-                    //     '#36A2EB',
-                    //     '#FFCE56',
-                    //     '#1BCD9A'
-                    // ],
-                    // borderColor: 'rgb(255,99,132)',
-                    // borderWidth: 1,
-                    // hoverBackgroundColor: [
-                    //     'rgba(255,99,150)',
-                    //     'rgba(54,162,200)',
-                    //     'rgba(255,206,86)',
-                    //     'rgba(27,205,154,0.67)'
-                    // ],
-                    // hoverBorderColor: 'rgba(255,99,132,1)',
+                    backgroundColor: [
+                        '#FF6384',
+                        '#36A2EB',
+                        '#FFCE56',
+                        '#1BCD9A',
+                        'rgba(255,105,145,0.6)',
+                        'rgba(155,100,210,0.6)',
+                        'rgba(90,178,255,0.6)',
+                        'rgba(240,134,67,0.6)',
+                        'rgba(120,120,120,0.6)',
+                        'rgba(250,55,197,0.6)'
+                    ],
+                    borderWidth: 3,
                     data: frequency,
                 }]
             }} location={country} legendPosition="bottom"/>
-            {/*<TrendsResults posts={currentPosts} loading={loading}/>*/}
-            {/*<Pagination*/}
-            {/*    postsPerPage={postsPerPage}*/}
-            {/*    totalPosts={posts.length}*/}
-            {/*    paginate={paginate}*/}
-            {/*    currentPage={currentPage}*/}
-            {/*/>*/}
         </div>
     )
 }
