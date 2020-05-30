@@ -1,5 +1,6 @@
 package com;
 
+import com.crawler.Pivot;
 import com.indexer.Stemmer;
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
@@ -11,8 +12,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
 import java.sql.ResultSet;
@@ -35,12 +38,12 @@ public class Main {
 //        System.out.println("Delw2tyyyy   "+date);
 //
 //
-//        String test ="1";
-//        try {
-//            System.out.println(Integer.parseInt(test));
-//        } catch (NumberFormatException e) {
-//            System.out.println("Ma3lesh");
-//        }
+        String test ="1";
+        try {
+            System.out.println(Float.parseFloat(test));
+        } catch (NumberFormatException e) {
+            System.out.println("Ma3lesh");
+        }
 
 //        Document doc = Jsoup.connect("https://www.si.com/soccer/2020/05/27/fake-crowd-noise-soccer-tv-broadcasts-bundesliga").get();
 //        System.out.println(doc.select("p").text().length()
@@ -55,8 +58,7 @@ public class Main {
         File database = new File("src/com/crawler/GeoLite2-Country.mmdb");
         DatabaseReader reader = new DatabaseReader.Builder(database).build();
         try {
-            InetAddress ipAddress = InetAddress.getByName("www.independent.co.uk");
-            //System.out.println(ipAddress.toString());
+            InetAddress ipAddress = InetAddress.getByName("www.nbcsports.com");
             System.out.println(ipAddress.toString());
             CountryResponse response = reader.country(ipAddress);
             Country country = response.getCountry();
@@ -66,7 +68,10 @@ public class Main {
             e.printStackTrace();
         }
 
+        // Java program to demonstrate
+// how to fetch public IP Address
+        Pivot p =new Pivot("https://accounts.bcc/");
+        System.out.println(p.getPivot().substring(1));
 
     }
-
 }

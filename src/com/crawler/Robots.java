@@ -4,6 +4,7 @@ import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -13,13 +14,13 @@ class Robots {
     private CopyOnWriteArrayList <String> disallowedPivots;
     private CopyOnWriteArrayList <Pivot> allowedPivots;
     private CopyOnWriteArrayList <Pivot> siteMaps;
-    private int crawlDelay = 0;
+    private float crawlDelay = 0;
     private boolean disallowALL;
     private Pivot pivot;
     private Document robotDoc;
     private String URL;
 
-    public Robots(CopyOnWriteArrayList <String> disallowedPivots, CopyOnWriteArrayList <Pivot> allowedPivots, CopyOnWriteArrayList <Pivot> siteMaps, int crawlDelay, boolean disallowALL) {
+    public Robots(CopyOnWriteArrayList <String> disallowedPivots, CopyOnWriteArrayList <Pivot> allowedPivots, CopyOnWriteArrayList <Pivot> siteMaps, float crawlDelay, boolean disallowALL) {
         this.disallowedPivots = disallowedPivots;
         this.allowedPivots = allowedPivots;
         this.siteMaps = siteMaps;
@@ -44,7 +45,7 @@ class Robots {
             this.robotDoc = Jsoup.connect(this.URL + "robots.txt").get();
         }
         catch (IOException e) { // If 404 throws exception therefore return false
-            e.printStackTrace();
+            //e.printStackTrace();
             return false;
         }
 
@@ -72,17 +73,25 @@ class Robots {
 
         for (int i=0;i<arrOfProtocols.length;i++)
         {
+            if(arrOfProtocols[i].endsWith("User-Agent:"))
+                break;
             if (arrOfProtocols[i].equals("Disallow:")) {
                 //System.out.println(arrOfProtocols[i] + "" + arrOfProtocols[i + 1]);
+                if ((i+1) == arrOfProtocols.length)
+                    return false;
                 if(arrOfProtocols[i + 1].equals("/"))   // disallow all
                 {
                     this.disallowALL = true;
                 }
-                if( (i+1)==arrOfProtocols.length || arrOfProtocols[i + 1].equals(" ") || arrOfProtocols[i + 1].equals("") || arrOfProtocols[i + 1].equals("\n") || arrOfProtocols[i + 1].equals(" \n"))  // allow all
+                if( arrOfProtocols[i + 1].equals(" ") || arrOfProtocols[i + 1].equals("") || arrOfProtocols[i + 1].equals("\n") || arrOfProtocols[i + 1].equals(" \n"))  // allow all
                 {
                     return false;
                 }
-                String disallowedURL = new String(this.URL + arrOfProtocols[i + 1].substring(arrOfProtocols[i + 1].indexOf("/")+1,arrOfProtocols[i + 1].length()));
+                String disallowedURL;
+                if(arrOfProtocols[i+1].startsWith("/"))
+                    disallowedURL = new String(this.URL + arrOfProtocols[i+1].substring(1));
+                else
+                    disallowedURL = new String(this.URL + arrOfProtocols[i + 1]);
 
                 this.disallowedPivots.add(disallowedURL);
             } else if (arrOfProtocols[i].equals("Allow:")) {
@@ -95,7 +104,10 @@ class Robots {
                 this.siteMaps.add(siteMap);
             } else if (arrOfProtocols[i].equals("Crawl-delay:")) {
                 //System.out.println(arrOfProtocols[i] + "" + arrOfProtocols[i + 1]);
-                this.crawlDelay = Integer.parseInt(arrOfProtocols[i + 1]);
+                try {
+                    this.crawlDelay = Float.parseFloat(arrOfProtocols[i + 1]);
+                }catch (NumberFormatException e){
+                }
             }
             else{
                 //  DO NOTHING
@@ -115,7 +127,7 @@ class Robots {
 
     //public void setSiteMaps(CopyOnWriteArrayList<Pivot> siteMaps) { this.siteMaps = siteMaps; }
 
-    public int getCrawlDelay() { return crawlDelay; }
+    public float getCrawlDelay() { return crawlDelay; }
 
     //public void setCrawlDelay(int crawlDelay) { this.crawlDelay = crawlDelay; }
 
