@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 
+
 public class PageRank {
     private final WebGraph graph;
     private final DbAdapter db;
@@ -83,15 +84,18 @@ public class PageRank {
                 Document doc = Jsoup.connect(url).get();
                 Elements links = doc.body().select("a[href]");
                 for (Element link : links) {
-
-                    Pivot childURL;
-                    if (link.attr("href").startsWith("/")) {
-                        childURL = new Pivot(p.pivotRootDirectory() + link.attr("href").substring(1));
-                    } else {
-                        childURL = new Pivot(link.attr("href"));
+                    String childURL;
+                    //= link.attr("href");
+                    if(link.attr("href").startsWith("//")){
+                        childURL = "https:"+link.attr("href");
                     }
-
-                    ResultSet resultSet1 = this.db.readID(childURL.getPivot());
+                    else if(link.attr("href").startsWith("/")){
+                        childURL = p.pivotRootDirectory()+link.attr("href").substring(1);
+                    }
+                    else {
+                        childURL = link.attr("href");
+                    }
+                    ResultSet resultSet1 = this.db.readID(childURL);
 
                     if (resultSet1.next()) {
                         int to = resultSet1.getInt("id");
