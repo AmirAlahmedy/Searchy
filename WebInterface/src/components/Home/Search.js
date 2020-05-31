@@ -122,7 +122,13 @@ class Search extends Component {
                         <Route path="/results" render={props => (
                             <Result {...props}/>
                         )}/>
-                        <Link to="/trends"><Button className="myButton">Trends</Button></Link>
+                        <Link to={{
+                            pathname: "/trends",
+                            state: {
+                                searchQuery: query,
+                                country: country
+                            }
+                        }}><Button className="myButton">Trends</Button></Link>
                         <Link to={{
                             pathname: "/images",
                             state: {

@@ -1,8 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import axios from '../../axios-instance'
-import Pagination from '../Result/Pagination'
 import '../Result/Result.css'
-import TrendsResults from "./TrendsResults"
+import Chart from "./Chart";
 
 const Trends = (props) => {
     const [posts, setPosts] = useState([]);
@@ -57,17 +56,36 @@ const Trends = (props) => {
     if (document.body.getElementsByTagName("canvas")[0])
         document.body.getElementsByTagName("canvas")[0].style.display = "none";
 
+    let name = [], frequency = [], bgColor = [], hbgColor = [];
+    for (let post of posts) {
+        name.push(post.name);
+        frequency.push(post.frequency);
+
+    }
+
+
     return (
         <div>
-            <h4 className="text mb-3" style={{marginLeft: '2%', marginTop: '1%', marginBottom: '1%'}}>Search
-                Results</h4>
-            <TrendsResults posts={currentPosts} loading={loading}/>
-            <Pagination
-                postsPerPage={postsPerPage}
-                totalPosts={posts.length}
-                paginate={paginate}
-                currentPage={currentPage}
-            />
+            <Chart {...props} chartData={{
+                labels: name,
+                datasets: [{
+                    label: name,
+                    backgroundColor: [
+                        '#FF6384',
+                        '#36A2EB',
+                        '#FFCE56',
+                        '#1BCD9A',
+                        'rgba(255,105,145,0.6)',
+                        'rgba(155,100,210,0.6)',
+                        'rgba(90,178,255,0.6)',
+                        'rgba(240,134,67,0.6)',
+                        'rgba(120,120,120,0.6)',
+                        'rgba(250,55,197,0.6)'
+                    ],
+                    borderWidth: 3,
+                    data: frequency,
+                }]
+            }} location={country} legendPosition="bottom"/>
         </div>
     )
 }
