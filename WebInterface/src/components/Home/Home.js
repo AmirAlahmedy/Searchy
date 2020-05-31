@@ -5,7 +5,7 @@ import Silogo from "../../silogo.png";
 import CountryDropdown from "./Dropdown";
 import * as THREE from 'three';
 
-let i = 1;
+let i = true;
 
 class Home extends Component {
 
@@ -21,6 +21,16 @@ class Home extends Component {
         return this.state.country;
     }
 
+    handleWebGl(e) {
+        if (e.target.checked) {
+            if (document.getElementsByTagName("canvas")[0])
+                document.getElementsByTagName("canvas")[0].style.display = "block";
+        } else {
+            if (document.getElementsByTagName("canvas")[0])
+                document.getElementsByTagName("canvas")[0].style.display = "none";
+        }
+    }
+
 
     render() {
         if (document.getElementsByTagName("canvas")[0])
@@ -28,7 +38,7 @@ class Home extends Component {
         if (i) {
             i = null;
             let scene = new THREE.Scene();
-            let camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            let camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
 
             let renderer = new THREE.WebGLRenderer();
             renderer.setSize(window.outerWidth, window.outerHeight);
@@ -77,6 +87,8 @@ class Home extends Component {
             };
             animate();
         }
+
+
         return (
             <div id={"logo-div"}>
                 <img src={Silogo} id={'search-logo'} alt="Searchy" style={{
@@ -97,6 +109,16 @@ class Home extends Component {
                     "position": "absolute",
                     "bottom": "5%"
                 }}/>
+                <div style={{
+                    position: "absolute",
+                    top: "5%",
+                    left: "2%"
+                }}>
+                    <input type={"checkBox"} id={"id1"} defaultChecked={true} onChange={this.handleWebGl} style={{
+                        marginRight: "5px"
+                    }}/>
+                    <label for={"id1"}>WebGL</label>
+                </div>
 
             </div>
         );

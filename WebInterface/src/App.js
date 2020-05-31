@@ -5,7 +5,6 @@ import Result from './components/Result/Result'
 import countries from './countries'
 import Images from './components/Trends/Images'
 import Trends from './components/Trends/Trends'
-import Chart from './components/Trends/Chart'
 
 
 class App extends Component {
@@ -18,7 +17,6 @@ class App extends Component {
         <Route  path="/results" component={Result} />
         <Route path="/trends" component={Trends} />
         <Route  path="/images" component={Images} />
-        {/*<Route path="/chart" render={(props) => <Chart {...props} chartData={this.state.chartData} location="Egypt" legendPosition="bottom"/>} />*/}
         </Switch>
       </div>
       </BrowserRouter>
