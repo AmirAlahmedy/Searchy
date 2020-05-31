@@ -9,6 +9,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -76,8 +78,10 @@ public class PageRank {
 
 
     private void buildWebGraph() throws SQLException, IOException {
+        int debugging = 0;
         while (this.resultSet.next()) {
             try {
+                System.out.println(++debugging);
                 int from = resultSet.getInt("id");
                 String url = resultSet.getString("url");
 //                if (url.equals("https://apps.apple.com/us/app/ftbpro/id600808581"))
@@ -106,6 +110,12 @@ public class PageRank {
                 }
             }catch (HttpStatusException e){
                 //do nothing
+            }catch (UnknownHostException e){
+                resultSet.previous();
+                debugging--;
+            }catch (SocketException e){
+                resultSet.previous();
+                debugging--;
             }
         }
     }
