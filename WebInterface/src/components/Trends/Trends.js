@@ -1,8 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import axios from '../../axios-instance'
-import Pagination from '../Result/Pagination'
 import '../Result/Result.css'
-import TrendsResults from "./TrendsResults"
 import Chart from "./Chart";
 
 const Trends = (props) => {
@@ -68,8 +66,6 @@ const Trends = (props) => {
 
     return (
         <div>
-            {/*<h4 className="text mb-3" style={{marginLeft: '2%', marginTop: '1%', marginBottom: '1%'}}>Search*/}
-            {/*    Results</h4>*/}
             <Chart {...props} chartData={{
                 labels: name,
                 datasets: [{
