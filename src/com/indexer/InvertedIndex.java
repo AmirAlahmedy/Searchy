@@ -23,7 +23,8 @@ public class InvertedIndex implements Runnable{
     public InvertedIndex(int noThreads) {
         this.dbAdapter =  new DbAdapter();
         //this.resultSet = this.dbAdapter.readPages();
-        this.pagesCount = this.dbAdapter.pagesRows();
+        //this.pagesCount = this.dbAdapter.pagesRows();
+        this.pagesCount = 1008;
         this.noThreads=noThreads;
         try{
             stopWords= Files.readAllLines(Paths.get("src/com/indexer/stopWords.txt"));
@@ -145,9 +146,9 @@ public class InvertedIndex implements Runnable{
             if (threadNumber == i) {
                 if(threadNumber == noThreads-1){
                     int remainingPages = pagesCount - (noThreads-1)*pagesPerThread;
-                    myResultSet = this.dbAdapter.readPagesThreads(remainingPages,i*pagesPerThread);
+                    myResultSet = this.dbAdapter.readPagesThreads(remainingPages,i*pagesPerThread+4000);
                 } else {
-                    myResultSet = this.dbAdapter.readPagesThreads(pagesPerThread,i*pagesPerThread);
+                    myResultSet = this.dbAdapter.readPagesThreads(pagesPerThread,i*pagesPerThread+4000);
                 }
                 //System.out.println(myPivots.get(0).getPivot());
                 try {
