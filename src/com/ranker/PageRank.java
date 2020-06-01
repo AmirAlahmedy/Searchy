@@ -77,7 +77,7 @@ public class PageRank {
     }
 
 
-    private void buildWebGraph() throws SQLException, IOException {
+    private void buildWebGraph() throws SQLException {
         int debugging = 0;
         while (this.resultSet.next()) {
             try {
@@ -108,10 +108,7 @@ public class PageRank {
                 }
             } catch (HttpStatusException e) {
                 //do nothing
-            }catch (UnknownHostException e){
-                resultSet.previous();
-                debugging--;
-            }catch (SocketException e){
+            } catch (Exception e){
                 resultSet.previous();
                 debugging--;
             }
@@ -161,7 +158,7 @@ public class PageRank {
         }
 
         public void printGraph() {
-            int q = this.adj.size(), p, i = 0, j = 0;
+            int q = this.adj.size(), p, i = 0, j;
             for (; i < q; i++) {
                 System.out.println("\nAdjacency list of vertex" + i);
                 p = this.adj.get(i).size();
@@ -173,14 +170,18 @@ public class PageRank {
         }
     }
 
-    public static void main(String[] args) throws IOException, SQLException {
-        PageRank pageRank = new PageRank();
-        // Build the web graph.
-        pageRank.buildWebGraph();
-        // Display the graph.
-        pageRank.graph.printGraph();
-        // Build the ranks table.
-        pageRank.makePageRanks();
+    public static void main(String[] args) {
+        try {
+            PageRank pageRank = new PageRank();
+            // Build the web graph.
+            pageRank.buildWebGraph();
+            // Display the graph.
+            pageRank.graph.printGraph();
+            // Build the ranks table.
+            pageRank.makePageRanks();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 }
