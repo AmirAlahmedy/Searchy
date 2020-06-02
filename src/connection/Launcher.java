@@ -18,6 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class Launcher  implements HttpHandler {
     static final int  PORT = 4000;
@@ -192,6 +193,8 @@ public class Launcher  implements HttpHandler {
 
     public static void main(String[] args) throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(HOST, PORT), 0);
+        // Unlimited number of threads to process multiple requests concurrently
+        server.setExecutor(Executors.newCachedThreadPool());
         server.createContext("/results", new Launcher());
         server.start();
         System.out.println("Server started on port "+ PORT);
