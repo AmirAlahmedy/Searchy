@@ -5,7 +5,7 @@ import Result from "../Result/Result";
 import Route from "react-router-dom/es/Route";
 import {Button} from 'react-bootstrap'
 import Voice from "./mic-fill.svg";
-
+import axios from '../../axios-instance';
 
 class Search extends Component {
     constructor(props) {
@@ -16,16 +16,11 @@ class Search extends Component {
         }
     }
 
-    handleChange = (e, v) => {
-        const {items} = this.props;
-        let query;
-        if (e) query = e.target.value;
-        else query = v;
-        let suggestions = [];
-        if (query.length > 0) {
-            const regex = new RegExp(`^${query}`, `i`);
-            suggestions = items.sort().filter(v => regex.test(v));
-        }
+    handleChange = async (e) => {
+        let query = e.target.value;
+        const response = await axios(`/results?query=${query}`);
+        const suggestions = await response.data;
+
         this.setState(() => ({suggestions, query: query}));
     }
     suggestionSelected = (query) => {
@@ -39,18 +34,18 @@ class Search extends Component {
         }
         return (
             <ul>
-                {suggestions.map(item => {
-                    return (<li onClick={() => this.suggestionSelected(item)}>{item}</li>)
-                })}
+                {
+                    suggestions.map(item => <li onClick={() => this.suggestionSelected(item)}>{item}</li>)
+                }
             </ul>
         )
     }
 
 
     render() {
-        let {query} = this.state;
+        let {query} = this.state?.query;
         const country = this.props.country;
-        let trnscrpt = "";
+
         console.log(country);
         console.log(query);
 

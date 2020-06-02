@@ -130,7 +130,7 @@ class Home extends Component {
                     "position": "absolute",
                     "transform": "translate(-50%)"
                 }}/>
-                <Search items={countries} country={this.getCountryValue()}/>
+                <Search country={this.getCountryValue()}/>
                 <CountryDropdown value={this.getCountryValue()} onChange={(val) => {
                     this.selectCountry(val);
                     console.log(this.getCountryValue())

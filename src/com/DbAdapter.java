@@ -754,4 +754,16 @@ public class DbAdapter {
             throwables.printStackTrace();
         }
     }
+
+    public ResultSet getSuggestions(String myQuery) {
+        try {
+            String query = "SELECT * FROM `Suggestions`";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
