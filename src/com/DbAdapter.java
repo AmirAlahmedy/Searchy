@@ -172,7 +172,7 @@ public class DbAdapter {
     public ResultSet readPagesThreads(int size,int offset) {
         ResultSet resultSet = null;
         try {
-            String query = "SELECT * FROM `pages` LIMIT ? OFFSET ?";
+            String query = "SELECT * FROM `pages` WHERE `id`>=4001 LIMIT ? OFFSET ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1,size);
             preparedStatement.setInt(2,offset);

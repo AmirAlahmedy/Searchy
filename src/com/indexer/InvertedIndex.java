@@ -44,6 +44,8 @@ public class InvertedIndex implements Runnable{
 
             int wordsInPage = 0;
             int pageId = myResultSet.getInt("id");
+            System.out.println(Thread.currentThread().getName() + "Started page No." + Integer.toString(pageId));
+
             //int words = resultSet.getInt("words");
             String parsedContent;
             //Delete old index if found
@@ -129,6 +131,7 @@ public class InvertedIndex implements Runnable{
             //dbAdapter.updatePageWordCount(pageId,wordsInPage);
             dbAdapter.updateTF(pageId,wordsInPage);
             dbAdapter.markPageAsIndexed(pageId);
+            System.out.println(pageId);
         }
         //End of all documents
         //Need to set idf
@@ -142,13 +145,13 @@ public class InvertedIndex implements Runnable{
         //System.out.println(noThreads);
         System.out.println(threadNumber);
         ResultSet myResultSet;
-        for (int i = 0; i < noThreads; i++) {
-            if (threadNumber == i) {
+        //for (int i = 0; i < noThreads; i++) {
+            //if (threadNumber == i) {
                 if(threadNumber == noThreads-1){
                     int remainingPages = pagesCount - (noThreads-1)*pagesPerThread;
-                    myResultSet = this.dbAdapter.readPagesThreads(remainingPages,i*pagesPerThread+4000);
+                    myResultSet = this.dbAdapter.readPagesThreads(remainingPages,threadNumber*pagesPerThread);
                 } else {
-                    myResultSet = this.dbAdapter.readPagesThreads(pagesPerThread,i*pagesPerThread+4000);
+                    myResultSet = this.dbAdapter.readPagesThreads(pagesPerThread,threadNumber*pagesPerThread);
                 }
                 //System.out.println(myPivots.get(0).getPivot());
                 try {
@@ -156,9 +159,9 @@ public class InvertedIndex implements Runnable{
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();
                 }
-            }
+            //}
 
-        }
+        //}
     }
     public void setIDFAllTerms(){
         dbAdapter.setIDF();

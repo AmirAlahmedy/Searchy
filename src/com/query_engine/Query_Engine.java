@@ -250,6 +250,14 @@ public class Query_Engine {
 
     public ResultSet processQuery(String query,String country, boolean images)
     {
+        //Running trends in a different thread
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                addTrend(query,country);
+            }
+        }).start();
+
         ResultSet rs = null;
         //  Save date
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -261,7 +269,6 @@ public class Query_Engine {
         {
             System.out.println("Images Search");
             try {
-                addTrend(query, country);
                 rs = search(query,true);
             } catch (SQLException e) {
                 e.getErrorCode();
@@ -271,7 +278,6 @@ public class Query_Engine {
             if (query.startsWith("'") && query.endsWith("'")) {
                 System.out.println("Phrase Search");
                 try {
-                    addTrend(query, country);
                     rs = phraseSearch(query);
                 }
                 catch (SQLException e )
@@ -281,7 +287,6 @@ public class Query_Engine {
             } else {
                 System.out.println("Normal Search");
                 try {
-                    addTrend(query, country);
                     rs = search(query, false);
                 } catch (SQLException e) {
                     e.getErrorCode();

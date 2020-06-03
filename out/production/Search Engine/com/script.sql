@@ -52,6 +52,7 @@ create table Terms
         foreign key (Page_Id) references pages (id)
             on update cascade on delete cascade
 );
+alter table Terms auto_increment = 4000000;
 
 
 create table Images
@@ -65,6 +66,7 @@ create table Images
         foreign key (page_Id) references pages (id)
             on update cascade on delete cascade
 );
+alter table Images auto_increment = 4000000;
 
 create table Ranks
 (
