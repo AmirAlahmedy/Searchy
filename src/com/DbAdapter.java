@@ -172,7 +172,7 @@ public class DbAdapter {
     public ResultSet readPagesThreads(int size,int offset) {
         ResultSet resultSet = null;
         try {
-            String query = "SELECT * FROM `pages` WHERE LIMIT ? OFFSET ?";
+            String query = "SELECT * FROM `pages` LIMIT ? OFFSET ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1,size);
             preparedStatement.setInt(2,offset);
@@ -757,13 +757,31 @@ public class DbAdapter {
 
     public ResultSet getSuggestions(String myQuery) {
         try {
-            String query = "SELECT * FROM `Suggestions`";
+            String query = "SELECT * FROM `Suggestions` WHERE value LIKE ? LIMIT 5";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1,myQuery+"%");
             ResultSet resultSet = preparedStatement.executeQuery();
             return resultSet;
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public void addSuggestion(String myQuery){
+        try{
+            String query = "INSERT INTO `Suggestions` (`id`, `value`) VALUES (NULL,?)";
+            PreparedStatement preparedStatement=connection.prepareStatement(query);
+            preparedStatement.setString(1,myQuery);
+            preparedStatement.execute();
+        } catch (SQLException throwables) {
+            if (throwables instanceof SQLIntegrityConstraintViolationException){
+                //Ignore duplicate entry error
+            }
+            else {
+                throwables.printStackTrace();
+            }
+        }
+
     }
 }

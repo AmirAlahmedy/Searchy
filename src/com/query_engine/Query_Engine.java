@@ -258,6 +258,14 @@ public class Query_Engine {
             }
         }).start();
 
+        //Adding Query to database for Auto-Complete in a different thread
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                addSuggestion(query);
+            }
+        }).start();
+
         ResultSet rs = null;
         //  Save date
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -423,6 +431,9 @@ public class Query_Engine {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+    }
+    public void addSuggestion(String query){
+        db.addSuggestion(query);
     }
 
     public static void main(String[] args) throws SQLException {

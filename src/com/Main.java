@@ -76,7 +76,16 @@ public class Main {
 
 
 
-        System.out.println(testing());
+        //System.out.println(testing());
+        DbAdapter dbAdapter = new DbAdapter();
+        ResultSet resultSet = dbAdapter.getSuggestions("h");
+        try {
+            while (resultSet.next()) {
+                System.out.println(resultSet.getString("value"));
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
 
     }
     public static int testing(){
