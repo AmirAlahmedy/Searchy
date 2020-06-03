@@ -270,15 +270,6 @@ public class Crawler implements Runnable{
                                 }
                             }
 
-                            //  TODO: Get rid of the garbage anchor tags like "#" and "sign up pages".
-
-                            //TODO: Either add pages to the database here and edit them after loading the documents
-                            // Or load them here and remove the other function
-
-                            //TODO: See if the link already exists in the database before adding
-                            // If it does not exist in the database add it, otherwise update it.
-                            // If it does not exist in the database add it, otherwise update it.
-
                         }
                         //After crawling all the links remove it from the backup database
                         db.removePageFromBackup(p.getPivot());
@@ -376,7 +367,6 @@ public class Crawler implements Runnable{
 //                myPivotList.remove(p);
 //            }
         }
-        //FIXME: Many bad urls are crawled when recurring.
         crawl(myPivotList,debugging);
 
     }

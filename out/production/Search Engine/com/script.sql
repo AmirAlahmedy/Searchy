@@ -52,7 +52,7 @@ create table Terms
         foreign key (Page_Id) references pages (id)
             on update cascade on delete cascade
 );
-alter table Terms auto_increment = 4000000;
+alter table Terms auto_increment = 2000000;
 
 
 create table Images
@@ -66,7 +66,7 @@ create table Images
         foreign key (page_Id) references pages (id)
             on update cascade on delete cascade
 );
-alter table Images auto_increment = 4000000;
+alter table Images auto_increment = 2000000;
 
 create table Ranks
 (
@@ -88,3 +88,13 @@ create table Trends
     constraint Trends_pk
         unique (id)
 );
+
+create table Suggestions
+(
+    id    int auto_increment
+        primary key,
+    value varchar(50) null,
+    constraint Suggestions_value_uindex
+        unique (value)
+);
+

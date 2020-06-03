@@ -18,6 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class Launcher  implements HttpHandler {
     static final int  PORT = 4000;
@@ -64,6 +65,27 @@ public class Launcher  implements HttpHandler {
             response = searchDB(sq.searchQuery, sq.Country);
         }
 
+       sendToInterface(httpExchange, response);
+    }
+
+    private void handleGet(HttpExchange httpExchange) throws IOException {
+
+        // Get the search query from the request parameters
+        String param = httpExchange.getRequestURI().getQuery();
+        System.out.println(param);
+
+        // Lookup the database for suggestions
+        String query = param.substring(6, param.length());
+        if(!query.isEmpty()) {
+            String suggestions = suggestionsDB(query);
+
+            // Send
+            sendToInterface(httpExchange, suggestions);
+        }
+
+    }
+
+    private void sendToInterface(HttpExchange httpExchange, String response) throws IOException {
         // Send the results to the interface
         OutputStream outputStream = httpExchange.getResponseBody();
 
@@ -79,9 +101,6 @@ public class Launcher  implements HttpHandler {
         outputStream.close();
     }
 
-    private void handleGet(HttpExchange httpExchange) {
-    }
-
     private void handleResponse(HttpExchange httpExchange, String requestType) throws IOException, SQLException {
 
         if(requestType.toUpperCase().equals("POST")) {
@@ -90,6 +109,25 @@ public class Launcher  implements HttpHandler {
             handleGet(httpExchange);
         }
 
+    }
+
+    private String suggestionsDB(String query) {
+        DbAdapter db = new DbAdapter();
+        ResultSet resultSet = db.getSuggestions(query);
+        List<String> suggestions = new ArrayList<>();
+        while (true) {
+            try {
+                if (!resultSet.next()) break;
+                String value = resultSet.getString(2);
+                System.out.println("--------------------------------------------");
+                System.out.println("Suggestion: "+value);
+                System.out.println("--------------------------------------------\n\n");
+                suggestions.add(value);
+            } catch (SQLException throwable) {
+                throwable.printStackTrace();
+            }
+        }
+        return (new Gson()).toJson(suggestions);
     }
 
     private String imageDB(String searchQuery, String Country) throws SQLException {
@@ -155,6 +193,8 @@ public class Launcher  implements HttpHandler {
 
     public static void main(String[] args) throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(HOST, PORT), 0);
+        // Unlimited number of threads to process multiple requests concurrently
+        server.setExecutor(Executors.newCachedThreadPool());
         server.createContext("/results", new Launcher());
         server.start();
         System.out.println("Server started on port "+ PORT);
