@@ -23,8 +23,8 @@ public class InvertedIndex implements Runnable{
     public InvertedIndex(int noThreads) {
         this.dbAdapter =  new DbAdapter();
         //this.resultSet = this.dbAdapter.readPages();
-        //this.pagesCount = this.dbAdapter.pagesRows();
-        this.pagesCount = 1008;
+        this.pagesCount = this.dbAdapter.pagesRows();
+        //this.pagesCount = 1009;
         this.noThreads=noThreads;
         try{
             stopWords= Files.readAllLines(Paths.get("src/com/indexer/stopWords.txt"));
