@@ -88,3 +88,13 @@ create table Trends
     constraint Trends_pk
         unique (id)
 );
+
+create table Suggestions
+(
+    id    int auto_increment
+        primary key,
+    value varchar(50) null,
+    constraint Suggestions_value_uindex
+        unique (value)
+);
+
