@@ -18,7 +18,7 @@ class Chart extends Component {
     
 
     render() {
-        console.log((JSON.stringify(this.props.chartData) + "Mostafa"))
+        console.log((JSON.stringify(this.props.chartData)))
         return (
             <div className="chart">
 
