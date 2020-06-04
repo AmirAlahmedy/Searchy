@@ -440,7 +440,7 @@ public class Query_Engine {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
         String country="Egypt";
-        qe.processQuery("bayern munchen",country,false);
+        qe.processQuery("Amir",country,false);
 //        ResultSet rs =db.getTrends("Egypt");
 //        while (rs.next()){
 //            System.out.println(rs.getString(2));

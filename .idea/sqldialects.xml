@@ -3,6 +3,7 @@
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/Database/Suggestions.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/Database/pages.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/Database/ranks.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/Database/script.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/Database/search_engine_50PAGES.sql" dialect="MySQL" />
     <file url="PROJECT" dialect="MariaDB" />
