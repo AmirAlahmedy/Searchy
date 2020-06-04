@@ -175,12 +175,14 @@ public class Launcher  implements HttpHandler {
         ArrayList<String> snippets = new ArrayList<>();
         ResultSet resultSet = qe.processQuery(searchQuery, Country, false,snippets);
         List<Result> data = new ArrayList<>();
+        int dummyIndexForSnippets=0;
         while (resultSet.next()) {
             // 1: id, 2: url, 3: title, 4: body
             int id    = resultSet.getInt(1);
             String url   = resultSet.getString(2);
             String title = resultSet.getString(3);
-            String body  = resultSet.getString(4).substring(200, 500);
+            //String body  = resultSet.getString(4).substring(200, 500);
+            String body = snippets.get(dummyIndexForSnippets++);
             System.out.println("--------------------------------------------");
             System.out.println(id);
             System.out.println(url);
