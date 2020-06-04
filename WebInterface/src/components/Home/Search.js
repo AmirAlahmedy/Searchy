@@ -17,12 +17,14 @@ class Search extends Component {
     }
 
     handleChange = async (e) => {
-        let query = e.target.value;
-        const response = await axios(`/results?query=${query}`);
-        const suggestions = await response.data;
-
-        this.setState(() => ({suggestions, query: query}));
+        if(!this.state?.voice) {
+            let query = e.target.value;
+            const response = await axios(`/results?query=${query}`);
+            const suggestions = await response.data;
+            this.setState(() => ({suggestions, query: query}));
+        }
     }
+
     suggestionSelected = (query) => {
         this.setState(() => ({query: query, suggestions: []}));
     }
@@ -43,11 +45,12 @@ class Search extends Component {
 
 
     render() {
-        let {query} = this.state?.query;
+
         const country = this.props.country;
 
         console.log(country);
-        console.log(query);
+
+        console.log(this.state?.query);
 
         let recognition = null;
         if (window.chrome) {
@@ -75,8 +78,8 @@ class Search extends Component {
                 const last = event.results.length - 1;
                 const command = event.results[last][0].transcript;
                 console.log(command);
-                query = command;
-                document.getElementById("search-input").value = query;
+                // query = command;
+                document.getElementById("search-input").value = command;
                 this.handleChange(null, command);
             };
 
@@ -94,7 +97,7 @@ class Search extends Component {
             <div className="container">
                 <form onSubmit={e => {e.preventDefault();}}>
                 <div className="AutoCompleteText">
-                    <input onChange={this.handleChange} value={query} type="text"
+                    <input onChange={this.handleChange} value={this.state?.query} type="text"
                            className="form-control form-control-sm ml-3 w-100" id="search-input"
                            placeholder="Search..."/>
                     <div>{this.renderSuggestions()}</div>
@@ -110,7 +113,7 @@ class Search extends Component {
                         <Link to={{
                             pathname: "/results",
                             state: {
-                                searchQuery: query,
+                                searchQuery: this.state?.query,
                                 country: country
                             }
                         }} id={"go"} ><Button type={"submit"} className="myButton">Go</Button></Link>
@@ -120,14 +123,14 @@ class Search extends Component {
                         <Link to={{
                             pathname: "/trends",
                             state: {
-                                searchQuery: query,
+                                searchQuery: this.state?.query,
                                 country: country
                             }
                         }}><Button className="myButton">Trends</Button></Link>
                         <Link to={{
                             pathname: "/images",
                             state: {
-                                searchQuery: query,
+                                searchQuery: this.state?.query,
                                 country: country
                             }
                         }}><Button className="myButton">Image Search</Button></Link>
@@ -135,7 +138,8 @@ class Search extends Component {
 
                     <img src={Voice} id="voiceRecognition" className="img-responsive center-block"
                          alt="Voice Recognition" onClick={event => {
-                        handleVoiceRecognition(recognition);
+                             this.setState({voice: true});
+                             handleVoiceRecognition(recognition);
                     }}
                          style={{
                              minHeight: "20px",
