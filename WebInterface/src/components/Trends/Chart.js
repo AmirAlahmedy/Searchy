@@ -11,24 +11,16 @@ class Chart extends Component {
 
     static defaultProps = {
         displayTitle: true,
-        displayLegend: true,
+        displayLegend: false,
         legendPosition: 'right',
-        location: 'City'
+        location: 'Country'
     }
+    
 
     render() {
-        console.log((this.props.chartData))
+        console.log((JSON.stringify(this.props.chartData) + "Mostafa"))
         return (
             <div className="chart">
-
-                <Bar
-                    data={this.props.chartData}
-                    width={100}
-                    height={50}
-                    options={{
-                        maintainAspectRatio: false
-                    }}
-                />
 
                 <Pie
                     data={this.props.chartData}
@@ -38,12 +30,43 @@ class Chart extends Component {
                             text: 'Trends In ' + this.props.location,
                             fontSize: 25
                         },
+                        // legend: {
+                        //     display: this.props.displayLegend,
+                        //     position: this.props.legendPosition
+                        // }
+                    }}
+                />
+
+                <Bar
+            
+                    data={this.props.chartData}
+                    width={100}
+                    height={48}
+                    options={{
+                        // responsive: false,
+                        //  maintainAspectRatio: false,
+                        title: {
+                            display: this.props.displayTitle,
+                            text: 'Trends In ' + this.props.location,
+                            fontSize: 25
+                        },
                         legend: {
                             display: this.props.displayLegend,
                             position: this.props.legendPosition
+                        },
+                        scales:{
+                            yAxes:[{
+                                display:true,
+                                ticks:{
+                                    beginAtZero:true,
+                                    stepSize:1
+                                }
+                            }]
                         }
                     }}
                 />
+
+                
 
             </div>
         )

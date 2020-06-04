@@ -20,12 +20,12 @@ public class InvertedIndex implements Runnable {
     public InvertedIndex(int noThreads) {
         this.dbAdapter = new DbAdapter();
         //this.resultSet = this.dbAdapter.readPages();
-//        this.pagesCount = this.dbAdapter.pagesRows();
-        this.pagesCount = 2000;
-        this.noThreads = noThreads;
-        try {
-            stopWords = Files.readAllLines(Paths.get("src/com/indexer/stopWords.txt"));
-        } catch (IOException e) {
+        this.pagesCount = this.dbAdapter.pagesRows();
+        //this.pagesCount = 1009;
+        this.noThreads=noThreads;
+        try{
+            stopWords= Files.readAllLines(Paths.get("src/com/indexer/stopWords.txt"));
+        }catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -40,6 +40,8 @@ public class InvertedIndex implements Runnable {
 
             int wordsInPage = 0;
             int pageId = myResultSet.getInt("id");
+            System.out.println(Thread.currentThread().getName() + "Started page No." + Integer.toString(pageId));
+
             //int words = resultSet.getInt("words");
             String parsedContent;
             //Delete old index if found
@@ -124,6 +126,7 @@ public class InvertedIndex implements Runnable {
             //dbAdapter.updatePageWordCount(pageId,wordsInPage);
             dbAdapter.updateTF(pageId, wordsInPage);
             dbAdapter.markPageAsIndexed(pageId);
+            System.out.println(pageId);
         }
         //End of all documents
         //Need to set idf
@@ -138,13 +141,13 @@ public class InvertedIndex implements Runnable {
         //System.out.println(noThreads);
         System.out.println(threadNumber);
         ResultSet myResultSet;
-        for (int i = 0; i < noThreads; i++) {
-            if (threadNumber == i) {
-                if (threadNumber == noThreads - 1) {
-                    int remainingPages = pagesCount - (noThreads - 1) * pagesPerThread;
-                    myResultSet = this.dbAdapter.readPagesThreads(remainingPages, i * pagesPerThread + 2000);
+        //for (int i = 0; i < noThreads; i++) {
+            //if (threadNumber == i) {
+                if(threadNumber == noThreads-1){
+                    int remainingPages = pagesCount - (noThreads-1)*pagesPerThread;
+                    myResultSet = this.dbAdapter.readPagesThreads(remainingPages,threadNumber*pagesPerThread);
                 } else {
-                    myResultSet = this.dbAdapter.readPagesThreads(pagesPerThread, i * pagesPerThread + 2000);
+                    myResultSet = this.dbAdapter.readPagesThreads(pagesPerThread,threadNumber*pagesPerThread);
                 }
                 //System.out.println(myPivots.get(0).getPivot());
                 try {
@@ -152,9 +155,9 @@ public class InvertedIndex implements Runnable {
                 } catch (SQLException throwable) {
                     throwable.printStackTrace();
                 }
-            }
+            //}
 
-        }
+        //}
     }
 
     public void setIDFAllTerms() {

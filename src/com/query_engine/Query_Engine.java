@@ -250,6 +250,22 @@ public class Query_Engine {
 
     public ResultSet processQuery(String query,String country, boolean images)
     {
+        //Running trends in a different thread
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                addTrend(query,country);
+            }
+        }).start();
+
+        //Adding Query to database for Auto-Complete in a different thread
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                addSuggestion(query);
+            }
+        }).start();
+
         ResultSet rs = null;
         //  Save date
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -261,7 +277,6 @@ public class Query_Engine {
         {
             System.out.println("Images Search");
             try {
-                addTrend(query, country);
                 rs = search(query,true);
             } catch (SQLException e) {
                 e.getErrorCode();
@@ -271,7 +286,6 @@ public class Query_Engine {
             if (query.startsWith("'") && query.endsWith("'")) {
                 System.out.println("Phrase Search");
                 try {
-                    addTrend(query, country);
                     rs = phraseSearch(query);
                 }
                 catch (SQLException e )
@@ -281,7 +295,6 @@ public class Query_Engine {
             } else {
                 System.out.println("Normal Search");
                 try {
-                    addTrend(query, country);
                     rs = search(query, false);
                 } catch (SQLException e) {
                     e.getErrorCode();
@@ -419,12 +432,15 @@ public class Query_Engine {
             e.printStackTrace();
         }
     }
+    public void addSuggestion(String query){
+        db.addSuggestion(query);
+    }
 
     public static void main(String[] args) throws SQLException {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
         String country="Egypt";
-        qe.processQuery("bayern munchen",country,false);
+        qe.processQuery("Amir",country,false);
 //        ResultSet rs =db.getTrends("Egypt");
 //        while (rs.next()){
 //            System.out.println(rs.getString(2));

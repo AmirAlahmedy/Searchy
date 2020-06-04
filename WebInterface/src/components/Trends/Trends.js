@@ -69,7 +69,7 @@ const Trends = (props) => {
             <Chart {...props} chartData={{
                 labels: name,
                 datasets: [{
-                    label: name,
+                    label: 'Frequency',
                     backgroundColor: [
                         '#FF6384',
                         '#36A2EB',
