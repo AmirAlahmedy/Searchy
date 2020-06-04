@@ -8,7 +8,7 @@ import * as THREE from 'three';
 class Home extends Component {
 
     state = {
-        country: '',
+        country: 'Egypt',
         webgl: true
     }
 

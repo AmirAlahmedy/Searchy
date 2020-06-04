@@ -78,9 +78,9 @@ class Search extends Component {
                 const last = event.results.length - 1;
                 const command = event.results[last][0].transcript;
                 console.log(command);
-                // query = command;
+                this.setState({ query: command });
                 document.getElementById("search-input").value = command;
-                this.handleChange(null, command);
+                // this.handleChange(null, command);
             };
 
         }
