@@ -290,8 +290,8 @@ public class Query_Engine {
 
         // SORTING PAGES ACCORDING TO SCORES
         Integer [] page_ids = pageIDS.toArray(new Integer[0]);
-        sort(pageScore,page_ids);
-
+        //sort(pageScore,page_ids);
+        quickSort(pageScore,page_ids,0,pageScore.length-1);
 
         int pagesNumber = pageIDS.size();
         System.out.println("Pages IDS Sorted:");
@@ -442,29 +442,87 @@ public class Query_Engine {
         return pageIDS;
     }
 
-    private void sort(double arr[],Integer[] pageIDS)
+    ///////////
+
+    int partition(double arr[],Integer[] pageIDS, int low, int high)
     {
-        int n = arr.length;
-
-        // One by one move boundary of unsorted subarray
-        for (int i = 0; i < n-1; i++)
+        double pivot = arr[high];
+        int i = (low-1); // index of smaller element
+        for (int j=low; j<high; j++)
         {
-            // Find the minimum element in unsorted array
-            int min_idx = i;
-            for (int j = i+1; j < n; j++)
-                if (arr[j] > arr[min_idx])
-                    min_idx = j;
+            // If current element is smaller than the pivot
+            //if (arr[j] < pivot)
+            if(arr[j] > pivot)
+            {
+                i++;
 
-            // Swap the found minimum element with the first
-            // element
-            double temp = arr[min_idx];
-            Integer tempID = pageIDS[min_idx];
-            arr[min_idx] = arr[i];
-            pageIDS[min_idx] = pageIDS[i];
-            arr[i] = temp;
-            pageIDS[i] = tempID;
+                // swap arr[i] and arr[j]
+                double temp = arr[i];
+                int temp2= pageIDS[i];
+
+                arr[i] = arr[j];
+                pageIDS[i] = pageIDS[j];
+
+                arr[j] = temp;
+                pageIDS[j] = temp2;
+            }
+        }
+
+        // swap arr[i+1] and arr[high] (or pivot)
+        double temp = arr[i+1];
+        int temp2= pageIDS[i+1];
+
+        arr[i+1] = arr[high];
+        pageIDS[i+1] = pageIDS[high];
+
+        arr[high] = temp;
+        pageIDS[high] = temp2;
+        return i+1;
+    }
+
+
+    /* The main function that implements QuickSort()
+      arr[] --> Array to be sorted,
+      low  --> Starting index,
+      high  --> Ending index */
+    void quickSort(double arr[],Integer[] pageIDS, int low, int high)
+    {
+        if (low < high)
+        {
+            /* pi is partitioning index, arr[pi] is
+              now at right place */
+            int pi = partition(arr,pageIDS, low, high);
+
+            // Recursively sort elements before
+            // partition and after partition
+            quickSort(arr, pageIDS, low, pi-1);
+            quickSort(arr, pageIDS,pi+1, high);
         }
     }
+    ///////////
+//    private void sort(double arr[],Integer[] pageIDS)
+//    {
+//        int n = arr.length;
+//
+//        // One by one move boundary of unsorted subarray
+//        for (int i = 0; i < n-1; i++)
+//        {
+//            // Find the minimum element in unsorted array
+//            int min_idx = i;
+//            for (int j = i+1; j < n; j++)
+//                if (arr[j] > arr[min_idx])
+//                    min_idx = j;
+//
+//            // Swap the found minimum element with the first
+//            // element
+//            double temp = arr[min_idx];
+//            Integer tempID = pageIDS[min_idx];
+//            arr[min_idx] = arr[i];
+//            pageIDS[min_idx] = pageIDS[i];
+//            arr[i] = temp;
+//            pageIDS[i] = tempID;
+//        }
+//    }
 
     public void addTrend(String query,String country){
         try{
