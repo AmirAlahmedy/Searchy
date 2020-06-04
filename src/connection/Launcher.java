@@ -133,8 +133,8 @@ public class Launcher  implements HttpHandler {
     private String imageDB(String searchQuery, String Country) throws SQLException {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
-
-        ResultSet resultSet = qe.processQuery(searchQuery, Country, true);
+        ArrayList<String> snippets = new ArrayList<>();
+        ResultSet resultSet = qe.processQuery(searchQuery, Country, true,snippets);
         List<Image> data = new ArrayList<>();
         while (resultSet.next()) {
             // 1: src, 2: url
@@ -172,8 +172,8 @@ public class Launcher  implements HttpHandler {
     private String searchDB(String searchQuery, String Country) throws SQLException {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
-
-        ResultSet resultSet = qe.processQuery(searchQuery, Country, false);
+        ArrayList<String> snippets = new ArrayList<>();
+        ResultSet resultSet = qe.processQuery(searchQuery, Country, false,snippets);
         List<Result> data = new ArrayList<>();
         while (resultSet.next()) {
             // 1: id, 2: url, 3: title, 4: body

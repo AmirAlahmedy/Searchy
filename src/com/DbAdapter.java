@@ -263,8 +263,8 @@ public class DbAdapter {
             PreparedStatement preparedStatement = this.connection.prepareStatement(query);
             preparedStatement.setInt(1, pageID);
             resultSet = preparedStatement.executeQuery();
-            resultSet.next();
-            return resultSet.getDouble(1);
+            if(resultSet.next()) {return resultSet.getDouble(1);}
+            return 0.0D;
         } catch (Exception var5) {
             var5.printStackTrace();
             return 0.0D;

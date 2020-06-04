@@ -12,6 +12,8 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.mysql.jdbc.util.ResultSetUtil;
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
@@ -62,8 +64,31 @@ public class Query_Engine {
         }
         return searchTerms;
     }
-    private ResultSet search(String query, boolean images) throws SQLException {
+    private ArrayList<String> removeStopWords(String query){
+        ArrayList<String> searchTerms = new ArrayList<String>();
+        query = query.toLowerCase();
+        List<String> tokens = Arrays.asList(query.split("[^a-z0-9]"));
+        try {
+            for (String token : tokens) {
+                if (!token.equals("") && !stopWords.contains(token)) {
+                    char[] word = token.toCharArray();
+                    int wordLength = token.length();
+                    String term="";
+                    for (int c = 0; c < wordLength; c++) term+=word[c];
+                    searchTerms.add(term);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return searchTerms;
+    }
+
+    private ResultSet search(String query, boolean images, ArrayList<String> snippets) throws SQLException {
         ArrayList<String> searchTerms = stemQuery(query);
+        ArrayList<String> termsNonStemmed = removeStopWords(query);
+        snippets = removeStopWords(query);
 
         Integer [] commonPages = dbSearch(query,images,true);
         ArrayList<Integer> allPagesIDS = new ArrayList<>();
@@ -78,26 +103,30 @@ public class Query_Engine {
             }
         }
         Integer [] page_ids = allPagesIDS.toArray(new Integer[0]);
-        ResultSet resultSet = null;
+
         if(page_ids.length!=0) {
             if (images) {
-                resultSet= this.db.getImagesInfo(page_ids, searchTerms);
-//                    while (resultSet.next()) {
-//                        System.out.println("Image src: "+resultSet.getString(1));
-//                        System.out.println("Image url: "+resultSet.getString(2));
-//                    }
+                return this.db.getImagesInfo(page_ids, searchTerms);
             } else {
-                resultSet = this.db.getPagesInfo(page_ids);
+                ResultSet resultSet = this.db.getPagesInfo(page_ids);
+                try {
+                    getSnippets(snippets, termsNonStemmed, resultSet);
+                }catch (SQLException e)
+                {
+                    e.getErrorCode();
+                }
+                return resultSet;
             }
         }
         else{
             System.out.println("No Results Found!");
         }
-        return resultSet;
+        return null;
     }
 
-    private ResultSet phraseSearch(String query) throws SQLException {
+    private ResultSet phraseSearch(String query, ArrayList<String> snippets) throws SQLException {
 
+        ArrayList<String> termsNonStemmed = removeStopWords(query);
         ResultSet resultSet=null;
         Integer [] page_ids = dbSearch(query,false,true);
         ArrayList<Integer> matched_ids = new ArrayList<>();
@@ -125,8 +154,35 @@ public class Query_Engine {
         System.out.println(matched_ids);
         Integer [] finalIDS = matched_ids.toArray(new Integer[0]);
         resultSet = this.db.getPagesInfo(finalIDS);
-
+        try {
+            getSnippets(snippets, termsNonStemmed, resultSet);
+        }catch (SQLException e)
+        {
+            e.getErrorCode();
+        }
         return resultSet;
+    }
+
+    private void getSnippets(ArrayList<String> snippets, ArrayList<String> termsNonStemmed, ResultSet resultSet) throws SQLException {
+        //int dumb =0;
+        while(resultSet.next()) {
+            //System.out.println(dumb);
+            //dumb++;
+            String body = resultSet.getString(4);
+            StringBuilder snippet = new StringBuilder();
+            for (String term : termsNonStemmed) {
+                ArrayList<Integer> startIndices = findMatches(body.toLowerCase(), term.toLowerCase());
+                if (startIndices.size() != 0) {
+                    for (int i = 0; i < Math.min(startIndices.size(), 6); i++) {
+                        int endIndex = body.indexOf(" ", startIndices.get(i) + 25) == -1 ?
+                                body.length() - 1 : body.indexOf(" ", startIndices.get(i) + 25);
+                        snippet.append(body.substring(startIndices.get(i), endIndex)).append("...");
+                        //System.out.println("Snippet Searched: " + snippet);
+                    }
+                }
+            }
+            snippets.add(snippet.toString());
+        }
     }
 
     private boolean containsPhrase(String query, Integer page_id) throws SQLException {
@@ -140,7 +196,8 @@ public class Query_Engine {
         query = query.toLowerCase();
         pageText = pageText.toLowerCase();
         // APPLY KMP
-        return KMPSearch(query, pageText);
+        return doesItMatch(pageText,query);
+        //return KMPSearch(query, pageText);
     }
 
     private boolean KMPSearch(String pat, String txt)
@@ -248,7 +305,7 @@ public class Query_Engine {
         return page_ids;
     }
 
-    public ResultSet processQuery(String query,String country, boolean images)
+    public ResultSet processQuery(String query,String country, boolean images, ArrayList<String> snippets)
     {
         //Running trends in a different thread
         new Thread(new Runnable() {
@@ -277,7 +334,7 @@ public class Query_Engine {
         {
             System.out.println("Images Search");
             try {
-                rs = search(query,true);
+                rs = search(query,true, snippets);
             } catch (SQLException e) {
                 e.getErrorCode();
             }
@@ -286,7 +343,7 @@ public class Query_Engine {
             if (query.startsWith("'") && query.endsWith("'")) {
                 System.out.println("Phrase Search");
                 try {
-                    rs = phraseSearch(query);
+                    rs = phraseSearch(query, snippets);
                 }
                 catch (SQLException e )
                 {
@@ -295,7 +352,7 @@ public class Query_Engine {
             } else {
                 System.out.println("Normal Search");
                 try {
-                    rs = search(query, false);
+                    rs = search(query, false, snippets);
                 } catch (SQLException e) {
                     e.getErrorCode();
                 }
@@ -436,14 +493,35 @@ public class Query_Engine {
         db.addSuggestion(query);
     }
 
+    private ArrayList<Integer> findMatches(String text, String regex) {
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(text);
+        ArrayList<Integer> startIndices = new ArrayList<>();
+        // Check all occurrences
+        while (matcher.find()) {
+            startIndices.add(matcher.start());
+//            System.out.print("Start index: " + matcher.start());
+//            System.out.print(" End index: " + matcher.end());
+//            System.out.println(" Found: " + matcher.group());
+        }
+        return startIndices;
+    }
+    private boolean doesItMatch(String text, String phrase) {
+        Pattern pattern = Pattern.compile(phrase);
+        Matcher matcher = pattern.matcher(text);
+        while (matcher.find()) {
+            return true;
+        }
+        return false;
+    }
+
     public static void main(String[] args) throws SQLException {
         DbAdapter db = new DbAdapter();
         Query_Engine qe = new Query_Engine(db);
         String country="Egypt";
-        qe.processQuery("Amir",country,false);
-//        ResultSet rs =db.getTrends("Egypt");
-//        while (rs.next()){
-//            System.out.println(rs.getString(2));
-//        }
+        ArrayList<String> snippets = new ArrayList<>();
+        qe.processQuery("'Premier League'",country,false, snippets);
+        System.out.println(snippets);
+
     }
 }
