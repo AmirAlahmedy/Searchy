@@ -173,7 +173,7 @@ public class Query_Engine {
             for (String term : termsNonStemmed) {
                 ArrayList<Integer> startIndices = findMatches(body.toLowerCase(), term.toLowerCase());
                 if (startIndices.size() != 0) {
-                    for (int i = 0; i < Math.min(startIndices.size(), 6); i++) {
+                    for (int i = 0; i < Math.min(startIndices.size(), 4); i++) {
                         int endIndex = body.indexOf(" ", startIndices.get(i) + 25) == -1 ?
                                 body.length() - 1 : body.indexOf(" ", startIndices.get(i) + 25);
                         snippet.append(body.substring(startIndices.get(i), endIndex)).append("...");

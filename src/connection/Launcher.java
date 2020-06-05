@@ -182,7 +182,10 @@ public class Launcher  implements HttpHandler {
             String url   = resultSet.getString(2);
             String title = resultSet.getString(3);
             //String body  = resultSet.getString(4).substring(200, 500);
-            String body = snippets.get(dummyIndexForSnippets++);
+
+            String body = snippets.get(dummyIndexForSnippets).substring(0,Math.min(300,snippets.get(dummyIndexForSnippets).length()-1));
+            dummyIndexForSnippets++;
+
             System.out.println("--------------------------------------------");
             System.out.println(id);
             System.out.println(url);
