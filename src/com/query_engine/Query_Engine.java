@@ -110,7 +110,7 @@ public class Query_Engine {
             } else {
                 ResultSet resultSet = this.db.getPagesInfo(page_ids);
                 try {
-                    getSnippets(snippets, termsNonStemmed, resultSet);
+                    snippets=getSnippets(termsNonStemmed, resultSet);
                 }catch (SQLException e)
                 {
                     e.getErrorCode();
@@ -155,7 +155,7 @@ public class Query_Engine {
         Integer [] finalIDS = matched_ids.toArray(new Integer[0]);
         resultSet = this.db.getPagesInfo(finalIDS);
         try {
-            getSnippets(snippets, termsNonStemmed, resultSet);
+            snippets=getSnippets(termsNonStemmed, resultSet);
         }catch (SQLException e)
         {
             e.getErrorCode();
@@ -163,8 +163,9 @@ public class Query_Engine {
         return resultSet;
     }
 
-    private void getSnippets(ArrayList<String> snippets, ArrayList<String> termsNonStemmed, ResultSet resultSet) throws SQLException {
+    private ArrayList<String> getSnippets(ArrayList<String> termsNonStemmed, ResultSet resultSet) throws SQLException {
         //int dumb =0;
+        ArrayList<String> snippets = new ArrayList<>();
         while(resultSet.next()) {
             //System.out.println(dumb);
             //dumb++;
@@ -183,6 +184,7 @@ public class Query_Engine {
             }
             snippets.add(snippet.toString());
         }
+        return snippets;
     }
 
     private boolean containsPhrase(String query, Integer page_id) throws SQLException {
