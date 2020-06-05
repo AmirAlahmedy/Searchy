@@ -88,7 +88,7 @@ public class Query_Engine {
     private ResultSet search(String query, boolean images, ArrayList<String> snippets) throws SQLException {
         ArrayList<String> searchTerms = stemQuery(query);
         ArrayList<String> termsNonStemmed = removeStopWords(query);
-        snippets = removeStopWords(query);
+//        snippets = removeStopWords(query);
 
         Integer [] commonPages = dbSearch(query,images,true);
         ArrayList<Integer> allPagesIDS = new ArrayList<>();
@@ -115,6 +115,7 @@ public class Query_Engine {
                 {
                     e.getErrorCode();
                 }
+                resultSet.beforeFirst();
                 return resultSet;
             }
         }
@@ -156,6 +157,7 @@ public class Query_Engine {
         resultSet = this.db.getPagesInfo(finalIDS);
         try {
             getSnippets(snippets, termsNonStemmed, resultSet);
+            resultSet.beforeFirst();
         }catch (SQLException e)
         {
             e.getErrorCode();
@@ -579,7 +581,7 @@ public class Query_Engine {
         String country="Egypt";
         ArrayList<String> snippets = new ArrayList<>();
         qe.processQuery("'Premier League'",country,false, snippets);
-        System.out.println(snippets);
+        System.out.println(snippets.size());
 
     }
 }
