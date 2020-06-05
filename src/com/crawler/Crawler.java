@@ -113,16 +113,6 @@ public class Crawler implements Runnable{
 
                     if(REP)
                     {
-                        //  Add allowed Pivots from robots.txt
-//                        myPivotList.addAllAbsent(r.getAllowedPivots());
-//                        // Adding them to the crawler backup
-//                        for(Pivot temp : r.getAllowedPivots()){
-//                            if(backupCrawledPages < PAGES_TO_CRAWL) {
-//                                db.addPageToBackup(temp.getPivot());
-//                                backupCrawledPages++;
-//                            }
-//                        }
-                        //  Apply the specified delay from robots.txt
                         sleep(Math.round(r.getCrawlDelay()));
                     }
                     disallowedPivotList = r.getDisallowedPivots();
@@ -283,15 +273,6 @@ public class Crawler implements Runnable{
                     CopyOnWriteArrayList <String> disallowedPivotList;
                     if(REP)
                     {
-                        //  Add allowed Pivots from robots.txt
-//                        myPivotList.addAllAbsent(r.getAllowedPivots());
-//                        for(Pivot temp : r.getAllowedPivots()){
-//                            if(backupCrawledPages < PAGES_TO_CRAWL) {
-//                                db.addPageToBackup(temp.getPivot());
-//                                backupCrawledPages++;
-//                            }
-//                        }
-                        //  Apply the specified delay from robots.txt
                         sleep(Math.round(r.getCrawlDelay()));
                     }
                     disallowedPivotList = r.getDisallowedPivots();
@@ -326,7 +307,6 @@ public class Crawler implements Runnable{
                     }
                     //After crawling all the links remove it from the backup database
                     db.removePageFromBackup(p.getPivot());
-                    //backupCrawledPages--;
                 }
                 myPivotList.remove(p);
                 //TODO: Handle exceptions with descriptive messages.
@@ -335,37 +315,18 @@ public class Crawler implements Runnable{
                 //e.printStackTrace();
                 myPivotList.remove(p);
             }
-//            }catch (SSLHandshakeException e){
-//                //ignore it
-//                myPivotList.remove(p);
-//            }catch (SSLException e) {
-//                myPivotList.remove(p);
-//            }
             catch (SocketException e )
             {
                 e.printStackTrace();
-                //e.printStackTrace();
-            //}
-//            } catch (IllegalArgumentException e){
-//                // ignore it
-//                e.printStackTrace();
-
             } catch (MalformedURLException e) {
                 System.err.println("Bad URL:  " + p.getPivot());
                 myPivotList.remove(p);
             } catch (UnknownHostException e) {
                 System.err.println("Unable to connect to " + p.getPivot() + " due to weak internet connection.");
-//            } catch( UnsupportedMimeTypeException e){
-//                myPivotList.remove(p);
-//            } catch (IOException e) {
-//                e.printStackTrace();
             } catch (Exception e){
                 //e.printStackTrace();
                 myPivotList.remove(p);
             }
-//            } catch (final Exception | Error ignored){
-//                myPivotList.remove(p);
-//            }
         }
         crawl(myPivotList,debugging);
 
@@ -386,26 +347,20 @@ public class Crawler implements Runnable{
     public void run() {
         int threadNumber = Integer.parseInt(Thread.currentThread().getName());
         int pivotsPerThread = pivotList.size() / noThreads;
-        //System.out.println(noThreads);
         System.out.println(threadNumber);
 
-        for (int i = 0; i < noThreads; i++) {
-            if (threadNumber == i) {
-                CopyOnWriteArrayList<Pivot> myPivots = new CopyOnWriteArrayList<>();
-                if(threadNumber == noThreads-1){
-                    for (int j = pivotsPerThread * i; j < pivotList.size(); j++) {
-                        myPivots.add(pivotList.get(j));
-                    }
-                } else {
-                    for (int j = pivotsPerThread * i; j < pivotsPerThread * (i + 1); j++) {
-                        myPivots.add(pivotList.get(j));
-                    }
-                }
-                //System.out.println(myPivots.get(0).getPivot());
-                crawl(myPivots,0);
+        CopyOnWriteArrayList<Pivot> myPivots = new CopyOnWriteArrayList<>();
+        if(threadNumber == noThreads-1){
+            for (int j = pivotsPerThread * threadNumber; j < pivotList.size(); j++) {
+                myPivots.add(pivotList.get(j));
             }
-
+        } else {
+            for (int j = pivotsPerThread * threadNumber; j < pivotsPerThread * (threadNumber + 1); j++) {
+                myPivots.add(pivotList.get(j));
+            }
         }
+        //System.out.println(myPivots.get(0).getPivot());
+        crawl(myPivots,0);
     }
 
     public void deleteOldData(){
@@ -454,10 +409,6 @@ public class Crawler implements Runnable{
         String recrawl = input.nextLine();
         input.close();
 
-        //if the number of threads is more than the seeds size this will be not useful
-//        if(number > pivots.size()){
-//            number = pivots.size();
-//        }
         boolean recrawlFlag = false;
         if(recrawl.equals("y"))
             recrawlFlag = true;

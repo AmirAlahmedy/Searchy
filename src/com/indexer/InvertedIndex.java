@@ -19,9 +19,7 @@ public class InvertedIndex implements Runnable {
     // Constructor of the inverted index of a specific page.
     public InvertedIndex(int noThreads) {
         this.dbAdapter = new DbAdapter();
-        //this.resultSet = this.dbAdapter.readPages();
-        this.pagesCount = this.dbAdapter.pagesRows();
-        //this.pagesCount = 1009;
+        this.pagesCount = this.dbAdapter.pagesRowsNotIndexed();
         this.noThreads=noThreads;
         try{
             stopWords= Files.readAllLines(Paths.get("src/com/indexer/stopWords.txt"));
@@ -40,46 +38,36 @@ public class InvertedIndex implements Runnable {
 
             int wordsInPage = 0;
             int pageId = myResultSet.getInt("id");
+            // FOR DEBUGGING printing when a thread starts a new page
             System.out.println(Thread.currentThread().getName() + "Started page No." + Integer.toString(pageId));
 
-            //int words = resultSet.getInt("words");
+
             String parsedContent;
-            //Delete old index if found
+            // Delete old index with the same page ID if found
             dbAdapter.deleteOldIndex(pageId);
 
             // Depends on the order of the columns in the pages table.
             for (int i = 3; i <= 11; ++i) {
                 parsedContent = myResultSet.getString(i);
 
-                // 1. Lowercase all words.
+                // Lowercase all words.
                 parsedContent = parsedContent.toLowerCase();
 
-                if (i == 11) {         // to extract the the image alt and src only
+                if (i == 11) {         // To extract the the image alt and src only
                     String[] srcs = myResultSet.getString(12).split("\n\n");
                     String[] alts = parsedContent.split("\n\n");
-                    //System.out.println(Integer.toString(srcs.length) + "    " +Integer.toString(alts.length));
+
                     int counter = 0;
                     for (String img : alts) {
                         if (!img.equals("")) {
-//                            if(!srcs[counter].startsWith("http")){
-//                                counter = counter + 1;
-//                                continue;
-//                            }
-                            // the first element is the alt and the second is the src
-                            //img = img.replaceAll("[^a-z0-9]", " ");
-                            //List<String> tokens = Arrays.asList(img.split("[^a-z0-9]"));
+                            // Splitting the text and then removing stop words
                             List<String> tokens = new ArrayList<>(Arrays.asList(img.split("[^a-z0-9]")));
                             tokens.removeAll(stopWords);
                             try {
-                                //Stemmer stemmer = new Stemmer();
                                 for (String token : tokens) {
-                                    if (!token.equals("")) { //&& !stopWords.contains(token)) {
-//                                        char[] word = token.toCharArray();
-//                                        int wordLength = token.length();
-//                                        for (int c = 0; c < wordLength; c++) stemmer.add(word[c]);
-//                                        stemmer.stem();
+                                    if (!token.equals("")) {
+                                        // Adding the stemmed token to the db
                                         dbAdapter.addNewImg(pageId, stemmer.stem(token), srcs[counter]);
-
                                     }
                                 }
                                 counter = counter + 1;
@@ -92,25 +80,14 @@ public class InvertedIndex implements Runnable {
 
                 } else {
 
-                    // 2. Get all alphanumeric tokens.
-                    //parsedContent = parsedContent.replaceAll("[^a-z0-9]", " ");
-
-
-                    // 3. Filter out stop words and stem each token.
-                    // Extract tokens from the page content into a list.
-
-                    //List<String> tokens = Arrays.asList(parsedContent.split("[^a-z0-9]"));
+                    // Splitting the text and then removing stop words
                     List<String> tokens = new ArrayList<>(Arrays.asList(parsedContent.split("[^a-z0-9]")));
                     tokens.removeAll(stopWords);
                     try {
-                        //Stemmer stemmer = new Stemmer();
                         for (String token : tokens) {
-                            if (!token.equals("")) { //&& !stopWords.contains(token)) {
+                            if (!token.equals("")) {
+                                // Increasing the words count in the page and adding the stemmed token to the db
                                 wordsInPage++;
-//                                char[] word = token.toCharArray();
-//                                int wordLength = token.length();
-//                                for (int c = 0; c < wordLength; c++) stemmer.add(word[c]);
-//                                stemmer.stem();
                                 dbAdapter.addNewTerm(stemmer.stem(token), pageId, i);
                             }
                         }
@@ -122,15 +99,13 @@ public class InvertedIndex implements Runnable {
                 }
             }
             // End of one document
-            //Need to set page word count & update the right TF by dividing on the total words
-            //dbAdapter.updatePageWordCount(pageId,wordsInPage);
+            // Need to set page word count & update the right TF by dividing on the total words
+            // Then marking the page as indexed
             dbAdapter.updateTF(pageId, wordsInPage);
             dbAdapter.markPageAsIndexed(pageId);
+            //FOR DEBUGGING printing the page ID that finished
             System.out.println(pageId);
         }
-        //End of all documents
-        //Need to set idf
-        //dbAdapter.setIDF();
     }
 
     @Override
@@ -138,26 +113,24 @@ public class InvertedIndex implements Runnable {
     public void run() {
         int threadNumber = Integer.parseInt(Thread.currentThread().getName());
         int pagesPerThread = pagesCount / noThreads;
-        //System.out.println(noThreads);
+        // FOR DEBUGGING printing the thread number to make sure it started
         System.out.println(threadNumber);
         ResultSet myResultSet;
-        //for (int i = 0; i < noThreads; i++) {
-            //if (threadNumber == i) {
-                if(threadNumber == noThreads-1){
-                    int remainingPages = pagesCount - (noThreads-1)*pagesPerThread;
-                    myResultSet = this.dbAdapter.readPagesThreads(remainingPages,threadNumber*pagesPerThread);
-                } else {
-                    myResultSet = this.dbAdapter.readPagesThreads(pagesPerThread,threadNumber*pagesPerThread);
-                }
-                //System.out.println(myPivots.get(0).getPivot());
-                try {
-                    parseCollection(myResultSet);
-                } catch (SQLException throwable) {
-                    throwable.printStackTrace();
-                }
-            //}
 
-        //}
+        //Splitting the table on the threads using limit and offset in mysql
+        if(threadNumber == noThreads-1){
+            //If it is the last thread it needs to take the remaining pages
+            int remainingPages = pagesCount - (noThreads-1)*pagesPerThread;
+            myResultSet = this.dbAdapter.readPagesThreads(remainingPages,threadNumber*pagesPerThread);
+        } else {
+            myResultSet = this.dbAdapter.readPagesThreads(pagesPerThread,threadNumber*pagesPerThread);
+        }
+        try {
+            //Each thread calling parse collection with its result set
+            parseCollection(myResultSet);
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
     }
 
     public void setIDFAllTerms() {
@@ -171,8 +144,7 @@ public class InvertedIndex implements Runnable {
         System.out.print("Enter the number of threads: ");
         int number = input.nextInt();
         input.close();
-//
-//
+
         Runnable indexer = new InvertedIndex(number);
         ArrayList<Thread> threadArr = new ArrayList<>();
         for (int i = 0; i < number; i++) {
@@ -189,8 +161,6 @@ public class InvertedIndex implements Runnable {
         }
         long finish = System.currentTimeMillis();
         System.out.println(finish - start);
-//        System.out.println("Started IDF Setting");
-//        ((InvertedIndex) indexer).setIDFAllTerms();
 
     }
 

@@ -172,7 +172,7 @@ public class DbAdapter {
     public ResultSet readPagesThreads(int size,int offset) {
         ResultSet resultSet = null;
         try {
-            String query = "SELECT * FROM `pages` LIMIT ? OFFSET ?";
+            String query = "SELECT * FROM `pages` WHERE indexed=0 LIMIT ? OFFSET ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1,size);
             preparedStatement.setInt(2,offset);
@@ -213,6 +213,21 @@ public class DbAdapter {
         ResultSet resultSet = null;
         try {
             String query = "SELECT COUNT(*) FROM `pages`";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            return resultSet.getInt(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    public int pagesRowsNotIndexed() {
+        ResultSet resultSet = null;
+        try {
+            String query = "SELECT COUNT(*) FROM `pages` WHERE indexed=0";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             resultSet = preparedStatement.executeQuery();
             resultSet.next();

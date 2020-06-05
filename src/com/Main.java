@@ -31,78 +31,25 @@ public class Main {
     ///////////
     public static void main(String[] args) throws IOException {
 
-        double tita [] ={0.1,0.02,0.3,0.9,0.05,0.2,1.0,2.2,0.008,0.023,0.014,0.5,4.9};
-        Integer ids [] = {1,2,3,4,5,6,7,8,9,10,11,12,13};
-        quickSort(tita,ids,0,tita.length-1);
-        //sort(tita,ids);
-        int i=0;
-        for(double t : tita)
-        {
-            System.out.print(t+ " ");
 
-        }
-        System.out.println();
-        for(Integer id : ids) {
-            System.out.print(id + " ");
-        }
+//        double tita [] ={0.1,0.02,0.3,0.9,0.05,0.2,1.0,2.2,0.008,0.023,0.014,0.5,4.9};
+//        Integer ids [] = {1,2,3,4,5,6,7,8,9,10,11,12,13};
+//        quickSort(tita,ids,0,tita.length-1);
+//        //sort(tita,ids);
+//        int i=0;
+//        for(double t : tita)
+//        {
+//            System.out.print(t+ " ");
+//
+//        }
+//        System.out.println();
+//        for(Integer id : ids) {
+//            System.out.print(id + " ");
+//        }
 //        DbAdapter db = new DbAdapter();
 //        Query_Engine qe = new Query_Engine(db);
 //        String country="Egypt";
 //        qe.processQuery("'The Premier League'",country,false);
-
-//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
-//        String date = simpleDateFormat.format(new Date());
-//        System.out.println("Delw2tyyyy   "+date);
-//
-//
-//        String test ="1";
-//        try {
-//            System.out.println(Float.parseFloat(test));
-//        } catch (NumberFormatException e) {
-//            System.out.println("Ma3lesh");
-//        }
-
-//        Document doc = Jsoup.connect("https://www.si.com/soccer/2020/05/27/fake-crowd-noise-soccer-tv-broadcasts-bundesliga").get();
-//        System.out.println(doc.select("p").text().length()
-//                + doc.select("li").text().length()
-//                + doc.select("ol").text().length()
-//                + doc.select("td").text().length()
-//                + doc.select("th").text().length()
-//                + doc.select("ul").text().length());
-//        System.out.println("bodyyyy");
-//        System.out.println( doc.body().text().length());
-
-//        File database = new File("src/com/crawler/GeoLite2-Country.mmdb");
-//        DatabaseReader reader = new DatabaseReader.Builder(database).build();
-//        try {
-//            InetAddress ipAddress = InetAddress.getByName("www.nbcsports.com");
-//            System.out.println(ipAddress.toString());
-//            CountryResponse response = reader.country(ipAddress);
-//            Country country = response.getCountry();
-//            System.out.println(country.getName());
-//
-//        } catch (GeoIp2Exception e) {
-//            e.printStackTrace();
-//        }
-
-        // Java program to demonstrate
-// how to fetch public IP Address
-//        Pivot p =new Pivot("https://accounts.bcc/");
-//        System.out.println(p.getPivot().substring(1));
-
-
-
-
-        //System.out.println(testing());
-//        DbAdapter dbAdapter = new DbAdapter();
-//        ResultSet resultSet = dbAdapter.getSuggestions("h");
-//        try {
-//            while (resultSet.next()) {
-//                System.out.println(resultSet.getString("value"));
-//            }
-//        } catch (SQLException throwables) {
-//            throwables.printStackTrace();
-//        }
 
     }
 
@@ -187,20 +134,5 @@ public class Main {
             quickSort(arr, pageIDS, low, pi-1);
             quickSort(arr, pageIDS,pi+1, high);
         }
-    }
-    public static int testing(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                System.out.println("Ana s7eeeeeit");
-
-            }
-        }).start();
-        return 1;
     }
 }
