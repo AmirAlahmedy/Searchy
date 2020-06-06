@@ -95,7 +95,7 @@ public class Query_Engine {
         for (Integer page_id : commonPages) {
             allPagesIDS.add(page_id);
         }
-        System.out.println("Common images bas:"+allPagesIDS);
+        //System.out.println("Common images bas:"+allPagesIDS);
         Integer [] restOfThePages = dbSearch(query,images,false);
         for (Integer page_id : restOfThePages) {
             if (!allPagesIDS.contains(page_id)) {
@@ -120,7 +120,7 @@ public class Query_Engine {
             }
         }
         else{
-            System.out.println("No Results Found!");
+            //System.out.println("No Results Found!");
         }
         return null;
     }
@@ -138,8 +138,6 @@ public class Query_Engine {
                 matched_ids.add(id);
             }
         }
-        System.out.println("\nPhrase Matched IDS ONLY:");
-        System.out.println(matched_ids);
         for (Integer page_id : page_ids) {
             if (!matched_ids.contains(page_id)) {
                 matched_ids.add(page_id);
@@ -151,8 +149,7 @@ public class Query_Engine {
                 matched_ids.add(page_id);
             }
         }
-        System.out.println("\nAll Matched IDS Sorted phrase first:");
-        System.out.println(matched_ids);
+
         Integer [] finalIDS = matched_ids.toArray(new Integer[0]);
         resultSet = this.db.getPagesInfo(finalIDS);
         try {
@@ -166,10 +163,7 @@ public class Query_Engine {
     }
 
     private void getSnippets(ArrayList<String> snippets, ArrayList<String> termsNonStemmed, ResultSet resultSet) throws SQLException {
-        //int dumb =0;
         while(resultSet.next()) {
-            //System.out.println(dumb);
-            //dumb++;
             String body = resultSet.getString(4);
             StringBuilder snippet = new StringBuilder();
             for (String term : termsNonStemmed) {
@@ -179,7 +173,6 @@ public class Query_Engine {
                         int endIndex = body.indexOf(" ", startIndices.get(i) + 25) == -1 ?
                                 body.length() - 1 : body.indexOf(" ", startIndices.get(i) + 25);
                         snippet.append(body.substring(startIndices.get(i), endIndex)).append("...");
-                        //System.out.println("Snippet Searched: " + snippet);
                     }
                 }
             }
@@ -202,90 +195,17 @@ public class Query_Engine {
         //return KMPSearch(query, pageText);
     }
 
-    private boolean KMPSearch(String pat, String txt)
-    {
-        boolean found = false;
-
-        int M = pat.length();
-        int N = txt.length();
-
-        // create lps[] that will hold the longest
-        // prefix suffix values for pattern
-        int lps[] = new int[M];
-        int j = 0; // index for pat[]
-
-        // Preprocess the pattern (calculate lps[]
-        // array)
-        computeLPSArray(pat, M, lps);
-
-        int i = 0; // index for txt[]
-        while (i < N) {
-            if (pat.charAt(j) == txt.charAt(i)) {
-                j++;
-                i++;
-            }
-            if (j == M) {
-                found = true;
-                j = lps[j - 1];
-                //return found;
-            }
-
-            // mismatch after j matches
-            else if (i < N && pat.charAt(j) != txt.charAt(i)) {
-                // Do not match lps[0..lps[j-1]] characters,
-                // they will match anyway
-                if (j != 0)
-                    j = lps[j - 1];
-                else
-                    i = i + 1;
-            }
-        }
-        return found;
-    }
-
-    private void computeLPSArray(String pat, int M, int lps[])
-    {
-        // length of the previous longest prefix suffix
-        int len = 0;
-        int i = 1;
-        lps[0] = 0; // lps[0] is always 0
-
-        // the loop calculates lps[i] for i = 1 to M-1
-        while (i < M) {
-            if (pat.charAt(i) == pat.charAt(len)) {
-                len++;
-                lps[i] = len;
-                i++;
-            }
-            else // (pat[i] != pat[len])
-            {
-                // This is tricky. Consider the example.
-                // AAACAAAA and i = 7. The idea is similar
-                // to search step.
-                if (len != 0) {
-                    len = lps[len - 1];
-
-                    // Also, note that we do not increment
-                    // i here
-                }
-                else // if (len == 0)
-                {
-                    lps[i] = len;
-                    i++;
-                }
-            }
-        }
-    }
+//
 
     private Integer [] dbSearch(String query,boolean images, boolean common) throws SQLException {
 
         // STEMMING THE QUERY
         ArrayList<String> searchTerms = stemQuery(query);
-        System.out.println(searchTerms);
+        //System.out.println(searchTerms);
 
         //  GETTING PAGES THAT ARE COMMON IN ALL TERMS
         ArrayList <Integer> pageIDS = findCommonPagesIDS(searchTerms, images, common);
-        System.out.println(pageIDS);
+        //System.out.println(pageIDS);
 
         // CALCULATING PAGES SCORES
         double [] pageScore = calculatePageScore(pageIDS,searchTerms);
@@ -295,14 +215,7 @@ public class Query_Engine {
         //sort(pageScore,page_ids);
         quickSort(pageScore,page_ids,0,pageScore.length-1);
 
-        int pagesNumber = pageIDS.size();
-        System.out.println("Pages IDS Sorted:");
-        for(int i=0; i<pagesNumber;i++)
-        {
-            System.out.print(page_ids[i]+" ");
-            //System.out.print(pageScore[i]+" ");
-        }
-        System.out.println();
+        //int pagesNumber = pageIDS.size();
 
         return page_ids;
     }
@@ -375,7 +288,7 @@ public class Query_Engine {
             if(IDF==0.0D)
             {
                 IDF=this.db.setTermIDF(searchTerms.get(i),this.alldocs);
-                System.out.println("IDF set to :" + IDF);
+                // System.out.println("IDF set to :" + IDF);
             }
             for (int j = 0; j < pagesNumber; j++) {
                 Double contextScore = 0.0D;
@@ -417,7 +330,7 @@ public class Query_Engine {
                     pageScore[j] += (IDF * TF * pageRank) + contextScore;
                 }
             }
-            System.out.println(TermRow);
+            //System.out.println(TermRow);
         }
         return pageScore;
     }
@@ -439,7 +352,7 @@ public class Query_Engine {
             }
         }
         catch( SQLException e){
-            System.out.println(e.getErrorCode());
+            //System.out.println(e.getErrorCode());
         }
         return pageIDS;
     }
@@ -580,8 +493,86 @@ public class Query_Engine {
         Query_Engine qe = new Query_Engine(db);
         String country="Egypt";
         ArrayList<String> snippets = new ArrayList<>();
-        qe.processQuery("'Premier League'",country,false, snippets);
-        System.out.println(snippets.size());
+        long now = System.currentTimeMillis();
+        System.out.println(now);
+        qe.processQuery("Premier League",country,false, snippets);
+        long after = System.currentTimeMillis();
+        System.out.println(after-now);
+
 
     }
 }
+//    private boolean KMPSearch(String pat, String txt)
+//    {
+//        boolean found = false;
+//
+//        int M = pat.length();
+//        int N = txt.length();
+//
+//        // create lps[] that will hold the longest
+//        // prefix suffix values for pattern
+//        int lps[] = new int[M];
+//        int j = 0; // index for pat[]
+//
+//        // Preprocess the pattern (calculate lps[]
+//        // array)
+//        computeLPSArray(pat, M, lps);
+//
+//        int i = 0; // index for txt[]
+//        while (i < N) {
+//            if (pat.charAt(j) == txt.charAt(i)) {
+//                j++;
+//                i++;
+//            }
+//            if (j == M) {
+//                found = true;
+//                j = lps[j - 1];
+//                //return found;
+//            }
+//
+//            // mismatch after j matches
+//            else if (i < N && pat.charAt(j) != txt.charAt(i)) {
+//                // Do not match lps[0..lps[j-1]] characters,
+//                // they will match anyway
+//                if (j != 0)
+//                    j = lps[j - 1];
+//                else
+//                    i = i + 1;
+//            }
+//        }
+//        return found;
+//    }
+//
+//    private void computeLPSArray(String pat, int M, int lps[])
+//    {
+//        // length of the previous longest prefix suffix
+//        int len = 0;
+//        int i = 1;
+//        lps[0] = 0; // lps[0] is always 0
+//
+//        // the loop calculates lps[i] for i = 1 to M-1
+//        while (i < M) {
+//            if (pat.charAt(i) == pat.charAt(len)) {
+//                len++;
+//                lps[i] = len;
+//                i++;
+//            }
+//            else // (pat[i] != pat[len])
+//            {
+//                // This is tricky. Consider the example.
+//                // AAACAAAA and i = 7. The idea is similar
+//                // to search step.
+//                if (len != 0) {
+//                    len = lps[len - 1];
+//
+//                    // Also, note that we do not increment
+//                    // i here
+//                }
+//                else // if (len == 0)
+//                {
+//                    lps[i] = len;
+//                    i++;
+//                }
+//            }
+//        }
+//    }
